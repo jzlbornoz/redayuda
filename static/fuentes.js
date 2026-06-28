@@ -22,15 +22,27 @@ const pagerLabel = $("pagerLabel");
 const prevButton = $("prevButton");
 const nextButton = $("nextButton");
 
-const drawer = $("drawer");
-const drawerBackdrop = $("drawerBackdrop");
 const drawerBody = $("drawerBody");
 const drawerTitle = $("drawerTitle");
 const drawerType = $("drawerType");
+const recordOffcanvasEl = $("recordOffcanvas");
+const recordOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(recordOffcanvasEl);
 
 const state = { sourceId: null, q: "", recordType: "", limit: 25, offset: 0 };
 let allSources = [];
 const detailCache = new Map();
+
+// ---------- etiquetas ----------
+const typeLabels = {
+  persona_desaparecida: "Persona desaparecida",
+  persona_hospitalizada: "Persona localizada",
+  centro_acopio: "Centro de acopio",
+  centro_donacion: "Centro de donacion",
+  recurso: "Recurso",
+};
+function typeLabel(value) {
+  return typeLabels[value] || value || "—";
+}
 
 // ---------- utils ----------
 function esc(v) {
@@ -48,26 +60,88 @@ function fmtDate(v) {
   if (Number.isNaN(d.getTime())) return "—";
   return new Intl.DateTimeFormat("es-VE", { dateStyle: "medium", timeStyle: "short" }).format(d);
 }
-function msg(el, type, title, body = "") {
-  el.innerHTML = `<div class="message ${type === "error" ? "error" : ""}">
-    <strong>${esc(title)}</strong>${body ? `<p>${esc(body)}</p>` : ""}</div>`;
+function alertBox(el, type, title, body = "") {
+  // Informativos/vacios en gris (alert-secondary), nunca alert-info azul.
+  const cls = type === "danger" ? "alert-danger" : type === "warning" ? "alert-warning" : "alert-secondary";
+  const icon = type === "danger" ? "exclamation-triangle" : type === "warning" ? "exclamation-circle" : "info-circle";
+  el.innerHTML = `<div class="alert ${cls} d-flex gap-2" role="alert">
+      <i class="bi bi-${icon} mt-1" aria-hidden="true"></i>
+      <div><strong>${esc(title)}</strong>${body ? `<div class="small mb-0">${esc(body)}</div>` : ""}</div>
+    </div>`;
 }
-function skeleton(n, cls) {
-  return Array.from({ length: n }, () => `<div class="${cls}"></div>`).join("");
+function emptyState(icon, title, body, cta = "") {
+  return `<div class="empty-state">
+      <i class="bi bi-${icon}" aria-hidden="true"></i>
+      <strong class="d-block mb-1">${esc(title)}</strong>
+      <span class="text-muted">${esc(body)}</span>
+      ${cta}
+    </div>`;
+}
+
+// Skeleton de cards de fuente (placeholder-glow)
+function sourceSkeleton(n) {
+  const one = `
+    <div class="col">
+      <div class="card h-100 placeholder-glow">
+        <div class="card-body">
+          <span class="placeholder col-7 mb-2"></span>
+          <span class="placeholder col-4 d-block mb-3"></span>
+          <span class="placeholder col-10"></span>
+          <span class="placeholder col-8"></span>
+        </div>
+        <div class="card-footer placeholder-glow"><span class="placeholder col-6"></span></div>
+      </div>
+    </div>`;
+  return Array.from({ length: n }, () => one).join("");
+}
+function recordSkeleton(n) {
+  const one = `
+    <div class="list-group-item placeholder-glow">
+      <span class="placeholder col-6 d-block mb-2"></span>
+      <span class="placeholder col-4 d-block"></span>
+    </div>`;
+  return Array.from({ length: n }, () => one).join("");
+}
+
+// ---------- estado de salud (navbar) ----------
+async function loadHealth() {
+  const el = $("healthStatus");
+  if (!el) return;
+  try {
+    const res = await fetch("/api/network/stats");
+    const data = await res.json();
+    const total = data.total_records ?? 0;
+    el.textContent = total ? "Indice activo" : "Indice vacio";
+    el.className = total ? "status-pill status-ok" : "status-pill status-warn";
+  } catch {
+    el.textContent = "Sin conexion";
+    el.className = "status-pill status-warn";
+  }
+}
+
+// ---------- navbar activo ----------
+function markActiveNav() {
+  document.querySelectorAll("[data-nav]").forEach((a) => {
+    if (a.getAttribute("href") === location.pathname) {
+      a.classList.add("active");
+      a.setAttribute("aria-current", "page");
+    }
+  });
 }
 
 // ---------- listado de fuentes ----------
 async function loadSources() {
   sourcesMessage.innerHTML = "";
-  sourcesList.innerHTML = skeleton(6, "skeleton-row");
+  sourcesList.innerHTML = sourceSkeleton(6);
   try {
     const res = await fetch("/api/sources");
+    if (!res.ok) throw new Error("HTTP " + res.status);
     allSources = await res.json();
     renderStats();
     renderSources();
   } catch (err) {
     sourcesList.innerHTML = "";
-    msg(sourcesMessage, "error", "No se pudieron cargar las fuentes", String(err));
+    alertBox(sourcesMessage, "danger", "No se pudieron cargar las fuentes", String(err));
   }
 }
 
@@ -94,8 +168,11 @@ function renderSources() {
   });
 
   if (!list.length) {
-    sourcesList.innerHTML = `<div class="empty-state"><strong>Sin resultados</strong>
-      ${allSources.length ? "Ninguna fuente coincide con el filtro." : "Aún no hay fuentes registradas."}</div>`;
+    sourcesList.innerHTML = `<div class="col-12">${emptyState(
+      "search",
+      "Sin resultados",
+      allSources.length ? "Ninguna fuente coincide con el filtro." : "Aún no hay fuentes registradas."
+    )}</div>`;
     return;
   }
 
@@ -106,20 +183,29 @@ function renderSources() {
 }
 
 function card(s) {
+  const status = s.enabled
+    ? `<span class="badge text-bg-success"><i class="bi bi-broadcast me-1" aria-hidden="true"></i>Activa</span>`
+    : `<span class="badge text-bg-secondary">Inactiva</span>`;
   return `
-    <button class="source-card ${s.enabled ? "" : "is-disabled"}" data-source="${esc(s.id)}">
-      <div class="sc-top">
-        <h2 class="sc-name">${esc(s.name)}</h2>
-        <span class="sc-status ${s.enabled ? "" : "off"}" title="${s.enabled ? "activa" : "deshabilitada"}"></span>
+    <div class="col">
+      <div class="card h-100 cursor-pointer" role="button" tabindex="0"
+           data-source="${esc(s.id)}" aria-label="Ver registros de ${esc(s.name)}">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <h2 class="card-title h6 mb-0">${esc(s.name)}</h2>
+            ${status}
+          </div>
+          <div class="d-flex flex-wrap gap-2 mb-2">
+            <span class="badge text-bg-primary">${esc(s.kind)}</span>
+          </div>
+          ${s.description ? `<p class="text-muted small mb-0">${esc(s.description)}</p>` : ""}
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center text-muted fs-7">
+          <span><i class="bi bi-collection me-1" aria-hidden="true"></i>${num(s.record_count)} registros</span>
+          <span><i class="bi bi-clock-history me-1" aria-hidden="true"></i>${fmtDate(s.last_sync)}</span>
+        </div>
       </div>
-      <div class="sc-count"><b>${num(s.record_count)}</b><span>registros</span></div>
-      <div class="sc-tags"><span class="badge">${esc(s.kind)}</span></div>
-      ${s.description ? `<p class="sc-desc">${esc(s.description)}</p>` : ""}
-      <div class="sc-foot">
-        <span>Sync: ${fmtDate(s.last_sync)}</span>
-        <span class="sc-go">Ver →</span>
-      </div>
-    </button>`;
+    </div>`;
 }
 
 // ---------- detalle de fuente ----------
@@ -140,12 +226,16 @@ function openSource(id) {
 
 function sourceMeta(s) {
   if (!s) return "";
+  const enabled = s.enabled
+    ? `<span class="badge text-bg-success"><i class="bi bi-broadcast me-1" aria-hidden="true"></i>Activa</span>`
+    : `<span class="badge text-bg-secondary">Inactiva</span>`;
   const bits = [
-    `<span class="badge">${esc(s.kind)}</span>`,
-    `<span><b>${num(s.record_count)}</b> registros</span>`,
-    `<span>Últ. sync: <b>${fmtDate(s.last_sync)}</b></span>`,
+    `<span class="badge text-bg-primary">${esc(s.kind)}</span>`,
+    enabled,
+    `<span class="text-muted fs-7"><i class="bi bi-collection me-1" aria-hidden="true"></i><b>${num(s.record_count)}</b> registros</span>`,
+    `<span class="text-muted fs-7"><i class="bi bi-clock-history me-1" aria-hidden="true"></i>Últ. sync: <b>${fmtDate(s.last_sync)}</b></span>`,
   ];
-  if (s.url) bits.push(`<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url)}</a>`);
+  if (s.url) bits.push(`<a class="btn btn-link btn-sm p-0 fs-7" href="${esc(s.url)}" target="_blank" rel="noopener"><i class="bi bi-link-45deg me-1" aria-hidden="true"></i>Sitio de la fuente</a>`);
   return bits.join("");
 }
 
@@ -158,7 +248,7 @@ function backToSources() {
 async function loadRecords() {
   recordsMessage.innerHTML = "";
   recordsCount.textContent = "";
-  recordsList.innerHTML = skeleton(6, "skeleton-row");
+  recordsList.innerHTML = recordSkeleton(6);
   pager.hidden = true;
   state.limit = Number(limitInput.value) || 25;
 
@@ -170,23 +260,29 @@ async function loadRecords() {
 
   try {
     const res = await fetch(`/api/records/search?${params}`);
+    if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
     populateTypes(data.record_types);
     recordsCount.textContent = `${num(data.total_matches)} registros · ${data.elapsed_ms} ms`;
 
     if (!data.results.length) {
-      recordsList.innerHTML = `<div class="empty-state"><strong>Sin registros</strong>
-        ${state.q || state.recordType ? "Prueba otra búsqueda o filtro." : "Esta fuente todavía no tiene registros indexados."}</div>`;
+      recordsList.innerHTML = emptyState(
+        "inbox",
+        "Sin registros",
+        state.q || state.recordType
+          ? "Prueba otra búsqueda o filtro."
+          : "Esta fuente todavía no tiene registros indexados."
+      );
       return;
     }
-    recordsList.innerHTML = data.results.map((r) => row(r.record)).join("");
+    recordsList.innerHTML = data.results.map((r) => row(r)).join("");
     recordsList.querySelectorAll("[data-record]").forEach((el) => {
       el.addEventListener("click", () => openDrawer(el.dataset.record, el.dataset.title, el.dataset.type));
     });
     renderPager(data);
   } catch (err) {
     recordsList.innerHTML = "";
-    msg(recordsMessage, "error", "No se pudieron cargar los registros", String(err));
+    alertBox(recordsMessage, "danger", "No se pudieron cargar los registros", String(err));
   }
 }
 
@@ -194,27 +290,34 @@ function populateTypes(types) {
   if (!types || !types.length) return;
   const cur = state.recordType;
   typeInput.innerHTML = ['<option value="">Todos los tipos</option>']
-    .concat(types.map((t) => `<option value="${esc(t)}"${t === cur ? " selected" : ""}>${esc(t)}</option>`))
+    .concat(types.map((t) => `<option value="${esc(t)}"${t === cur ? " selected" : ""}>${esc(typeLabel(t))}</option>`))
     .join("");
 }
 
-function row(rec) {
+function row(result) {
+  const rec = result.record;
   const bits = [];
   if (rec.cedula) bits.push("CI " + esc(rec.cedula));
-  if (rec.city) bits.push(esc(rec.city));
+  if (rec.city) bits.push(`<i class="bi bi-geo-alt" aria-hidden="true"></i> ${esc(rec.city)}`);
   if (rec.organization && rec.organization !== rec.title) bits.push(esc(rec.organization));
   if (rec.status) bits.push(esc(rec.status));
+
+  const badges = [`<span class="badge text-bg-primary">${esc(typeLabel(rec.record_type))}</span>`];
+  if (rec.verified) badges.push(`<span class="badge text-bg-success"><i class="bi bi-patch-check me-1" aria-hidden="true"></i>Verificado</span>`);
+  if (result.also_in_count > 1) badges.push(`<span class="badge text-bg-secondary">en ${num(result.also_in_count)} fuentes</span>`);
+
   return `
-    <button class="rec" data-record="${esc(rec.id)}" data-title="${esc(rec.title)}" data-type="${esc(rec.record_type)}">
-      <div class="rec-main">
-        <p class="rec-title">${esc(rec.title || "Sin título")}</p>
-        <p class="rec-sub">${bits.join(" · ") || "&nbsp;"}</p>
-      </div>
-      <div class="rec-aside">
-        <span class="badge">${esc(rec.record_type)}</span>
-        <span class="rec-date">${fmtDate(rec.updated_at)}</span>
-        <span class="rec-chevron" aria-hidden="true">›</span>
-      </div>
+    <button type="button"
+            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3"
+            data-record="${esc(rec.id)}" data-title="${esc(rec.title)}" data-type="${esc(rec.record_type)}">
+      <span class="min-w-0">
+        <span class="d-block fw-semibold text-truncate">${esc(rec.title || "Sin título")}</span>
+        <span class="d-block text-muted small text-truncate">${bits.join(" · ") || "&nbsp;"}</span>
+      </span>
+      <span class="d-flex flex-column align-items-end gap-1 flex-shrink-0 text-end">
+        <span class="d-flex flex-wrap justify-content-end gap-1">${badges.join("")}</span>
+        <span class="text-muted fs-8"><i class="bi bi-clock-history me-1" aria-hidden="true"></i>${fmtDate(rec.updated_at)}</span>
+      </span>
     </button>`;
 }
 
@@ -227,27 +330,19 @@ function renderPager(data) {
   pager.hidden = data.total_matches <= state.limit && state.offset === 0;
 }
 
-// ---------- drawer de detalle ----------
-const FIELDS = [
-  ["person_name", "Persona", 1], ["cedula", "Cédula", 0], ["age", "Edad", 0],
-  ["organization", "Organización", 1], ["location_name", "Ubicación", 1],
-  ["city", "Ciudad", 0], ["state", "Estado", 0], ["country", "País", 0],
-  ["latitude", "Lat", 0], ["longitude", "Lng", 0], ["contact", "Contacto", 1],
-  ["status", "Estatus", 0], ["verified", "Verificado", 0], ["summary", "Resumen", 1],
-  ["source_id", "Fuente", 0], ["source_record_id", "ID en fuente", 0],
-  ["source_url", "URL fuente", 1], ["origin_node", "Nodo origen", 0],
-  ["entity_id", "Entidad", 0], ["observed_at", "Observado", 0], ["updated_at", "Actualizado", 0],
-];
+// ---------- offcanvas de detalle ----------
+function detailRow(label, value, isHtml = false) {
+  const display = value === null || value === undefined || value === "" ? "—" : value;
+  return `<div class="detail-row"><dt>${esc(label)}</dt><dd>${isHtml ? display : esc(display)}</dd></div>`;
+}
 
 async function openDrawer(id, title, type) {
   drawerTitle.textContent = title || "Registro";
-  drawerType.textContent = (type || "").toUpperCase();
-  drawer.classList.add("open");
-  drawerBackdrop.classList.add("open");
-  drawer.setAttribute("aria-hidden", "false");
+  drawerType.textContent = typeLabel(type);
+  recordOffcanvas.show();
 
   if (detailCache.has(id)) { drawerBody.innerHTML = detailCache.get(id); return; }
-  drawerBody.innerHTML = `<p class="hint">Cargando…</p>`;
+  drawerBody.innerHTML = `<div class="d-flex justify-content-center py-5"><span class="spinner-border" role="status" aria-label="Cargando"></span></div>`;
   try {
     const res = await fetch(`/api/records/${encodeURIComponent(id)}`);
     if (!res.ok) throw new Error("HTTP " + res.status);
@@ -256,38 +351,60 @@ async function openDrawer(id, title, type) {
     detailCache.set(id, html);
     drawerBody.innerHTML = html;
   } catch (err) {
-    drawerBody.innerHTML = `<p class="hint">No se pudo cargar: ${esc(String(err))}</p>`;
+    alertBox(drawerBody, "danger", "No se pudo cargar el registro", String(err));
   }
 }
 
 function detail(rec) {
-  const rows = FIELDS
-    .filter(([k]) => rec[k] !== null && rec[k] !== undefined && rec[k] !== "")
-    .map(([k, label, wide]) => {
-      let v = rec[k];
-      if (k === "observed_at" || k === "updated_at") v = fmtDate(v);
-      if (typeof v === "boolean") v = v ? "sí" : "no";
-      return `<div class="kv${wide ? " wide" : ""}"><span>${esc(label)}</span><strong>${esc(v)}</strong></div>`;
-    }).join("");
-  const tags = (rec.tags || []).map((t) => `<span class="badge">${esc(t)}</span>`).join("");
-  const hasRaw = rec.raw && Object.keys(rec.raw).length;
-  return `
-    <div class="kv-list">${rows}</div>
-    ${tags ? `<div class="drawer-tags">${tags}</div>` : ""}
-    ${hasRaw ? `<details class="drawer-raw"><summary>Datos de origen (raw)</summary>
-       <pre class="doc-block">${esc(JSON.stringify(rec.raw, null, 2))}</pre></details>` : ""}`;
-}
+  const location = [rec.location_name, rec.city, rec.state, rec.country]
+    .filter(Boolean)
+    .join(" · ");
 
-function closeDrawer() {
-  drawer.classList.remove("open");
-  drawerBackdrop.classList.remove("open");
-  drawer.setAttribute("aria-hidden", "true");
+  const tags = (rec.tags || []).length
+    ? rec.tags.map((t) => `<span class="badge text-bg-secondary">${esc(t)}</span>`).join(" ")
+    : "—";
+
+  let sourceLink = esc(rec.source_name || "—");
+  if (rec.source_url) {
+    sourceLink = `<a class="btn btn-link p-0 align-baseline" href="${esc(rec.source_url)}" target="_blank" rel="noopener">${esc(rec.source_name || rec.source_url)} <i class="bi bi-link-45deg" aria-hidden="true"></i></a>`;
+  }
+
+  const badges = [`<span class="badge text-bg-primary">${esc(typeLabel(rec.record_type))}</span>`];
+  if (rec.verified === true) badges.push(`<span class="badge text-bg-success"><i class="bi bi-patch-check me-1" aria-hidden="true"></i>Verificado</span>`);
+  if (rec.status) badges.push(`<span class="badge border text-secondary">${esc(rec.status)}</span>`);
+
+  const hasRaw = rec.raw && Object.keys(rec.raw).length;
+
+  return `
+    <div class="d-flex flex-wrap gap-1 mb-3">${badges.join(" ")}</div>
+    ${rec.summary ? `<p class="text-muted">${esc(rec.summary)}</p>` : ""}
+    <dl class="mb-3">
+      ${detailRow("Persona", rec.person_name)}
+      ${detailRow("Cédula", rec.cedula)}
+      ${detailRow("Edad", rec.age)}
+      ${detailRow("Organización", rec.organization)}
+      ${detailRow("Ubicación", location)}
+      ${detailRow("Contacto", rec.contact)}
+      ${detailRow("Etiquetas", tags, true)}
+      ${detailRow("Fuente", sourceLink, true)}
+      ${detailRow("Observado", fmtDate(rec.observed_at))}
+      ${detailRow("Actualizado", fmtDate(rec.updated_at))}
+    </dl>
+    ${hasRaw ? `<details class="mb-0"><summary class="eyebrow mb-2" style="cursor:pointer">Datos de origen (raw)</summary>
+       <pre class="doc-block mb-0">${esc(JSON.stringify(rec.raw, null, 2))}</pre></details>` : ""}`;
 }
 
 // ---------- eventos ----------
 sourceFilter.addEventListener("input", renderSources);
 sourceSort.addEventListener("change", renderSources);
 $("backButton").addEventListener("click", backToSources);
+sourcesList.addEventListener("keydown", (e) => {
+  const card = e.target.closest("[data-source]");
+  if (card && (e.key === "Enter" || e.key === " ")) {
+    e.preventDefault();
+    openSource(card.dataset.source);
+  }
+});
 $("recordsSearch").addEventListener("submit", (e) => {
   e.preventDefault();
   state.q = qInput.value.trim();
@@ -299,11 +416,8 @@ typeInput.addEventListener("change", () => {
   state.recordType = typeInput.value; state.offset = 0; loadRecords();
 });
 limitInput.addEventListener("change", () => { state.offset = 0; loadRecords(); });
-prevButton.addEventListener("click", () => { state.offset = Math.max(0, state.offset - state.limit); loadRecords(); });
+prevButton.addEventListener("click", () => { state.offset = Math.max(0, state.offset - state.limit); loadRecords(); window.scrollTo(0, 0); });
 nextButton.addEventListener("click", () => { state.offset += state.limit; loadRecords(); window.scrollTo(0, 0); });
-$("drawerClose").addEventListener("click", closeDrawer);
-drawerBackdrop.addEventListener("click", closeDrawer);
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
 window.addEventListener("popstate", () => {
   const sid = new URLSearchParams(location.search).get("source");
   if (!sid) backToSources();
@@ -311,6 +425,8 @@ window.addEventListener("popstate", () => {
 
 // ---------- inicio ----------
 async function init() {
+  markActiveNav();
+  loadHealth();
   await loadSources();
   const sid = new URLSearchParams(location.search).get("source");
   if (sid && allSources.some((s) => s.id === sid)) openSource(sid);
