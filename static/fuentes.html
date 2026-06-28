@@ -13,7 +13,7 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Tema sobrio humanitario (DEBE ir despues de Bootstrap) -->
-    <link rel="stylesheet" href="/static/theme.css?v=bs1">
+    <link rel="stylesheet" href="/static/theme.css?v=bs2">
     <!-- Favicons existentes -->
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
@@ -59,7 +59,7 @@
         </header>
 
         <!-- Metricas -->
-        <div class="row g-3 row-cols-2 row-cols-md-3 mb-4">
+        <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-md-3 mb-4">
           <div class="col">
             <div class="card h-100">
               <div class="card-body py-3">
@@ -92,7 +92,7 @@
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-funnel" aria-hidden="true"></i></span>
               <input id="sourceFilter" type="search" class="form-control" autocomplete="off"
-                     placeholder="Filtrar fuentes por nombre o tipo…" aria-label="Filtrar fuentes">
+                     placeholder="Filtrar fuentes…" aria-label="Filtrar fuentes">
             </div>
           </div>
           <div class="col-12 col-md-auto">
@@ -125,15 +125,15 @@
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
               <input id="qInput" type="search" class="form-control" autocomplete="off"
-                     placeholder="Buscar en esta fuente: nombre, cédula, ciudad…" aria-label="Buscar en la fuente">
+                     placeholder="Buscar en esta fuente…" aria-label="Buscar en la fuente">
             </div>
           </div>
-          <div class="col-6 col-md-auto">
+          <div class="col-12 col-sm-6 col-md-auto">
             <select id="typeInput" class="form-select" aria-label="Tipo de registro">
               <option value="">Todos los tipos</option>
             </select>
           </div>
-          <div class="col-6 col-md-auto">
+          <div class="col-12 col-sm-6 col-md-auto">
             <select id="limitInput" class="form-select" aria-label="Por página">
               <option value="25">25 / pág.</option>
               <option value="50">50 / pág.</option>
@@ -190,6 +190,6 @@
 
     <!-- Bootstrap bundle (Popper incluido). Va al final del body, antes de los scripts de pagina. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="/static/fuentes.js?v=bs1" defer></script>
+    <script src="/static/fuentes.js?v=bs2" defer></script>
   </body>
 </html>

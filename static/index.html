@@ -14,7 +14,7 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Tema sobrio humanitario (DEBE ir despues de Bootstrap) -->
-    <link rel="stylesheet" href="/static/theme.css?v=bs1">
+    <link rel="stylesheet" href="/static/theme.css?v=bs2">
     <!-- Favicons existentes -->
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
@@ -142,7 +142,7 @@
       <!-- Estado inicial: pulso de la red (sin tabla vacia) -->
       <section id="networkState" aria-label="Estado de la red">
         <p class="eyebrow mb-2">Pulso de la red</p>
-        <div class="row g-3 row-cols-2 row-cols-md-3 mb-4">
+        <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-md-3 mb-4">
           <div class="col">
             <div class="card h-100">
               <div class="card-body py-3">
@@ -198,7 +198,7 @@
 
       <!-- Estado tras buscar: metricas + resultados -->
       <section id="resultsView" hidden aria-label="Resultados de la busqueda">
-        <div class="row g-3 row-cols-2 row-cols-md-3 mb-4">
+        <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-md-3 mb-4">
           <div class="col">
             <div class="card h-100">
               <div class="card-body py-3">
@@ -225,7 +225,7 @@
           </div>
         </div>
 
-        <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
           <h2 id="resultsHeading" tabindex="-1" class="eyebrow mb-0">Resultados</h2>
           <div class="d-flex align-items-center gap-2">
             <button id="activeTypeFilter" type="button" class="btn btn-sm btn-primary rounded-pill d-none" aria-label="Quitar filtro de tipo"></button>
@@ -266,6 +266,6 @@
 
     <!-- Bootstrap bundle (Popper incluido). Va al final del body, antes de los scripts de pagina. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="/static/app.js?v=bs1" defer></script>
+    <script src="/static/app.js?v=bs2" defer></script>
   </body>
 </html>

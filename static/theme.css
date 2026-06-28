@@ -341,3 +341,44 @@ code:not(pre code) { color: var(--rh-primary-700); background: var(--rh-primary-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
+
+/* ============================================================
+   Responsividad móvil (auditoría por especialistas)
+   ============================================================ */
+@media (max-width: 575.98px) {
+  /* Offcanvas de detalle: etiqueta encima del valor (no truncar) */
+  .detail-row { grid-template-columns: 1fr; gap: .25rem 0; }
+  .detail-row dt { margin-bottom: .25rem; }
+
+  /* Áreas táctiles >= 44px */
+  .btn-sm { min-height: 44px; padding: .5rem .75rem; }
+  .offcanvas .btn-close { width: 44px; height: 44px; }
+
+  /* Densidad de listas */
+  .list-group-item.d-flex { gap: .5rem !important; }
+
+  /* Bloques de código/ejemplo: que no provoquen scroll horizontal */
+  pre.doc-block, .code-block {
+    font-size: .75rem; padding: .6rem .8rem;
+    white-space: pre-wrap; word-break: break-word;
+  }
+
+  /* Buscador grande: altura razonable en móvil */
+  .input-group-lg > .form-control,
+  .input-group-lg > .form-select {
+    min-height: auto; padding: .5rem .75rem; font-size: 1rem;
+  }
+
+  /* Legibilidad de utilidades pequeñas y eyebrow */
+  .fs-8 { font-size: .8rem !important; }
+  .fs-7 { font-size: .9rem !important; }
+  .eyebrow { font-size: .8rem; letter-spacing: .04em; }
+
+  /* Título de fuente más contenido en pantallas pequeñas */
+  .sd-title { font-size: 1.25rem; }
+}
+
+@media (max-width: 991.98px) {
+  /* En móvil/tablet el panel lateral no debe quedar fijo */
+  .position-sticky { position: static !important; }
+}

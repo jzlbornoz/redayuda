@@ -151,7 +151,7 @@ let mappingRowSeq = 0;
 function addMappingRow(target = "", source = "") {
   const rowId = `maprow-${++mappingRowSeq}`;
   const row = document.createElement("div");
-  row.className = "mapping-row row g-2 align-items-center";
+  row.className = "mapping-row row g-2 align-items-start align-items-lg-center";
   row.dataset.rowId = rowId;
   row.dataset.target = target;
   const options = ['<option value="">— campo destino —</option>']
@@ -163,11 +163,11 @@ function addMappingRow(target = "", source = "") {
     )
     .join("");
   row.innerHTML = `
-    <div class="col-5">
+    <div class="col-12 col-lg-5">
       <select class="form-select form-select-sm map-target" data-row-id="${rowId}" name="map_target_${mappingRowSeq}" aria-label="Campo del esquema">${options}</select>
     </div>
-    <div class="col-auto text-muted px-0" aria-hidden="true"><i class="bi bi-arrow-left-short"></i></div>
-    <div class="col">
+    <div class="col-auto text-muted px-0 d-none d-lg-flex align-items-center" aria-hidden="true"><i class="bi bi-arrow-left-short"></i></div>
+    <div class="col-12 col-lg">
       <input class="form-control form-control-sm map-source" data-row-id="${rowId}" name="map_source_${mappingRowSeq}" placeholder="campo en tu API" aria-label="Campo en tu API" value="${escapeHtml(source)}">
     </div>
     <div class="col-auto">
