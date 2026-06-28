@@ -83,6 +83,17 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
+@app.middleware("http")
+async def revalidate_assets(request, call_next):
+    """Fuerza revalidacion de estaticos/HTML (304 baratos por ETag) para que
+    los navegadores no sirvan JS/CSS viejos tras un deploy."""
+    response = await call_next(request)
+    path = request.url.path
+    if path.startswith("/static") or path in ("/", "/contribuir", "/fuentes"):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 def get_client():
     return HospitalesClient(get_settings())
 
