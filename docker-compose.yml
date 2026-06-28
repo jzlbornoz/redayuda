@@ -6,8 +6,9 @@ services:
     restart: unless-stopped
     env_file: .env.production
     ports:
-      # host:contenedor — 8088 libre en el homelab (8083/8085/8086/8087 ocupados)
-      - "8088:8000"
+      # Solo localhost: el tunel de Cloudflare apunta a 127.0.0.1:8088.
+      # 8088 libre en el homelab (8083/8085/8086/8087 ocupados).
+      - "127.0.0.1:8088:8000"
     volumes:
       # Persistencia del indice SQLite fuera del contenedor
       - ./data:/data

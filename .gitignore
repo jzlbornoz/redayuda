@@ -11,5 +11,11 @@ __pycache__/
 .DS_Store
 .claude/
 *.egg-info/
+node_modules/
+# Datos / bases locales (nunca al repo)
 data/*.db
 data/*.db-*
+*.db
+*.db-*
+*.sqlite
+*.sqlite3

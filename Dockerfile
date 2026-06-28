@@ -21,6 +21,11 @@ COPY static ./static
 ENV DATABASE_PATH=/data/index.db
 RUN mkdir -p /data
 
+# Usuario no-root; debe poder escribir el volumen /data.
+RUN useradd --system --uid 10001 appuser \
+    && chown -R appuser:appuser /app /data
+USER appuser
+
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
