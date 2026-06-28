@@ -10,7 +10,7 @@ from fastapi import Depends, Header, HTTPException, Query, FastAPI, Request, sta
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import connectors, federation, proposals
+from . import connectors, federation, proposals, scheduler
 from .client import HospitalesClient
 from .config import get_settings
 from .models import (
@@ -54,15 +54,19 @@ STATIC_DIR = BASE_DIR / "static"
 @asynccontextmanager
 async def lifespan(app):
     settings = get_settings()
-    task = None
+    tasks = []
     if settings.federation_pull_enabled:
-        task = asyncio.create_task(
-            federation.federation_loop(get_store(), settings)
+        tasks.append(
+            asyncio.create_task(federation.federation_loop(get_store(), settings))
+        )
+    if settings.auto_sync_enabled:
+        tasks.append(
+            asyncio.create_task(scheduler.sync_loop(get_store(), settings))
         )
     try:
         yield
     finally:
-        if task is not None:
+        for task in tasks:
             task.cancel()
 
 
@@ -169,6 +173,7 @@ async def health():
         "admin_key_configured": bool(settings.admin_api_key),
         "writes_protected": not settings.allow_unauthenticated_writes,
         "node_id": settings.node_id,
+        "auto_sync_enabled": settings.auto_sync_enabled,
     }
 
 
@@ -300,6 +305,16 @@ async def sync_source(
         pages=pages,
         message="Fuente sincronizada en el indice local.",
     )
+
+
+@app.post("/api/sources/sync-all", tags=["red"])
+async def sync_all_sources(
+    x_admin_key: Optional[str] = Header(None),
+    store: IndexStore = Depends(get_store),
+):
+    _require_admin_key(x_admin_key)
+    results = await scheduler.sync_all_sources(store, get_settings())
+    return {"ok": True, "results": results}
 
 
 @app.get("/api/peers", response_model=list[PeerInfo], tags=["federacion"])

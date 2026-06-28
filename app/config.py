@@ -82,6 +82,10 @@ class Settings:
     federation_pull_limit: int
     proposals_enabled: bool
     proposal_rate_limit_per_hour: int
+    auto_sync_enabled: bool
+    auto_sync_interval_seconds: int
+    auto_sync_source_limit: int
+    auto_sync_max_pages: int
 
 
 @lru_cache(maxsize=1)
@@ -107,4 +111,8 @@ def get_settings():
         federation_pull_limit=_get_int("FEDERATION_PULL_LIMIT", 200, 1, 1000),
         proposals_enabled=_get_bool("PROPOSALS_ENABLED", True),
         proposal_rate_limit_per_hour=_get_int("PROPOSAL_RATE_LIMIT", 5, 1, 1000),
+        auto_sync_enabled=_get_bool("AUTO_SYNC_ENABLED", False),
+        auto_sync_interval_seconds=_get_int("AUTO_SYNC_INTERVAL_SECONDS", 3600, 60),
+        auto_sync_source_limit=_get_int("AUTO_SYNC_SOURCE_LIMIT", 5000, 1, 5000),
+        auto_sync_max_pages=_get_int("AUTO_SYNC_MAX_PAGES", 10, 1, 50),
     )
