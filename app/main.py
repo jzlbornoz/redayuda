@@ -85,11 +85,17 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 @app.middleware("http")
 async def revalidate_assets(request, call_next):
-    """Fuerza revalidacion de estaticos/HTML (304 baratos por ETag) para que
-    los navegadores no sirvan JS/CSS viejos tras un deploy."""
+    """Evita servir JS/CSS/HTML viejos tras un deploy.
+
+    - HTML (rutas de página): no-store -> el navegador nunca cachea el HTML, así
+      siempre carga la versión de assets vigente.
+    - /static: no-cache -> revalida por ETag (304 baratos) en cada carga.
+    """
     response = await call_next(request)
     path = request.url.path
-    if path.startswith("/static") or path in ("/", "/contribuir", "/fuentes"):
+    if path in ("/", "/contribuir", "/fuentes"):
+        response.headers["Cache-Control"] = "no-store"
+    elif path.startswith("/static"):
         response.headers["Cache-Control"] = "no-cache"
     return response
 
