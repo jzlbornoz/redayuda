@@ -66,3 +66,68 @@ class HttpKeyConnector(Connector):
 
         store.touch_source_sync(self.source_id)
         return imported, scanned, pages
+
+
+class HttpListConnector(Connector):
+    """Base para APIs JSON de lista paginada (offset/limit o page).
+
+    Una subclase declara la URL, las claves de la respuesta y `map_item`.
+    Pagina el dataset completo (hasta `safety_max`) para reflejar toda la fuente.
+    """
+
+    list_url = None
+    items_key = "items"
+    has_more_key = None          # p.ej. "hasMore", o None
+    page_param = "offset"        # "offset" o "page"
+    page_size_param = "limit"
+    page_size = 100
+    page_start = 0               # 0 para offset, 1 para page
+    safety_max = 100000
+    extra_params = None
+
+    def map_item(self, item):
+        raise NotImplementedError
+
+    async def sync(self, *, store, settings, source_limit=1000, max_pages=5, desde=None):
+        from ..client import HttpClient
+
+        store.upsert_source(self.source)
+        client = HttpClient(settings)
+
+        imported = 0
+        scanned = 0
+        pages = 0
+        cap = max(source_limit or 0, self.safety_max)
+        page_value = self.page_start
+
+        while pages < 2000 and scanned < cap:
+            params = dict(self.extra_params or {})
+            params[self.page_size_param] = self.page_size
+            params[self.page_param] = page_value
+            data = await client.get_json(self.list_url, params=params)
+
+            items = (data.get(self.items_key) if isinstance(data, dict) else None) or []
+            pages += 1
+            scanned += len(items)
+
+            records = []
+            for item in items:
+                record = self.map_item(item)
+                if record is None:
+                    continue
+                if record.origin_node is None:
+                    record.origin_node = settings.node_id
+                    record.origin_source = self.source_id
+                records.append(record)
+            imported += store.upsert_records(records)
+
+            if not items:
+                break
+            if self.has_more_key is not None and not data.get(self.has_more_key):
+                break
+            if len(items) < self.page_size:
+                break
+            page_value += 1 if self.page_param == "page" else self.page_size
+
+        store.touch_source_sync(self.source_id)
+        return imported, scanned, pages

@@ -13,7 +13,86 @@ def anyio_backend():
 def test_external_connectors_are_discovered():
     connectors.load_builtin_connectors(force=True)
     ids = {s.id for s in connectors.source_infos()}
-    assert {"faro_ve", "venezuela_ayuda", "venezuela_solidaria"}.issubset(ids)
+    assert {
+        "faro_ve", "venezuela_ayuda", "venezuela_solidaria",
+        "encuentralos", "data_guaira", "mapa_insumos", "sos_venezuela", "hf_yofran",
+    }.issubset(ids)
+
+
+@pytest.mark.anyio
+async def test_httplist_connectors_paginate(tmp_path, monkeypatch):
+    """HttpListConnector pagina y mapea (offset, page y hasMore)."""
+    from app.client import HttpClient
+
+    fixtures = {
+        # encuentralos: offset/limit + total
+        "encuentralos": [
+            {"items": [{"id": 1, "nombre": "Ana Perez", "cedula": "111",
+                        "estado": "desaparecido", "ultima_ubicacion": "Caracas"}],
+             "total": 1},
+            {"items": [], "total": 1},
+        ],
+        # data_guaira: page + results
+        "data_guaira": [
+            {"results": [{"id": 9, "nombre_completo": "Luis Diaz", "hospital": "Vargas",
+                          "estado": "ESTABLE", "edad": 40}], "total": 1, "page": 1},
+            {"results": []},
+        ],
+        # mapa_insumos: page + hasMore
+        "mapa_insumos": [
+            {"services": [{"id": "x1", "name": "Farmacia Sur", "city": "Caracas",
+                           "state": "Miranda", "lat": 10.5, "lng": -66.9,
+                           "notes": "Operador: Cruz Roja"}], "hasMore": False},
+        ],
+    }
+    state = {"encuentralos": 0, "data_guaira": 0, "mapa_insumos": 0}
+
+    async def fake_get_json(self, url, params=None, headers=None):
+        if "encuentralos" in url:
+            key = "encuentralos"
+        elif "62.146.225.76" in url:
+            key = "data_guaira"
+        else:
+            key = "mapa_insumos"
+        pages = fixtures[key]
+        i = min(state[key], len(pages) - 1)
+        state[key] += 1
+        return pages[i]
+
+    monkeypatch.setattr(HttpClient, "get_json", fake_get_json)
+    connectors.load_builtin_connectors(force=True)
+    store = IndexStore(tmp_path / "index.db")
+
+    for sid, expect_type in [
+        ("encuentralos", "persona_desaparecida"),
+        ("data_guaira", "persona_hospitalizada"),
+        ("mapa_insumos", "recurso"),
+    ]:
+        imported, scanned, pages = await connectors.get(sid).sync(
+            store=store, settings=get_settings(), source_limit=5000, max_pages=10
+        )
+        assert imported == 1, sid
+
+    assert store.get_record("encuentralos:1").record_type == "persona_desaparecida"
+    assert store.get_record("data_guaira:9").organization == "Vargas"
+    mi = store.get_record("mapa_insumos:x1")
+    assert mi.record_type == "recurso" and mi.organization == "Cruz Roja"
+
+
+def test_hf_sse_parsing():
+    from app.connectors.builtin.hf_yofran import _extract_records, _map
+    sse = (
+        "event: complete\n"
+        'data: [{"status":"success","total":2,"data":['
+        '{"id":11478,"nombre":"IZAGUIRRE Yenny","cedula_norm":"84157899",'
+        '"condicion":"Sin informacion","notas":"Hospital: Banuta"}]}]\n'
+    )
+    recs = _extract_records(sse)
+    assert len(recs) == 1
+    mapped = _map(recs[0])
+    assert mapped.record_type == "persona_hospitalizada"
+    assert mapped.cedula == "84157899"
+    assert mapped.organization == "Banuta"
 
 
 VS_PAGES = [
