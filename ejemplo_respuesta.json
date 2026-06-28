@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "api_version": "1.1",
+  "fuente": "hospitalesenvenezuela.com",
+  "generado": "2026-06-27T03:40:00Z",
+  "total": 27900,
+  "offset": 0,
+  "limit": 2,
+  "count": 2,
+  "pacientes": [
+    {
+      "nombre": "José Antonio Pérez García",
+      "cedula": "12345678",
+      "cedula_valida": true,
+      "edad": 40,
+      "hospital": "Hospital Universitario de Caracas",
+      "hospital_verificado": true,
+      "ciudad": "Caracas",
+      "detalle": "40 años · Petare",
+      "contacto": "04141234567",
+      "nota": null,
+      "fuente": "hospitalesenvenezuela.com",
+      "registrado": "2026-06-26T18:10:22Z"
+    },
+    {
+      "nombre": "María Fernanda Rojas",
+      "cedula": null,
+      "cedula_valida": null,
+      "edad": 7,
+      "hospital": "Pediatría",
+      "hospital_verificado": false,
+      "ciudad": null,
+      "detalle": "7 años",
+      "contacto": "04167654321",
+      "nota": "Centro aportado por un colaborador; en proceso de verificación.",
+      "fuente": "hospitalesenvenezuela.com",
+      "registrado": "2026-06-27T01:05:00Z"
+    }
+  ]
+}

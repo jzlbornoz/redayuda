@@ -1,0 +1,74 @@
+{
+  "info": {
+    "name": "Hospitales en Venezuela — API v1.1",
+    "description": "Colección lista para probar la API de exportación del padrón de ingresados. Configura las variables de colección `base_url` y `api_key` antes de usar.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://ozuxfepfkvnxkywdsqxy.supabase.co/functions/v1/export-pacientes" },
+    { "key": "api_key", "value": "PEGA_AQUI_TU_CLAVE" }
+  ],
+  "item": [
+    {
+      "name": "1) Primera página (100 registros)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "x-api-key", "value": "{{api_key}}" } ],
+        "url": {
+          "raw": "{{base_url}}?limit=100&offset=0",
+          "host": [ "{{base_url}}" ],
+          "query": [ { "key": "limit", "value": "100" }, { "key": "offset", "value": "0" } ]
+        }
+      }
+    },
+    {
+      "name": "2) Página siguiente (offset)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "x-api-key", "value": "{{api_key}}" } ],
+        "url": {
+          "raw": "{{base_url}}?limit=5000&offset=5000",
+          "host": [ "{{base_url}}" ],
+          "query": [ { "key": "limit", "value": "5000" }, { "key": "offset", "value": "5000" } ]
+        }
+      }
+    },
+    {
+      "name": "3) Sincronización incremental (desde)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "x-api-key", "value": "{{api_key}}" } ],
+        "url": {
+          "raw": "{{base_url}}?desde=2026-06-27T00:00:00Z",
+          "host": [ "{{base_url}}" ],
+          "query": [ { "key": "desde", "value": "2026-06-27T00:00:00Z" } ]
+        }
+      }
+    },
+    {
+      "name": "4) Chequeo de frescura (limit=1)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "x-api-key", "value": "{{api_key}}" } ],
+        "url": {
+          "raw": "{{base_url}}?limit=1",
+          "host": [ "{{base_url}}" ],
+          "query": [ { "key": "limit", "value": "1" } ]
+        },
+        "description": "Lee `total` y `generado` sin descargar todo."
+      }
+    },
+    {
+      "name": "5) Prueba de seguridad (clave inválida → 401)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "x-api-key", "value": "clave_falsa" } ],
+        "url": {
+          "raw": "{{base_url}}?limit=1",
+          "host": [ "{{base_url}}" ],
+          "query": [ { "key": "limit", "value": "1" } ]
+        }
+      }
+    }
+  ]
+}

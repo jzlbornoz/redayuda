@@ -1,0 +1,13 @@
+services:
+  apigeneral:
+    build: .
+    image: apigeneral:local
+    container_name: apigeneral
+    restart: unless-stopped
+    env_file: .env.production
+    ports:
+      # host:contenedor — 8088 libre en el homelab (8083/8085/8086/8087 ocupados)
+      - "8088:8000"
+    volumes:
+      # Persistencia del indice SQLite fuera del contenedor
+      - ./data:/data

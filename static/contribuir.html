@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registrar fuente · Red Humanitaria de Datos</title>
+    <link rel="icon" href="/static/assets/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Inicio">
+          <span class="brand-mark" aria-hidden="true">HV</span>
+          <span>
+            <strong>Red Humanitaria de Datos</strong>
+            <small>Indexador de datos humanitarios</small>
+          </span>
+        </a>
+        <nav class="top-actions" aria-label="Acciones">
+          <a class="ghost-link" href="/">Volver a buscar</a>
+          <a class="ghost-link" href="/docs">API docs</a>
+        </nav>
+      </header>
+
+      <main class="main-grid">
+        <section class="search-panel" aria-labelledby="formTitle">
+          <div class="panel-head">
+            <div>
+              <h1 id="formTitle">Registrar una fuente</h1>
+            </div>
+          </div>
+
+          <p class="intro-text">
+            Describe tu endpoint y como mapear tus campos al esquema comun. La
+            propuesta queda pendiente de revision por un administrador antes de
+            activarse. <strong>No envies claves secretas aqui</strong>: declara
+            solo el tipo de autenticacion; la credencial se coordina al aprobar.
+          </p>
+
+          <form id="proposalForm" class="proposal-form" autocomplete="off">
+            <fieldset class="form-section">
+              <legend>Contacto</legend>
+              <div class="filters">
+                <label><span>Tu nombre</span>
+                  <input name="contact_name" maxlength="120" placeholder="Equipo de la app"></label>
+                <label><span>Email de contacto</span>
+                  <input name="contact_email" type="email" maxlength="160" placeholder="equipo@ejemplo.org"></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="form-section">
+              <legend>Fuente</legend>
+              <div class="filters">
+                <label><span>Nombre de la fuente *</span>
+                  <input name="source_name" required minlength="3" maxlength="120" placeholder="App Desaparecidos Demo"></label>
+                <label><span>Tipo *</span>
+                  <select id="kindSelect" name="kind" required></select></label>
+              </div>
+              <label class="full"><span>Descripcion</span>
+                <textarea name="description" maxlength="600" rows="2" placeholder="Que datos ofrece tu fuente y de donde provienen."></textarea></label>
+            </fieldset>
+
+            <fieldset class="form-section">
+              <legend>Endpoint y autenticacion</legend>
+              <div class="filters">
+                <label><span>URL del endpoint *</span>
+                  <input name="endpoint_url" type="url" required maxlength="400" placeholder="https://tu-api.org/registros"></label>
+                <label><span>Metodo</span>
+                  <select name="http_method"><option>GET</option><option>POST</option></select></label>
+                <label><span>Autenticacion</span>
+                  <select id="authType" name="auth_type"></select></label>
+                <label id="authHeaderWrap" hidden><span>Nombre del header</span>
+                  <input name="auth_header" maxlength="80" placeholder="x-api-key"></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="form-section">
+              <legend>Paginacion</legend>
+              <div class="filters">
+                <label><span>Estilo</span>
+                  <select id="pageStyle" name="pagination_style"></select></label>
+                <label><span>Ruta a los datos</span>
+                  <input name="data_path" maxlength="120" placeholder="data  o  resultados.items"></label>
+                <label><span>Tamano de pagina</span>
+                  <input name="page_size" type="number" min="1" max="5000" value="100"></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="form-section">
+              <legend>Mapeo de campos *</legend>
+              <p class="hint">Indica que campo de TU API alimenta cada campo del
+                esquema comun. Incluye al menos <code>title</code>,
+                <code>person_name</code> u <code>organization</code>.</p>
+              <div id="mappingRows" class="mapping-rows"></div>
+              <button type="button" id="addMappingRow" class="secondary-button">Anadir campo</button>
+            </fieldset>
+
+            <fieldset class="form-section">
+              <legend>Documentacion (opcional)</legend>
+              <label class="full"><span>Ejemplo de respuesta de tu API (JSON)</span>
+                <textarea name="sample_response" maxlength="8000" rows="4" placeholder='{"data": [{"nombre": "Maria Perez", "ciudad": "Caracas"}]}'></textarea></label>
+              <label class="full"><span>Notas de integracion</span>
+                <textarea name="docs" maxlength="4000" rows="3" placeholder="Detalles utiles: rate limits, formato de fechas, etc."></textarea></label>
+            </fieldset>
+
+            <!-- Honeypot anti-spam: oculto, debe quedar vacio. -->
+            <div class="honeypot" aria-hidden="true">
+              <label>No llenar<input name="website" tabindex="-1" autocomplete="off"></label>
+            </div>
+
+            <div class="form-actions">
+              <button class="primary-button" type="submit">Enviar propuesta</button>
+              <span id="formStatus" class="freshness"></span>
+            </div>
+          </form>
+
+          <div id="messageArea" class="message-area"></div>
+        </section>
+
+        <aside class="summary-panel doc-panel" aria-label="Esquema comun">
+          <h2 class="doc-title">Esquema comun (IndexedRecord)</h2>
+          <p class="hint">Tus datos se normalizan a estos campos. Mapea los que apliquen.</p>
+          <ul id="contractFields" class="doc-fields"></ul>
+          <h3 class="doc-title">Ejemplo de propuesta</h3>
+          <pre id="exampleRequest" class="doc-block">Cargando...</pre>
+        </aside>
+      </main>
+    </div>
+
+    <script src="/static/contribuir.js" defer></script>
+  </body>
+</html>

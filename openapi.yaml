@@ -1,0 +1,127 @@
+openapi: 3.0.3
+info:
+  title: API Hospitales en Venezuela
+  version: "1.1"
+  description: >
+    API REST de solo lectura del padrón de personas ingresadas/atendidas en centros
+    de salud tras el sismo (fuente: hospitalesenvenezuela.com). Autenticada por clave
+    de API. No permite escritura. Pensada para cotejo/unificación con otras fuentes
+    (desaparecidos, fallecidos, pacientes). La presencia en el padrón indica únicamente
+    que la persona fue localizada/ingresada en un centro; NO refleja condición de salud.
+  contact:
+    name: Equipo Hospitales en Venezuela
+servers:
+  - url: https://ozuxfepfkvnxkywdsqxy.supabase.co/functions/v1
+    description: Producción
+security:
+  - ApiKeyAuth: []
+paths:
+  /export-pacientes:
+    get:
+      summary: Exportar padrón de pacientes (paginado)
+      description: >
+        Devuelve el padrón en JSON, paginado. Use limit/offset para recorrer todo,
+        y `desde` para sincronización incremental. Para chequeo de frescura, llame
+        con limit=1 y lea `total` y `generado`.
+      operationId: exportPacientes
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 5000, default: 1000 }
+          description: Registros por respuesta (máx 5000).
+        - name: offset
+          in: query
+          required: false
+          schema: { type: integer, minimum: 0, default: 0 }
+          description: Punto de inicio para paginar.
+        - name: desde
+          in: query
+          required: false
+          schema: { type: string, format: date-time }
+          description: Solo registros creados después de esta fecha (ISO 8601). Alias-compatible con updated_since.
+        - name: key
+          in: query
+          required: false
+          schema: { type: string }
+          description: Alternativa a la cabecera x-api-key (solo para pruebas).
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RespuestaOK" }
+        "400":
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: Falta la clave o es inválida/revocada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "429":
+          description: Límite de solicitudes excedido (120/min por clave)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500":
+          description: Error temporal del servidor
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    Paciente:
+      type: object
+      properties:
+        nombre: { type: string, example: "José Antonio Pérez García" }
+        cedula:
+          type: string
+          nullable: true
+          example: "12345678"
+          description: Cédula completa. null si no tiene/no se registró.
+        cedula_valida:
+          type: boolean
+          nullable: true
+          description: true si está en el rango venezolano (1.000.000–40.000.000); false fuera de rango; null si no hay cédula.
+        edad: { type: integer, nullable: true, example: 40 }
+        hospital: { type: string, example: "Hospital Universitario de Caracas" }
+        hospital_verificado:
+          type: boolean
+          description: true = coincide con catálogo oficial; false = nombre aportado, por verificar.
+        ciudad: { type: string, nullable: true, example: "Caracas" }
+        detalle: { type: string, nullable: true, example: "40 años · Petare" }
+        contacto: { type: string, nullable: true, example: "04141234567" }
+        nota:
+          type: string
+          nullable: true
+          description: Contexto cuando el centro no está verificado (dato colaborativo en verificación).
+        fuente: { type: string, example: "hospitalesenvenezuela.com" }
+        registrado: { type: string, format: date-time }
+    RespuestaOK:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        api_version: { type: string, example: "1.1" }
+        fuente: { type: string, example: "hospitalesenvenezuela.com" }
+        generado: { type: string, format: date-time }
+        total: { type: integer, example: 27900 }
+        offset: { type: integer, example: 0 }
+        limit: { type: integer, example: 100 }
+        count: { type: integer, example: 100 }
+        pacientes:
+          type: array
+          items: { $ref: "#/components/schemas/Paciente" }
+    Error:
+      type: object
+      properties:
+        ok: { type: boolean, example: false }
+        error_code: { type: string, example: "clave_invalida" }
+        error: { type: string, example: "Clave de API inválida o revocada." }

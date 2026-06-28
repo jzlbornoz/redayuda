@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Red Humanitaria de Datos</title>
+    <link rel="icon" href="/static/assets/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Inicio">
+          <span class="brand-mark" aria-hidden="true">HV</span>
+          <span>
+            <strong>Red Humanitaria de Datos</strong>
+            <small>Indexador de datos humanitarios</small>
+          </span>
+        </a>
+        <nav class="top-actions" aria-label="Acciones">
+          <span id="healthStatus" class="status-pill status-muted">Verificando</span>
+              <a class="ghost-link" href="/contribuir">Registrar fuente</a>
+              <a class="ghost-link" href="/docs">API docs</a>
+        </nav>
+      </header>
+
+      <main class="main-grid">
+        <section class="search-panel" aria-labelledby="searchTitle">
+          <div class="panel-head">
+            <div>
+              <h1 id="searchTitle">Buscar en el indice</h1>
+            </div>
+          </div>
+
+          <form id="searchForm" class="search-form">
+            <label class="search-box" for="queryInput">
+              <span class="search-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" focusable="false">
+                  <path d="M10.5 18a7.5 7.5 0 1 1 5.3-12.8A7.5 7.5 0 0 1 10.5 18Zm0-2a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11Zm6.9.2 4.1 4.1-1.4 1.4-4.1-4.1 1.4-1.4Z"></path>
+                </svg>
+              </span>
+              <input id="queryInput" name="q" type="search" autocomplete="off" placeholder="Ej. Maria Perez, centro de acopio, Caracas">
+            </label>
+            <button class="primary-button" type="submit">Buscar</button>
+
+            <div class="filters">
+              <label>
+                <span>Cedula</span>
+                <input id="cedulaInput" name="cedula" inputmode="numeric" placeholder="12345678">
+              </label>
+              <label>
+                <span>Ciudad</span>
+                <input id="cityInput" name="city" placeholder="Caracas">
+              </label>
+              <label>
+                <span>Tipo</span>
+                <select id="recordTypeInput" name="record_type">
+                  <option value="">Todos</option>
+                  <option value="persona_desaparecida">Persona desaparecida</option>
+                  <option value="persona_hospitalizada">Persona localizada</option>
+                  <option value="centro_acopio">Centro de acopio</option>
+                  <option value="centro_donacion">Centro de donacion</option>
+                  <option value="recurso">Recurso</option>
+                </select>
+              </label>
+              <label>
+                <span>Fuente</span>
+                <select id="sourceInput" name="source_id">
+                  <option value="">Todas</option>
+                </select>
+              </label>
+              <label>
+                <span>Resultados</span>
+                <select id="limitInput" name="limit">
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button class="secondary-button" id="clearButton" type="button">Limpiar</button>
+              <button class="secondary-button" id="syncButton" type="button">Sincronizar hospitales</button>
+              <span id="freshnessText" class="freshness">Indice pendiente</span>
+            </div>
+          </form>
+        </section>
+
+        <aside class="summary-panel" aria-label="Resumen">
+          <div class="metric">
+            <span>Coincidencias</span>
+            <strong id="metricMatches">--</strong>
+          </div>
+          <div class="metric">
+            <span>Fuentes</span>
+            <strong id="metricScanned">--</strong>
+          </div>
+          <div class="metric">
+            <span>Tiempo</span>
+            <strong id="metricTime">--</strong>
+          </div>
+        </aside>
+
+        <section class="results-section" aria-labelledby="resultsTitle">
+          <div class="results-head">
+            <div>
+              <p class="eyebrow">Resultados</p>
+              <h2 id="resultsTitle">Registros encontrados</h2>
+            </div>
+            <span id="resultCount" class="result-count">Sin busqueda</span>
+          </div>
+
+          <div id="messageArea" class="message-area"></div>
+          <div id="resultsList" class="results-list"></div>
+          <button id="loadMoreButton" class="load-more" type="button" hidden>Cargar mas</button>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

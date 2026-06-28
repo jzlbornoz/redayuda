@@ -1,0 +1,2 @@
+"""Buscador API package."""
+
