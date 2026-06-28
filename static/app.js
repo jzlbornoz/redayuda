@@ -12,6 +12,22 @@ const freshnessText = document.querySelector("#freshnessText");
 const metricMatches = document.querySelector("#metricMatches");
 const metricScanned = document.querySelector("#metricScanned");
 const metricTime = document.querySelector("#metricTime");
+const networkState = document.querySelector("#networkState");
+const resultsView = document.querySelector("#resultsView");
+const statRecords = document.querySelector("#statRecords");
+const statSources = document.querySelector("#statSources");
+const statFresh = document.querySelector("#statFresh");
+const recordTypeInput = document.querySelector("#recordTypeInput");
+
+function showResults() {
+  networkState.hidden = true;
+  resultsView.hidden = false;
+}
+
+function showNetwork() {
+  resultsView.hidden = true;
+  networkState.hidden = false;
+}
 
 const state = {
   nextOffset: null,
@@ -240,6 +256,7 @@ async function runSearch(offset = 0, append = false) {
   params.set("offset", String(offset));
   state.lastParams = new URLSearchParams(params);
 
+  showResults();
   setLoading(true, append);
 
   try {
@@ -274,9 +291,14 @@ async function loadStats() {
       throw new Error("stats unavailable");
     }
 
-    metricMatches.textContent = compactNumber(data.total_records);
-    metricScanned.textContent = compactNumber(data.total_sources);
-    metricTime.textContent = "--";
+    statRecords.textContent = compactNumber(data.total_records);
+    statSources.textContent = compactNumber(data.total_sources);
+    const lastSync = data.sources
+      .map((s) => s.last_sync)
+      .filter(Boolean)
+      .sort()
+      .pop();
+    statFresh.textContent = lastSync ? formatDate(lastSync) : "nunca";
     freshnessText.textContent = `${compactNumber(data.total_records)} registros indexados`;
     healthStatus.textContent = data.total_records ? "Indice activo" : "Indice vacio";
     healthStatus.className = data.total_records ? "status-pill status-ok" : "status-pill status-warn";
@@ -338,11 +360,25 @@ clearButton.addEventListener("click", () => {
   form.reset();
   resultsList.innerHTML = "";
   clearMessage();
-  resultCount.textContent = "Sin busqueda";
+  resultCount.textContent = "";
   loadMoreButton.hidden = true;
   state.nextOffset = null;
+  showNetwork();
   loadStats();
   queryInput.focus();
+});
+
+networkState.addEventListener("click", (event) => {
+  const chip = event.target.closest(".chip");
+  if (!chip) return;
+  if (chip.dataset.type !== undefined) {
+    queryInput.value = "";
+    recordTypeInput.value = chip.dataset.type;
+  } else if (chip.dataset.q !== undefined) {
+    recordTypeInput.value = "";
+    queryInput.value = chip.dataset.q;
+  }
+  runSearch(0, false);
 });
 
 syncButton.addEventListener("click", () => {

@@ -29,7 +29,7 @@
         </nav>
       </header>
 
-      <main class="main-grid">
+      <main class="home">
         <section class="search-panel" aria-labelledby="searchTitle">
           <div class="panel-head">
             <div>
@@ -92,33 +92,56 @@
           </form>
         </section>
 
-        <aside class="summary-panel" aria-label="Resumen">
-          <div class="metric">
-            <span>Coincidencias</span>
-            <strong id="metricMatches">--</strong>
+        <!-- Estado inicial: pulso de la red (sin tabla vacía) -->
+        <section id="networkState" class="network-state" aria-label="Estado de la red">
+          <div class="stat-strip">
+            <div class="stat"><b id="statRecords">—</b><span>Registros indexados</span></div>
+            <div class="stat"><b id="statSources">—</b><span>Fuentes</span></div>
+            <div class="stat"><b id="statFresh">—</b><span>Actualizado</span></div>
           </div>
-          <div class="metric">
-            <span>Fuentes</span>
-            <strong id="metricScanned">--</strong>
-          </div>
-          <div class="metric">
-            <span>Tiempo</span>
-            <strong id="metricTime">--</strong>
-          </div>
-        </aside>
 
-        <section class="results-section" aria-labelledby="resultsTitle">
-          <div class="results-head">
-            <div>
-              <p class="eyebrow">Resultados</p>
-              <h2 id="resultsTitle">Registros encontrados</h2>
+          <div class="chip-group">
+            <p class="chip-label">Tipos disponibles</p>
+            <div class="chips">
+              <button type="button" class="chip" data-type="persona_desaparecida">Persona desaparecida</button>
+              <button type="button" class="chip" data-type="persona_hospitalizada">Persona localizada</button>
+              <button type="button" class="chip" data-type="centro_acopio">Centro de acopio</button>
+              <button type="button" class="chip" data-type="centro_donacion">Centro de donacion</button>
+              <button type="button" class="chip" data-type="recurso">Recurso</button>
             </div>
-            <span id="resultCount" class="result-count">Sin busqueda</span>
           </div>
 
-          <div id="messageArea" class="message-area"></div>
-          <div id="resultsList" class="results-list"></div>
-          <button id="loadMoreButton" class="load-more" type="button" hidden>Cargar mas</button>
+          <div class="chip-group">
+            <p class="chip-label">Prueba una busqueda</p>
+            <div class="chips">
+              <button type="button" class="chip" data-q="Maria Perez">Maria Perez</button>
+              <button type="button" class="chip" data-q="centro de acopio">centro de acopio</button>
+              <button type="button" class="chip" data-q="12345678">12345678</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Estado tras buscar: métricas + resultados -->
+        <section id="resultsView" class="results-view" hidden>
+          <div class="stat-strip">
+            <div class="stat"><b id="metricMatches">0</b><span>Coincidencias</span></div>
+            <div class="stat"><b id="metricScanned">0</b><span>Fuentes</span></div>
+            <div class="stat"><b id="metricTime">0</b><span>Tiempo</span></div>
+          </div>
+
+          <section class="results-section" aria-labelledby="resultsTitle">
+            <div class="results-head">
+              <div>
+                <p class="eyebrow">Resultados</p>
+                <h2 id="resultsTitle">Registros encontrados</h2>
+              </div>
+              <span id="resultCount" class="result-count" aria-live="polite"></span>
+            </div>
+
+            <div id="messageArea" class="message-area"></div>
+            <div id="resultsList" class="results-list"></div>
+            <button id="loadMoreButton" class="load-more" type="button" hidden>Cargar mas</button>
+          </section>
         </section>
       </main>
     </div>
