@@ -117,6 +117,12 @@ async def contribuir():
     return FileResponse(STATIC_DIR / "contribuir.html")
 
 
+@app.get("/fuentes", include_in_schema=False)
+@app.head("/fuentes", include_in_schema=False)
+async def fuentes():
+    return FileResponse(STATIC_DIR / "fuentes.html")
+
+
 @app.get("/favicon.ico", include_in_schema=False)
 @app.head("/favicon.ico", include_in_schema=False)
 async def favicon():
@@ -150,6 +156,7 @@ async def root():
             "/api/entities/{id}",
             "/api/connectors/schema",
             "/api/connectors/proposals",
+            "/fuentes",
             "/contribuir",
             "/buscar",
             "/docs",

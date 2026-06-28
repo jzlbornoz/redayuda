@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fuentes · Red Humanitaria de Datos</title>
+    <link rel="icon" href="/static/assets/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Inicio">
+          <span class="brand-mark" aria-hidden="true">HV</span>
+          <span>
+            <strong>Red Humanitaria de Datos</strong>
+            <small>Indexador de datos humanitarios</small>
+          </span>
+        </a>
+        <nav class="top-actions" aria-label="Acciones">
+          <a class="ghost-link" href="/">Buscar</a>
+          <a class="ghost-link" href="/contribuir">Registrar fuente</a>
+          <a class="ghost-link" href="/docs">API docs</a>
+        </nav>
+      </header>
+
+      <main>
+        <!-- Vista 1: listado de fuentes -->
+        <section id="sourcesView" class="results-section">
+          <div class="results-head">
+            <div>
+              <h1>Fuentes registradas</h1>
+            </div>
+            <span id="sourcesCount" class="result-count">--</span>
+          </div>
+          <div id="sourcesMessage" class="message-area"></div>
+          <div id="sourcesList" class="sources-list"></div>
+        </section>
+
+        <!-- Vista 2: detalle de una fuente (sus registros) -->
+        <section id="recordsView" class="results-section" hidden>
+          <button id="backButton" class="secondary-button" type="button">← Fuentes</button>
+
+          <div class="results-head" style="margin-top:14px;">
+            <div>
+              <p class="eyebrow" id="recordsKind">FUENTE</p>
+              <h1 id="recordsTitle">—</h1>
+              <p class="hint" id="recordsMeta"></p>
+            </div>
+          </div>
+
+          <form id="recordsSearch" class="records-search">
+            <input id="qInput" type="search" autocomplete="off"
+                   placeholder="Buscar dentro de esta fuente: nombre, cédula, ciudad…">
+            <select id="typeInput" aria-label="Tipo de registro">
+              <option value="">Todos los tipos</option>
+            </select>
+            <select id="limitInput" aria-label="Por página">
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <button class="primary-button" type="submit" style="position:static;">Buscar</button>
+          </form>
+
+          <div id="recordsMessage" class="message-area"></div>
+          <div id="recordsList" class="records-list"></div>
+
+          <div id="pager" class="pager" hidden>
+            <button id="prevButton" class="secondary-button" type="button">← Anterior</button>
+            <span id="pagerLabel" class="result-count">—</span>
+            <button id="nextButton" class="secondary-button" type="button">Siguiente →</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/fuentes.js" defer></script>
+  </body>
+</html>
