@@ -28,56 +28,85 @@
         </nav>
       </header>
 
-      <main>
-        <!-- Vista 1: listado de fuentes -->
-        <section id="sourcesView" class="results-section">
-          <div class="results-head">
+      <main class="fuentes-main">
+        <!-- ===== Vista 1: listado de fuentes ===== -->
+        <section id="sourcesView" aria-label="Fuentes registradas">
+          <div class="view-head">
             <div>
-              <h1>Fuentes registradas</h1>
+              <p class="kicker">Red</p>
+              <h1 class="view-title">Fuentes registradas</h1>
             </div>
-            <span id="sourcesCount" class="result-count">--</span>
           </div>
+
+          <div class="stat-strip" id="statStrip">
+            <div class="stat"><b id="statSources">—</b><span>Fuentes</span></div>
+            <div class="stat"><b id="statRecords">—</b><span>Registros</span></div>
+            <div class="stat"><b id="statActive">—</b><span>Activas</span></div>
+          </div>
+
+          <div class="toolbar">
+            <input id="sourceFilter" type="search" autocomplete="off"
+                   placeholder="Filtrar fuentes por nombre o tipo…">
+            <select id="sourceSort" aria-label="Ordenar fuentes">
+              <option value="records">Más registros</option>
+              <option value="name">Nombre (A–Z)</option>
+              <option value="recent">Sincronización reciente</option>
+            </select>
+          </div>
+
           <div id="sourcesMessage" class="message-area"></div>
-          <div id="sourcesList" class="sources-list"></div>
+          <div id="sourcesList" class="sources-grid"></div>
         </section>
 
-        <!-- Vista 2: detalle de una fuente (sus registros) -->
-        <section id="recordsView" class="results-section" hidden>
-          <button id="backButton" class="secondary-button" type="button">← Fuentes</button>
+        <!-- ===== Vista 2: detalle de una fuente ===== -->
+        <section id="recordsView" aria-label="Registros de la fuente" hidden>
+          <button id="backButton" class="crumb" type="button">← Todas las fuentes</button>
 
-          <div class="results-head" style="margin-top:14px;">
-            <div>
-              <p class="eyebrow" id="recordsKind">FUENTE</p>
-              <h1 id="recordsTitle">—</h1>
-              <p class="hint" id="recordsMeta"></p>
-            </div>
+          <div class="source-detail">
+            <h1 class="sd-title" id="sdTitle">—</h1>
+            <div class="sd-meta" id="sdMeta"></div>
           </div>
 
-          <form id="recordsSearch" class="records-search">
+          <form id="recordsSearch" class="records-toolbar">
             <input id="qInput" type="search" autocomplete="off"
-                   placeholder="Buscar dentro de esta fuente: nombre, cédula, ciudad…">
+                   placeholder="Buscar en esta fuente: nombre, cédula, ciudad…">
             <select id="typeInput" aria-label="Tipo de registro">
               <option value="">Todos los tipos</option>
             </select>
             <select id="limitInput" aria-label="Por página">
-              <option value="20">20</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
+              <option value="25">25 / pág.</option>
+              <option value="50">50 / pág.</option>
+              <option value="100">100 / pág.</option>
             </select>
-            <button class="primary-button" type="submit" style="position:static;">Buscar</button>
           </form>
 
+          <p class="records-count" id="recordsCount"></p>
           <div id="recordsMessage" class="message-area"></div>
           <div id="recordsList" class="records-list"></div>
 
           <div id="pager" class="pager" hidden>
-            <button id="prevButton" class="secondary-button" type="button">← Anterior</button>
-            <span id="pagerLabel" class="result-count">—</span>
-            <button id="nextButton" class="secondary-button" type="button">Siguiente →</button>
+            <span id="pagerLabel" class="pager-label">—</span>
+            <span class="pager-btns">
+              <button id="prevButton" class="secondary-button" type="button">← Anterior</button>
+              <button id="nextButton" class="secondary-button" type="button">Siguiente →</button>
+            </span>
           </div>
         </section>
       </main>
     </div>
+
+    <!-- ===== Drawer de detalle de registro ===== -->
+    <div id="drawerBackdrop" class="drawer-backdrop"></div>
+    <aside id="drawer" class="drawer" aria-label="Detalle del registro" aria-hidden="true">
+      <div class="drawer-head">
+        <div>
+          <h2 class="drawer-title" id="drawerTitle">—</h2>
+          <p class="drawer-type" id="drawerType"></p>
+        </div>
+        <button id="drawerClose" class="drawer-close" type="button" aria-label="Cerrar">×</button>
+      </div>
+      <div class="drawer-body" id="drawerBody"></div>
+    </aside>
 
     <script src="/static/fuentes.js" defer></script>
   </body>
