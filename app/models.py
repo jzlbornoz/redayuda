@@ -393,6 +393,19 @@ class ProposalReview(BaseModel):
         return value
 
 
+class PreviewRequest(BaseModel):
+    endpoint_url: str = Field(max_length=400)
+    data_path: Optional[str] = Field(default=None, max_length=120)
+
+
+class PreviewResponse(BaseModel):
+    ok: bool
+    count: int
+    fields: List[str] = Field(default_factory=list)
+    sample: Dict[str, Any] = Field(default_factory=dict)
+    suggested_mapping: Dict[str, str] = Field(default_factory=dict)
+
+
 class ContractField(BaseModel):
     name: str
     required: bool = False

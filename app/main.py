@@ -11,12 +11,14 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import connectors, federation, proposals, scheduler
-from .client import HospitalesClient
+from .client import HospitalesClient, HttpClient
 from .config import get_settings
 from .models import (
     ConnectorContract,
     ConnectorProposalIn,
     ConnectorProposalOut,
+    PreviewRequest,
+    PreviewResponse,
     EntityInfo,
     EntityLinkRequest,
     EntityMember,
@@ -140,6 +142,12 @@ async def fuentes():
     return FileResponse(STATIC_DIR / "fuentes.html")
 
 
+@app.get("/integrar", include_in_schema=False)
+@app.head("/integrar", include_in_schema=False)
+async def integrar():
+    return FileResponse(STATIC_DIR / "integrar.html")
+
+
 @app.get("/favicon.ico", include_in_schema=False)
 @app.head("/favicon.ico", include_in_schema=False)
 async def favicon():
@@ -172,9 +180,11 @@ async def root():
             "/api/peers",
             "/api/entities/{id}",
             "/api/connectors/schema",
+            "/api/connectors/preview",
             "/api/connectors/proposals",
             "/fuentes",
             "/contribuir",
+            "/integrar",
             "/buscar",
             "/docs",
             "/health",
@@ -460,6 +470,59 @@ async def unlink_entity(
 @app.get("/api/connectors/schema", response_model=ConnectorContract, tags=["red"])
 async def connector_schema():
     return proposals.build_contract()
+
+
+@app.post("/api/connectors/preview", response_model=PreviewResponse, tags=["red"])
+async def preview_connector(payload: PreviewRequest, request: Request):
+    """Autodetecta los campos del endpoint propuesto para asistir el mapeo.
+
+    Consulta la URL del colaborador (con guardia anti-SSRF), localiza el array
+    de registros y devuelve sus campos + un mapeo sugerido al esquema comun.
+    """
+    if not get_proposal_rate_limiter().check(
+        request.client.host if request.client else "desconocido"
+    ):
+        raise HTTPException(
+            status_code=429,
+            detail={"ok": False, "error_code": "rate_limit", "error": "Demasiados intentos."},
+        )
+    try:
+        proposals.validate_public_url(payload.endpoint_url)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"ok": False, "error_code": "url_invalida", "error": str(exc)},
+        )
+
+    try:
+        data = await HttpClient(get_settings()).get_json(payload.endpoint_url)
+    except HTTPException:
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "ok": False,
+                "error_code": "preview_fallido",
+                "error": "No se pudo leer/parsear la respuesta del endpoint.",
+            },
+        )
+
+    fields, sample, count = proposals.detect_fields(data, payload.data_path)
+    if not fields:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "ok": False,
+                "error_code": "sin_lista",
+                "error": "No se encontro un array de registros. Indica la ruta a los datos (data_path).",
+            },
+        )
+    return PreviewResponse(
+        ok=True,
+        count=count,
+        fields=fields,
+        sample=sample if isinstance(sample, dict) else {},
+        suggested_mapping=proposals.suggest_mapping(fields),
+    )
 
 
 @app.post(

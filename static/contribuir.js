@@ -458,6 +458,45 @@ async function submitForm(event) {
 
 /* ---------- init ---------- */
 
+async function autodetectFields() {
+  const detectBtn = document.getElementById("detectBtn");
+  const detectStatus = document.getElementById("detectStatus");
+  const url = (document.getElementById("endpointUrl").value || "").trim();
+  const dataPath = (document.getElementById("dataPath").value || "").trim();
+  if (!url) {
+    detectStatus.textContent = "Pega primero la URL del endpoint.";
+    return;
+  }
+  detectBtn.disabled = true;
+  detectStatus.textContent = "Consultando tu endpoint…";
+  try {
+    const res = await fetch("/api/connectors/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint_url: url, data_path: dataPath || null }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      detectStatus.textContent = extractError(body, "No se pudieron detectar los campos.");
+      return;
+    }
+    const suggested = body.suggested_mapping || {};
+    const fields = body.fields || [];
+    // Reconstruye el mapeo: primero los sugeridos, luego el resto sin destino.
+    mappingRows.innerHTML = "";
+    Object.entries(suggested).forEach(([src, tgt]) => addMappingRow(tgt, src));
+    fields.filter((f) => !(f in suggested)).forEach((f) => addMappingRow("", f));
+    const n = Object.keys(suggested).length;
+    detectStatus.textContent =
+      `${fields.length} campos detectados (${body.count} registros). ${n} mapeados automaticamente; revisa el resto.`;
+  } catch (err) {
+    detectStatus.textContent = "Error de red al consultar el endpoint.";
+  } finally {
+    detectBtn.disabled = false;
+  }
+}
+
+document.getElementById("detectBtn").addEventListener("click", autodetectFields);
 document.getElementById("addMappingRow").addEventListener("click", () => addMappingRow());
 document.getElementById("authType").addEventListener("change", toggleAuthHeader);
 form.addEventListener("submit", submitForm);

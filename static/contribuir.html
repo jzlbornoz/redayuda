@@ -36,6 +36,7 @@
           <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
             <li class="nav-item"><a class="nav-link" href="/" data-nav="buscar">Buscar</a></li>
             <li class="nav-item"><a class="nav-link" href="/fuentes" data-nav="fuentes">Fuentes</a></li>
+            <li class="nav-item"><a class="nav-link" href="/integrar" data-nav="integrar">Integrar</a></li>
             <li class="nav-item"><a class="nav-link" href="/contribuir" data-nav="contribuir">Registrar fuente</a></li>
             <li class="nav-item"><a class="nav-link" href="/docs" data-nav="docs">API docs</a></li>
             <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
@@ -190,6 +191,12 @@
                   Incluye al menos <code>title</code>, <code>person_name</code> u
                   <code>organization</code>.
                 </p>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                  <button type="button" id="detectBtn" class="btn btn-sm btn-primary">
+                    <i class="bi bi-magic me-1" aria-hidden="true"></i> Detectar campos del endpoint
+                  </button>
+                  <span id="detectStatus" class="text-muted small" aria-live="polite"></span>
+                </div>
                 <div id="mappingRows" class="vstack gap-2"></div>
                 <div id="mappingError" class="text-danger small mt-2" role="alert" aria-live="polite" hidden></div>
                 <button type="button" id="addMappingRow" class="btn btn-outline-primary btn-sm mt-3">

@@ -101,6 +101,29 @@ def test_proposal_endpoints_require_admin(env_keys, make_client):
     assert client.get("/api/connectors/proposals").status_code == 401
 
 
+def test_detect_and_suggest_mapping():
+    from app import proposals
+    payload = {"items": [{"nombre": "Ana", "cedula": "111", "city": "Caracas",
+                          "image": "x.png", "lat": 10.5, "lng": -66.9}], "total": 1}
+    fields, sample, count = proposals.detect_fields(payload)
+    assert count == 1 and "nombre" in fields
+    m = proposals.suggest_mapping(fields)
+    # token-based: sin falsos positivos (city!=cedula, image!=age)
+    assert m["nombre"] == "person_name"
+    assert m["city"] == "city"
+    assert m["cedula"] == "cedula"
+    assert "image" not in m
+    assert m["lat"] == "latitude" and m["lng"] == "longitude"
+
+
+def test_preview_endpoint_rejects_private_url(env_keys, make_client):
+    env_keys()
+    client = make_client()
+    r = client.post("/api/connectors/preview", json={"endpoint_url": "http://127.0.0.1/x"})
+    assert r.status_code == 422
+    assert r.json()["detail"]["error_code"] == "url_invalida"
+
+
 def test_validate_public_url_unit():
     import pytest
 

@@ -7,6 +7,7 @@ propuesta NUNCA escribe registros ni activa un conector por si sola.
 """
 
 import ipaddress
+import re
 import socket
 import time
 from collections import deque
@@ -22,6 +23,92 @@ from .models import (
 from .search import normalize_text
 
 REQUIRED_TARGET_FIELDS = {"title"}
+
+# Claves frecuentes donde vive el array de registros en respuestas JSON.
+COMMON_LIST_KEYS = [
+    "items", "results", "data", "services", "records", "people",
+    "personas", "pacientes", "resources", "rows", "list",
+]
+
+# Sugerencias de mapeo por TOKEN (no subcadena, para evitar city->cedula,
+# image->age, etc.). Un campo coincide si alguno de sus tokens (separados por
+# no-alfanumericos) es igual o empieza por la pista.
+MAPPING_HINTS = [
+    (("nombre", "name", "fullname"), "person_name"),
+    (("cedula", "documento", "dni"), "cedula"),
+    (("edad", "age"), "age"),
+    (("organizacion", "organiz", "hospital", "centro"), "organization"),
+    (("ciudad", "city", "localidad", "locality"), "city"),
+    (("estado", "state", "provincia"), "state"),
+    (("lat", "latitud", "latitude"), "latitude"),
+    (("lng", "lon", "long", "longitud", "longitude"), "longitude"),
+    (("telefono", "phone", "contacto", "contact"), "contact"),
+    (("status", "condicion", "estatus"), "status"),
+    (("descripcion", "descrip", "summary", "resumen", "nota"), "summary"),
+    (("titulo", "title"), "title"),
+    (("url", "link", "enlace"), "source_url"),
+]
+
+
+def locate_list(payload, data_path=None):
+    """Encuentra el array de registros dentro de un JSON heterogeneo."""
+    node = payload
+    if data_path:
+        for part in str(data_path).split("."):
+            if isinstance(node, dict):
+                node = node.get(part)
+            else:
+                node = None
+                break
+        return node if isinstance(node, list) else None
+    if isinstance(payload, list):
+        return payload
+    if isinstance(payload, dict):
+        for key in COMMON_LIST_KEYS:
+            value = payload.get(key)
+            if isinstance(value, list):
+                return value
+        for value in payload.values():
+            if isinstance(value, list) and value and isinstance(value[0], dict):
+                return value
+    return None
+
+
+def detect_fields(payload, data_path=None):
+    """Devuelve (campos, registro_muestra, total) de una respuesta JSON."""
+    items = locate_list(payload, data_path)
+    if not items:
+        return [], None, 0
+    first = items[0] if isinstance(items[0], dict) else {}
+    return list(first.keys()), first, len(items)
+
+
+def _tokens(field):
+    return [t for t in re.split(r"[^a-z0-9]+", str(field).lower()) if t]
+
+
+def _field_matches(field, needles):
+    toks = _tokens(field)
+    return any(tok == n or tok.startswith(n) for tok in toks for n in needles)
+
+
+def suggest_mapping(source_fields):
+    """Sugiere {campo_origen: campo_esquema} a partir de los nombres detectados.
+
+    Coincidencia por token (no subcadena) para evitar falsos positivos como
+    'city'->'cedula' o 'image'->'age'. Cada campo destino se asigna una sola vez.
+    """
+    mapping = {}
+    used = set()
+    for field in source_fields:
+        for needles, target in MAPPING_HINTS:
+            if target in used or target not in ALLOWED_TARGET_FIELDS:
+                continue
+            if _field_matches(field, needles):
+                mapping[field] = target
+                used.add(target)
+                break
+    return mapping
 
 
 def validate_public_url(url):
