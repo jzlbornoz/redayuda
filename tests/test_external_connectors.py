@@ -13,7 +13,57 @@ def anyio_backend():
 def test_external_connectors_are_discovered():
     connectors.load_builtin_connectors(force=True)
     ids = {s.id for s in connectors.source_infos()}
-    assert {"faro_ve", "venezuela_ayuda"}.issubset(ids)
+    assert {"faro_ve", "venezuela_ayuda", "venezuela_solidaria"}.issubset(ids)
+
+
+VS_PAGES = [
+    {
+        "items": [
+            {"id": "a1", "category": "donaciones", "title": "We Love Foundation",
+             "description": "Ayuda", "city": "La Guaira", "lat": 10.6, "lng": -66.9,
+             "verified": True, "link": "https://www.venezuelasolidaria.com/recurso/a1",
+             "url": "https://welove.foundation", "created_at": "2026-06-27T23:33:33+00:00",
+             "updated_at": "2026-06-27T23:33:33+00:00"},
+        ],
+        "pagination": {"total": 2, "has_more": True, "limit": 200, "offset": 0, "returned": 1},
+    },
+    {
+        "items": [
+            {"id": "b2", "category": "quedadas", "title": "Jornada de acopio Chacao",
+             "city": "Caracas", "verified": False},
+        ],
+        "pagination": {"total": 2, "has_more": False, "limit": 200, "offset": 200, "returned": 1},
+    },
+]
+
+
+@pytest.mark.anyio
+async def test_venezuela_solidaria_paginates_and_maps(tmp_path, monkeypatch):
+    from app.client import HttpClient
+
+    calls = {"n": 0}
+
+    async def fake_get_json(self, url, params=None, headers=None):
+        page = VS_PAGES[calls["n"]] if calls["n"] < len(VS_PAGES) else {"items": [], "pagination": {"has_more": False}}
+        calls["n"] += 1
+        return page
+
+    monkeypatch.setattr(HttpClient, "get_json", fake_get_json)
+    connectors.load_builtin_connectors(force=True)
+    connector = connectors.get("venezuela_solidaria")
+
+    store = IndexStore(tmp_path / "index.db")
+    imported, scanned, pages = await connector.sync(
+        store=store, settings=get_settings(), source_limit=5000, max_pages=10
+    )
+    assert imported == 2 and pages == 2
+
+    donacion = store.search_records(query="we love")
+    assert donacion.results[0].record.record_type == "centro_donacion"
+    assert donacion.results[0].record.latitude == 10.6
+
+    acopio = store.search_records(query="jornada acopio")
+    assert acopio.results[0].record.record_type == "centro_acopio"
 
 
 FARO_PAYLOAD = {
