@@ -1,0 +1,33 @@
+name: CI/CD
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test-and-deploy:
+    runs-on: host
+    steps:
+      - name: Test y deploy en el homelab
+        run: |
+          set -euo pipefail
+          export PATH="/home/eriktaveras/.local/bin:$PATH"
+          APP=/home/eriktaveras/selfhosted/apigeneral
+
+          echo "== 1) Actualizar código en el deploy dir =="
+          cd "$APP"
+          git fetch origin
+          git reset --hard origin/main
+
+          echo "== 2) Tests (venv efímero con uv) =="
+          rm -rf .venv-ci
+          uv venv .venv-ci
+          uv pip install --python .venv-ci -e ".[dev]"
+          .venv-ci/bin/pytest -q
+
+          echo "== 3) Deploy (build + up) =="
+          docker compose up -d --build
+          docker image prune -f
+
+          echo "== 4) Health check =="
+          sleep 4
+          curl -fsS -o /dev/null -w "health -> %{http_code}\n" http://127.0.0.1:8088/health
