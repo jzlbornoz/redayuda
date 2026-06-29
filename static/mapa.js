@@ -45,8 +45,8 @@
     const loc = [r.city, r.state].filter(Boolean).join(", ");
     return `<div style="min-width:180px">
       <div style="font-weight:600;margin-bottom:2px">${escapeHtml(r.title || r.person_name || "Registro")}</div>
-      <div style="font-size:12px;color:#64748b">${escapeHtml(m.label)}${loc ? " · " + escapeHtml(loc) : ""}</div>
-      <button type="button" data-detail="${escapeHtml(r.id)}" style="margin-top:6px;font-size:12px;font-weight:600;color:#2563eb;background:none;border:0;cursor:pointer;padding:0">Ver detalle →</button>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#4a4a4a">${escapeHtml(m.label)}${loc ? " · " + escapeHtml(loc) : ""}</div>
+      <button type="button" data-detail="${escapeHtml(r.id)}" style="margin-top:6px;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:#121212;background:none;border:0;border-bottom:1px solid #121212;cursor:pointer;padding:0">Ver detalle →</button>
     </div>`;
   }
 
