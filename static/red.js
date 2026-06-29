@@ -55,14 +55,11 @@ function skeletonCards(n = 6) {
   let html = "";
   for (let i = 0; i < n; i += 1) {
     html += `
-      <div class="col">
-        <div class="card h-100 placeholder-glow">
-          <div class="card-body">
-            <span class="placeholder col-7 d-block mb-2"></span>
-            <span class="placeholder col-4 me-1"></span>
-            <span class="placeholder col-3"></span>
-            <span class="placeholder col-10 d-block mt-2"></span>
-          </div>
+      <div class="card skeleton-glow">
+        <div class="card__body">
+          <span class="skeleton skeleton--text mb-2" style="inline-size:58%"></span>
+          <span class="skeleton skeleton--text mb-2" style="inline-size:33%"></span>
+          <span class="skeleton skeleton--text" style="inline-size:83%"></span>
         </div>
       </div>
     `;
@@ -76,7 +73,6 @@ function renderSources(sources) {
     redSources.innerHTML = "";
     redSourcesMessage.innerHTML = `
       <div class="empty-state">
-        <i class="bi bi-diagram-3" aria-hidden="true"></i>
         <strong class="d-block">Aún no hay apps conectadas</strong>
         <span class="text-muted">Conecta tu app a la red para que aparezca aquí.</span>
       </div>
@@ -89,38 +85,36 @@ function renderSources(sources) {
     .map((source) => {
       const name = escapeHtml(source.name || source.id || "Fuente");
       const kind = source.kind || source.record_type;
-      const kindBadge = kind
-        ? `<span class="badge text-bg-primary">${escapeHtml(typeLabel(kind))}</span>`
+      const kindTag = kind
+        ? `<span class="tag tag--accent">${escapeHtml(typeLabel(kind))}</span>`
         : "";
       const enabled = source.enabled !== false;
       const statePill = enabled
         ? `<span class="status-pill status-ok">Activa</span>`
         : `<span class="status-pill status-warn">Inactiva</span>`;
       const description = source.description
-        ? `<p class="text-muted fs-7 mb-2">${escapeHtml(source.description)}</p>`
+        ? `<p class="text-muted small mb-2">${escapeHtml(source.description)}</p>`
         : "";
       const count =
         source.record_count !== undefined && source.record_count !== null
-          ? `<span class="text-muted fs-7"><i class="bi bi-collection me-1" aria-hidden="true"></i>${compactNumber(source.record_count)} registros</span>`
+          ? `<span class="text-muted small">${compactNumber(source.record_count)} registros</span>`
           : "";
       const lastSync = source.last_sync
-        ? `<span class="text-muted fs-7"><i class="bi bi-clock-history me-1" aria-hidden="true"></i>${escapeHtml(formatDate(source.last_sync))}</span>`
+        ? `<span class="text-muted small">${escapeHtml(formatDate(source.last_sync))}</span>`
         : "";
 
       return `
-        <div class="col">
-          <a href="/fuentes" class="card h-100 text-decoration-none text-reset">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                <h3 class="h6 mb-0 text-truncate">${name}</h3>
-                ${statePill}
-              </div>
-              <div class="d-flex flex-wrap gap-1 mb-2">${kindBadge}</div>
-              ${description}
-              <div class="d-flex flex-wrap gap-3">${count}${lastSync}</div>
+        <a href="/fuentes" class="card card--link text-decoration-none text-reset">
+          <div class="card__body">
+            <div class="cluster cluster--between mb-2" style="align-items:flex-start">
+              <h3 class="card__title text-truncate mb-0">${name}</h3>
+              ${statePill}
             </div>
-          </a>
-        </div>
+            <div class="cluster mb-2">${kindTag}</div>
+            ${description}
+            <div class="cluster gap-3">${count}${lastSync}</div>
+          </div>
+        </a>
       `;
     })
     .join("");
@@ -128,19 +122,33 @@ function renderSources(sources) {
   redSources.innerHTML = html;
 }
 
-// ---------- Desglose por tipo ----------
+// ---------- Desglose por tipo (grafico de barras) ----------
 function renderTypeBreakdown(recordTypes) {
   if (!recordTypes || !Object.keys(recordTypes).length) {
     redTypeBreakdown.innerHTML = "";
     return;
   }
-  redTypeBreakdown.innerHTML = Object.entries(recordTypes)
-    .sort((a, b) => Number(b[1]) - Number(a[1]))
-    .map(
-      ([type, count]) =>
-        `<span class="badge border text-secondary fw-normal">${escapeHtml(typeLabel(type))} · ${compactNumber(count)}</span>`
-    )
+  const entries = Object.entries(recordTypes)
+    .map(([type, count]) => [type, Number(count) || 0])
+    .sort((a, b) => b[1] - a[1]);
+
+  const max = entries.length ? entries[0][1] : 0;
+
+  const bars = entries
+    .map(([type, count], i) => {
+      const pct = max > 0 ? Math.round((count / max) * 100) : 0;
+      const peak = i === 0 ? " bar--peak" : "";
+      return `
+        <li class="bar${peak}">
+          <span class="bar__label">${escapeHtml(typeLabel(type))}</span>
+          <span class="bar__track"><span class="bar__fill" style="inline-size:${pct}%"></span></span>
+          <span class="bar__value">${compactNumber(count)}</span>
+        </li>
+      `;
+    })
     .join("");
+
+  redTypeBreakdown.innerHTML = `<ul class="bars">${bars}</ul>`;
 }
 
 // ---------- Carga de la red ----------
@@ -176,12 +184,9 @@ async function loadNetwork() {
     redTypeBreakdown.innerHTML = "";
     redSources.innerHTML = "";
     redSourcesMessage.innerHTML = `
-      <div class="alert alert-danger d-flex gap-2" role="alert">
-        <i class="bi bi-exclamation-triangle flex-shrink-0 mt-1" aria-hidden="true"></i>
-        <div>
-          <strong>No se pudo cargar la red</strong>
-          <div class="small mb-0">Revisa que el servidor siga activo e intenta de nuevo.</div>
-        </div>
+      <div class="alert alert-danger" role="alert">
+        <strong>No se pudo cargar la red</strong>
+        <div class="small mb-0">Revisa que el servidor siga activo e intenta de nuevo.</div>
       </div>
     `;
   }

@@ -8,45 +8,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
-    <!-- Bootstrap 5.3 CSS (jsdelivr CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Tema sobrio humanitario (DEBE ir despues de Bootstrap) -->
-    <link rel="stylesheet" href="/static/theme.css?v=bs4">
+    <!-- Sistema de diseno propio (sin Bootstrap) -->
+    <link rel="stylesheet" href="/static/rhd.css?v=bs5">
     <!-- Favicons existentes -->
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
   </head>
-  <body class="d-flex flex-column min-vh-100">
+  <body>
 
     <a class="visually-hidden-focusable" href="#main">Saltar al contenido</a>
 
-    <nav class="navbar navbar-expand-lg sticky-top py-2" aria-label="Navegacion principal">
-      <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="/" aria-label="Inicio">
-          <span class="brand-mark" aria-hidden="true">HV</span>
+    <nav class="site-nav" aria-label="Navegacion principal">
+      <div class="container site-nav__inner">
+        <a class="brand" href="/" aria-label="Inicio">
+          <span class="brand__mark" aria-hidden="true">HV</span>
           <span class="d-flex flex-column lh-1">
-            <strong>Red Humanitaria de Datos</strong>
-            <small class="text-muted fs-8">Indexador de datos humanitarios</small>
+            <strong class="brand__name">Red Humanitaria de Datos</strong>
+            <small class="brand__sub">Indexador de datos humanitarios</small>
           </span>
         </a>
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menu">
-          <span class="navbar-toggler-icon"></span>
+        <button class="nav-toggle" type="button" data-toggle="collapse" data-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menu">
+          <span class="nav-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
         </button>
-        <div class="collapse navbar-collapse" id="mainNav">
-          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
-            <li class="nav-item"><a class="nav-link" href="/red" data-nav="red">Red</a></li>
-            <li class="nav-item"><a class="nav-link" href="/" data-nav="buscar">Buscar</a></li>
-            <li class="nav-item"><a class="nav-link" href="/fuentes" data-nav="fuentes">Fuentes</a></li>
-            <li class="nav-item"><a class="nav-link" href="/integrar" data-nav="integrar">Integrar</a></li>
-            <li class="nav-item"><a class="nav-link" href="/contribuir" data-nav="contribuir">Registrar fuente</a></li>
-            <li class="nav-item"><a class="nav-link" href="/docs" data-nav="docs">API docs</a></li>
-            <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
-              <span id="healthStatus" class="status-pill status-muted">Verificando</span>
-            </li>
-          </ul>
-        </div>
+        <ul class="nav-menu collapse" id="mainNav">
+          <li class="nav-menu__item"><a class="nav-link" href="/red" data-nav="red">Red</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/" data-nav="buscar">Buscar</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/fuentes" data-nav="fuentes">Fuentes</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/integrar" data-nav="integrar">Integrar</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/contribuir" data-nav="contribuir">Registrar fuente</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/docs" data-nav="docs">API docs</a></li>
+          <li class="nav-menu__item"><span id="healthStatus" class="status-pill status-muted">Verificando</span></li>
+        </ul>
       </div>
     </nav>
 
@@ -54,52 +46,49 @@
 
       <!-- ===== Vista 1: listado de fuentes ===== -->
       <section id="sourcesView" aria-label="Fuentes registradas">
-        <header class="mb-4">
-          <p class="eyebrow mb-1">La red</p>
-          <h1 class="h3 mb-0">Apps conectadas</h1>
-          <p class="text-muted mb-0 mt-1">El directorio de apps y bases que alimentan el índice común. Entra a cada una para ver sus registros y su última sincronización.</p>
-          <a class="btn btn-outline-primary mt-3" href="/integrar">Conecta tu app a la red</a>
+        <header class="mb-5">
+          <p class="eyebrow eyebrow--accent">La red</p>
+          <h1 class="mb-3">Apps conectadas</h1>
+          <p class="lead text-muted mb-4">El directorio de apps y bases que alimentan el índice común. Entra a cada una para ver sus registros y su última sincronización.</p>
+          <a class="btn btn-outline" href="/integrar">Conecta tu app a la red</a>
         </header>
 
         <!-- Metricas -->
-        <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-md-3 mb-4">
+        <div class="grid grid--3 mb-5">
           <div class="col">
             <div class="card h-100">
-              <div class="card-body py-3">
-                <div class="h4 mb-0" id="statSources">—</div>
-                <div class="text-muted fs-7"><i class="bi bi-database me-1" aria-hidden="true"></i>Apps conectadas</div>
+              <div class="card__body">
+                <div class="h3 mb-1" id="statSources">—</div>
+                <div class="eyebrow mb-0">Apps conectadas</div>
               </div>
             </div>
           </div>
           <div class="col">
             <div class="card h-100">
-              <div class="card-body py-3">
-                <div class="h4 mb-0" id="statRecords">—</div>
-                <div class="text-muted fs-7"><i class="bi bi-collection me-1" aria-hidden="true"></i>Registros</div>
+              <div class="card__body">
+                <div class="h3 mb-1" id="statRecords">—</div>
+                <div class="eyebrow mb-0">Registros</div>
               </div>
             </div>
           </div>
           <div class="col">
             <div class="card h-100">
-              <div class="card-body py-3">
-                <div class="h4 mb-0" id="statActive">—</div>
-                <div class="text-muted fs-7"><i class="bi bi-broadcast me-1" aria-hidden="true"></i>Activas</div>
+              <div class="card__body">
+                <div class="h3 mb-1" id="statActive">—</div>
+                <div class="eyebrow mb-0">Activas</div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Toolbar -->
-        <div class="row g-2 mb-3">
+        <div class="row g-2 mb-4">
           <div class="col-12 col-md">
-            <div class="input-group">
-              <span class="input-group-text"><i class="bi bi-funnel" aria-hidden="true"></i></span>
-              <input id="sourceFilter" type="search" class="form-control" autocomplete="off"
-                     placeholder="Filtrar fuentes…" aria-label="Filtrar fuentes">
-            </div>
+            <input id="sourceFilter" type="search" class="input" autocomplete="off"
+                   placeholder="Filtrar fuentes…" aria-label="Filtrar fuentes">
           </div>
           <div class="col-12 col-md-auto">
-            <select id="sourceSort" class="form-select" aria-label="Ordenar fuentes">
+            <select id="sourceSort" class="select" aria-label="Ordenar fuentes">
               <option value="records">Más registros</option>
               <option value="name">Nombre (A–Z)</option>
               <option value="recent">Sincronización reciente</option>
@@ -108,59 +97,50 @@
         </div>
 
         <div id="sourcesMessage" aria-live="polite"></div>
-        <div id="sourcesList" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3"></div>
+        <div id="sourcesList" class="grid grid--auto"></div>
       </section>
 
       <!-- ===== Vista 2: detalle de una fuente ===== -->
       <section id="recordsView" aria-label="Registros de la fuente" hidden>
-        <button id="backButton" class="btn btn-link px-0 mb-2" type="button">
-          <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Todas las fuentes
-        </button>
+        <button id="backButton" class="btn btn-ghost px-0 mb-3" type="button">← Todas las fuentes</button>
 
-        <header class="mb-4">
-          <p class="eyebrow mb-1">Fuente</p>
-          <h1 class="h3 mb-2 sd-title" id="sdTitle">—</h1>
-          <div class="d-flex flex-wrap align-items-center gap-2 sd-meta" id="sdMeta"></div>
+        <header class="mb-5">
+          <p class="eyebrow eyebrow--accent">Fuente</p>
+          <h1 class="sd-title mb-3" id="sdTitle">—</h1>
+          <div class="cluster sd-meta" id="sdMeta"></div>
         </header>
 
-        <form id="recordsSearch" class="row g-2 mb-3">
+        <form id="recordsSearch" class="row g-2 mb-4">
           <div class="col-12 col-md">
-            <div class="input-group">
-              <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
-              <input id="qInput" type="search" class="form-control" autocomplete="off"
-                     placeholder="Buscar en esta fuente…" aria-label="Buscar en la fuente">
-            </div>
+            <input id="qInput" type="search" class="input" autocomplete="off"
+                   placeholder="Buscar en esta fuente…" aria-label="Buscar en la fuente">
           </div>
           <div class="col-12 col-sm-6 col-md-auto">
-            <select id="typeInput" class="form-select" aria-label="Tipo de registro">
+            <select id="typeInput" class="select" aria-label="Tipo de registro">
               <option value="">Todos los tipos</option>
             </select>
           </div>
           <div class="col-12 col-sm-6 col-md-auto">
-            <select id="limitInput" class="form-select" aria-label="Por página">
+            <select id="limitInput" class="select" aria-label="Por página">
               <option value="25">25 / pág.</option>
               <option value="50">50 / pág.</option>
               <option value="100">100 / pág.</option>
             </select>
           </div>
           <div class="col-12 col-md-auto">
-            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1" aria-hidden="true"></i>Buscar</button>
+            <button type="submit" class="btn btn-primary w-100">Buscar</button>
           </div>
         </form>
 
         <p class="text-muted fs-7 mb-2" id="recordsCount" aria-live="polite"></p>
         <div id="recordsMessage" aria-live="polite"></div>
-        <div id="recordsList" class="list-group mb-3"></div>
+        <div id="recordsList" class="rows mb-3"></div>
 
         <nav id="pager" aria-label="Paginación de registros" hidden>
           <div class="d-flex align-items-center justify-content-center gap-3">
-            <button id="prevButton" class="btn btn-outline-primary btn-sm" type="button" aria-label="Anterior">
-              <i class="bi bi-arrow-left" aria-hidden="true"></i><span class="d-none d-sm-inline ms-1">Anterior</span>
-            </button>
+            <button id="prevButton" class="btn btn-outline btn-sm" type="button" aria-label="Anterior">Anterior</button>
             <span id="pagerLabel" class="text-muted fs-7">—</span>
-            <button id="nextButton" class="btn btn-outline-primary btn-sm" type="button" aria-label="Siguiente">
-              <span class="d-none d-sm-inline me-1">Siguiente</span><i class="bi bi-arrow-right" aria-hidden="true"></i>
-            </button>
+            <button id="nextButton" class="btn btn-outline btn-sm" type="button" aria-label="Siguiente">Siguiente</button>
           </div>
         </nav>
       </section>
@@ -178,21 +158,23 @@
       </div>
     </footer>
 
-    <!-- ===== Offcanvas de detalle de registro ===== -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="recordOffcanvas"
-         aria-labelledby="drawerTitle" style="--bs-offcanvas-width:min(480px,100vw)">
-      <div class="offcanvas-header">
-        <div class="min-w-0">
-          <p class="eyebrow mb-0" id="drawerType"></p>
-          <h2 class="offcanvas-title h5 mb-0 text-truncate" id="drawerTitle">—</h2>
+    <!-- ===== Drawer de detalle de registro ===== -->
+    <div class="drawer" id="recordOffcanvas" aria-labelledby="drawerTitle" aria-hidden="true">
+      <div class="drawer__backdrop" data-drawer-close></div>
+      <div class="drawer__panel">
+        <div class="drawer__head">
+          <div class="min-w-0">
+            <p class="eyebrow eyebrow--accent mb-0" id="drawerType"></p>
+            <h2 class="drawer__title h5 mb-0 text-truncate" id="drawerTitle">—</h2>
+          </div>
+          <button type="button" class="drawer__close" data-drawer-close aria-label="Cerrar">×</button>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+        <div class="drawer__body" id="drawerBody"></div>
       </div>
-      <div class="offcanvas-body" id="drawerBody"></div>
     </div>
 
-    <!-- Bootstrap bundle (Popper incluido). Va al final del body, antes de los scripts de pagina. -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="/static/fuentes.js?v=bs4" defer></script>
+    <!-- UI propia (Drawer + initCollapse), antes del script de pagina. -->
+    <script src="/static/ui.js?v=bs5" defer></script>
+    <script src="/static/fuentes.js?v=bs5" defer></script>
   </body>
 </html>

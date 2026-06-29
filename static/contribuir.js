@@ -23,19 +23,10 @@ function escapeHtml(value) {
 
 function setMessage(type, title, body = "") {
   // type: success | danger | warning
-  const icon =
-    type === "success"
-      ? "bi-check-circle"
-      : type === "warning"
-        ? "bi-exclamation-triangle"
-        : "bi-exclamation-triangle";
   messageArea.innerHTML = `
-    <div class="alert alert-${type} d-flex align-items-start gap-2" role="alert">
-      <i class="bi ${icon} fs-5 lh-1"></i>
-      <div>
-        <strong>${escapeHtml(title)}</strong>
-        ${body ? `<div class="small mb-0">${escapeHtml(body)}</div>` : ""}
-      </div>
+    <div class="alert alert-${type}" role="alert">
+      <strong>${escapeHtml(title)}</strong>
+      ${body ? `<div class="small mb-0">${escapeHtml(body)}</div>` : ""}
     </div>
   `;
   messageArea.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -151,7 +142,7 @@ let mappingRowSeq = 0;
 function addMappingRow(target = "", source = "") {
   const rowId = `maprow-${++mappingRowSeq}`;
   const row = document.createElement("div");
-  row.className = "mapping-row row g-2 align-items-start align-items-lg-center";
+  row.className = "mapping-row";
   row.dataset.rowId = rowId;
   row.dataset.target = target;
   const options = ['<option value="">— campo destino —</option>']
@@ -163,18 +154,10 @@ function addMappingRow(target = "", source = "") {
     )
     .join("");
   row.innerHTML = `
-    <div class="col-12 col-lg-5">
-      <select class="form-select form-select-sm map-target" data-row-id="${rowId}" name="map_target_${mappingRowSeq}" aria-label="Campo del esquema">${options}</select>
-    </div>
-    <div class="col-auto text-muted px-0 d-none d-lg-flex align-items-center" aria-hidden="true"><i class="bi bi-arrow-left-short"></i></div>
-    <div class="col-12 col-lg">
-      <input class="form-control form-control-sm map-source" data-row-id="${rowId}" name="map_source_${mappingRowSeq}" placeholder="campo en tu API" aria-label="Campo en tu API" value="${escapeHtml(source)}">
-    </div>
-    <div class="col-auto">
-      <button type="button" class="btn btn-outline-danger btn-sm map-remove" aria-label="Quitar campo">
-        <i class="bi bi-x-lg" aria-hidden="true"></i>
-      </button>
-    </div>
+    <select class="select form-select-sm map-target" data-row-id="${rowId}" name="map_target_${mappingRowSeq}" aria-label="Campo del esquema">${options}</select>
+    <span class="text-muted text-center" aria-hidden="true">&larr;</span>
+    <input class="input form-control-sm map-source" data-row-id="${rowId}" name="map_source_${mappingRowSeq}" placeholder="campo en tu API" aria-label="Campo en tu API" value="${escapeHtml(source)}">
+    <button type="button" class="btn btn-danger-outline btn-sm map-remove" aria-label="Quitar campo">&times;</button>
   `;
   const select = row.querySelector(".map-target");
   select.addEventListener("change", () => {
@@ -254,10 +237,10 @@ async function loadSchema() {
     contractFields.innerHTML = targetFields
       .map(
         (f) => `
-          <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+          <div class="row-item d-flex align-items-center justify-content-between">
             <code>${escapeHtml(f.name)}</code>
-            ${f.required ? '<span class="badge text-bg-primary">obligatorio</span>' : ""}
-          </li>`
+            ${f.required ? '<span class="tag tag--accent">obligatorio</span>' : ""}
+          </div>`
       )
       .join("");
 
@@ -386,7 +369,7 @@ async function submitForm(event) {
   const originalHtml = button.innerHTML;
   button.disabled = true;
   button.innerHTML =
-    '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Enviando...';
+    '<span class="spinner me-2" aria-hidden="true"></span>Enviando...';
   formStatus.textContent = "Enviando...";
 
   try {

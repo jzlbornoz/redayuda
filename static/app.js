@@ -1,4 +1,4 @@
-// Red Humanitaria de Datos — pagina Buscar (Bootstrap 5)
+// Red Humanitaria de Datos — pagina Buscar (CSS propio + ui.js)
 // Search-first: pulso de la red por defecto; resultados solo al buscar.
 
 const form = document.querySelector("#searchForm");
@@ -29,6 +29,7 @@ const resultsView = document.querySelector("#resultsView");
 const statRecords = document.querySelector("#statRecords");
 const statSources = document.querySelector("#statSources");
 const statFresh = document.querySelector("#statFresh");
+const typeBars = document.querySelector("#typeBars");
 
 const drawerBody = document.querySelector("#drawerBody");
 const offcanvasEl = document.querySelector("#recordOffcanvas");
@@ -104,14 +105,10 @@ function reasonLabel(reason) {
 // ---------- Mensajes / alertas ----------
 function setMessage(type, title, body = "") {
   const cls = type === "error" ? "alert-danger" : type === "warn" ? "alert-warning" : "alert-secondary";
-  const icon = type === "error" ? "bi-exclamation-triangle" : type === "warn" ? "bi-exclamation-circle" : "bi-info-circle";
   messageArea.innerHTML = `
-    <div class="alert ${cls} d-flex gap-2" role="alert">
-      <i class="bi ${icon} flex-shrink-0 mt-1" aria-hidden="true"></i>
-      <div>
-        <strong>${escapeHtml(title)}</strong>
-        ${body ? `<div class="small mb-0">${escapeHtml(body)}</div>` : ""}
-      </div>
+    <div class="alert ${cls}" role="alert">
+      <strong>${escapeHtml(title)}</strong>
+      ${body ? `<div class="small mb-0">${escapeHtml(body)}</div>` : ""}
     </div>
   `;
 }
@@ -155,11 +152,10 @@ function skeletonItems(n = 4) {
   let html = "";
   for (let i = 0; i < n; i += 1) {
     html += `
-      <div class="list-group-item placeholder-glow">
-        <span class="placeholder col-6 d-block mb-2"></span>
-        <span class="placeholder col-3 me-1"></span>
-        <span class="placeholder col-2"></span>
-        <span class="placeholder col-8 d-block mt-2"></span>
+      <div class="row-item">
+        <span class="skeleton skeleton--text skeleton-glow d-block mb-2" style="inline-size:50%"></span>
+        <span class="skeleton skeleton--text skeleton-glow d-block mb-2" style="inline-size:30%"></span>
+        <span class="skeleton skeleton--text skeleton-glow d-block" style="inline-size:66%"></span>
       </div>
     `;
   }
@@ -198,9 +194,9 @@ function readParams(offset = 0) {
 }
 
 // ---------- Render de resultados ----------
-function badge(text, variant = "secondary", icon = "") {
-  const ic = icon ? `<i class="bi ${icon} me-1" aria-hidden="true"></i>` : "";
-  return `<span class="badge text-bg-${variant}">${ic}${escapeHtml(text)}</span>`;
+function badge(text, variant = "secondary") {
+  const cls = variant === "primary" ? "tag tag--accent" : variant === "success" ? "tag tag--ok" : "tag";
+  return `<span class="${cls}">${escapeHtml(text)}</span>`;
 }
 
 function renderResultItem(result) {
@@ -210,26 +206,26 @@ function renderResultItem(result) {
 
   const badges = [badge(typeLabel(record.record_type), "primary")];
   if (location) {
-    badges.push(`<span class="badge text-bg-secondary"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>${escapeHtml(location)}</span>`);
+    badges.push(`<span class="tag">${escapeHtml(location)}</span>`);
   }
   if (record.verified === true) {
-    badges.push(`<span class="badge text-bg-success"><i class="bi bi-patch-check me-1" aria-hidden="true"></i>Verificado</span>`);
+    badges.push(`<span class="tag tag--ok">Verificado</span>`);
   } else if (record.verified === false) {
-    badges.push(`<span class="badge text-bg-secondary">Por verificar</span>`);
+    badges.push(`<span class="tag">Por verificar</span>`);
   }
   if (result.also_in_count > 1) {
-    badges.push(`<span class="badge border text-secondary">en ${compactNumber(result.also_in_count)} fuentes</span>`);
+    badges.push(`<span class="tag">en ${compactNumber(result.also_in_count)} fuentes</span>`);
   }
 
   const reasons = (result.reasons || [])
     .slice(0, 4)
-    .map((r) => `<span class="badge border text-secondary fw-normal">${escapeHtml(reasonLabel(r))}</span>`)
+    .map((r) => `<span class="tag fw-normal">${escapeHtml(reasonLabel(r))}</span>`)
     .join(" ");
 
   const scorePct = Math.max(4, Math.min(100, Math.round((Number(result.score) || 0) * 10)));
 
   return `
-    <button type="button" class="list-group-item list-group-item-action" data-id="${escapeHtml(record.id)}">
+    <button type="button" class="row-item row-item--action" data-id="${escapeHtml(record.id)}">
       <div class="d-flex gap-3">
         ${thumb(record)}
         <div class="flex-grow-1 min-w-0">
@@ -238,7 +234,7 @@ function renderResultItem(result) {
               <div class="fw-semibold text-truncate">${escapeHtml(title)}</div>
               <div class="d-flex flex-wrap gap-1 mt-1">${badges.join(" ")}</div>
             </div>
-            <span class="text-muted fs-7 flex-shrink-0">${escapeHtml(record.source_name || "")}</span>
+            <span class="text-muted small flex-shrink-0">${escapeHtml(record.source_name || "")}</span>
           </div>
           ${record.summary ? `<p class="text-muted small mb-2 mt-2">${escapeHtml(record.summary)}</p>` : '<div class="mt-2"></div>'}
           ${reasons ? `<div class="d-flex flex-wrap gap-1 mb-2">${reasons}</div>` : ""}
@@ -249,20 +245,30 @@ function renderResultItem(result) {
   `;
 }
 
+// SVG monocromo inline (currentColor), sin bootstrap-icons.
+const THUMB_SVG = {
+  persona:
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.25"/><path d="M5.5 19a6.5 6.5 0 0 1 13 0"/></svg>',
+  centro:
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>',
+  lugar:
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10z"/><circle cx="12" cy="11" r="2.25"/></svg>',
+};
+
 function thumbIcon(recordType) {
   const t = recordType || "";
-  if (t.startsWith("persona")) return "person";
-  if (t === "centro_acopio" || t === "centro_donacion") return "box-seam";
-  return "geo-alt";
+  if (t.startsWith("persona")) return "persona";
+  if (t === "centro_acopio" || t === "centro_donacion") return "centro";
+  return "lugar";
 }
 
 function thumb(record) {
-  const icon = thumbIcon(record.record_type);
+  const kind = thumbIcon(record.record_type);
   if (record.image_url) {
     return `<img src="${escapeHtml(record.image_url)}" alt="" class="rh-thumb flex-shrink-0"
       loading="lazy" referrerpolicy="no-referrer" onerror="this.classList.add('d-none')">`;
   }
-  return `<div class="rh-thumb rh-thumb-ph flex-shrink-0"><i class="bi bi-${icon}" aria-hidden="true"></i></div>`;
+  return `<div class="rh-thumb-ph flex-shrink-0">${THUMB_SVG[kind]}</div>`;
 }
 
 function renderResponse(data, append = false) {
@@ -284,7 +290,6 @@ function renderResponse(data, append = false) {
   if (!data.results.length && !append) {
     resultsList.innerHTML = `
       <div class="empty-state">
-        <i class="bi bi-search" aria-hidden="true"></i>
         <strong class="d-block">Sin resultados en el indice</strong>
         <span class="text-muted">Ajusta los filtros o sincroniza una fuente para ampliar la busqueda.</span>
       </div>
@@ -313,12 +318,12 @@ function renderDetail(record) {
     .join(" - ");
 
   const tags = (record.tags || []).length
-    ? record.tags.map((t) => `<span class="badge border text-secondary me-1">${escapeHtml(t)}</span>`).join("")
+    ? record.tags.map((t) => `<span class="tag me-1">${escapeHtml(t)}</span>`).join("")
     : "--";
 
   let sourceLink = escapeHtml(record.source_name || "--");
   if (record.source_url) {
-    sourceLink = `<a class="btn btn-link p-0 align-baseline" href="${escapeHtml(record.source_url)}" target="_blank" rel="noopener">${escapeHtml(record.source_name || record.source_url)} <i class="bi bi-link-45deg" aria-hidden="true"></i></a>`;
+    sourceLink = `<a class="btn btn-ghost btn-sm" href="${escapeHtml(record.source_url)}" target="_blank" rel="noopener">${escapeHtml(record.source_name || record.source_url)} &rarr;</a>`;
   }
 
   offcanvasTitle.textContent = record.title || record.person_name || "Detalle del registro";
@@ -326,8 +331,8 @@ function renderDetail(record) {
   drawerBody.innerHTML = `
     <div class="d-flex flex-wrap gap-1 mb-3">
       ${badge(typeLabel(record.record_type), "primary")}
-      ${record.verified === true ? `<span class="badge text-bg-success"><i class="bi bi-patch-check me-1" aria-hidden="true"></i>Verificado</span>` : ""}
-      ${record.status ? `<span class="badge border text-secondary">${escapeHtml(record.status)}</span>` : ""}
+      ${record.verified === true ? `<span class="tag tag--ok">Verificado</span>` : ""}
+      ${record.status ? `<span class="tag">${escapeHtml(record.status)}</span>` : ""}
     </div>
     ${record.summary ? `<p class="text-muted">${escapeHtml(record.summary)}</p>` : ""}
     <dl class="mb-0">
@@ -346,13 +351,13 @@ function renderDetail(record) {
 }
 
 async function openRecord(id) {
-  const oc = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
+  const oc = Drawer.getOrCreateInstance(offcanvasEl);
   offcanvasTitle.textContent = "Cargando...";
   drawerBody.innerHTML = `
-    <div class="placeholder-glow">
-      <span class="placeholder col-8 d-block mb-2"></span>
-      <span class="placeholder col-5 d-block mb-2"></span>
-      <span class="placeholder col-10 d-block"></span>
+    <div>
+      <span class="skeleton skeleton--text skeleton-glow d-block mb-2" style="inline-size:66%"></span>
+      <span class="skeleton skeleton--text skeleton-glow d-block mb-2" style="inline-size:42%"></span>
+      <span class="skeleton skeleton--text skeleton-glow d-block" style="inline-size:83%"></span>
     </div>
   `;
   oc.show();
@@ -365,9 +370,7 @@ async function openRecord(id) {
   } catch {
     offcanvasTitle.textContent = "Error";
     drawerBody.innerHTML = `
-      <div class="alert alert-danger" role="alert">
-        <i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i> No se pudo cargar el registro.
-      </div>
+      <div class="alert alert-danger" role="alert">No se pudo cargar el registro.</div>
     `;
   }
 }
@@ -430,6 +433,49 @@ async function runSearch(offset = 0, append = false) {
   }
 }
 
+// ---------- Desglose por tipo (barras) ----------
+function renderTypeBars(recordTypes) {
+  if (!typeBars) return;
+
+  // Normalizar a [{type, count}] desde objeto {tipo: n} o array [{record_type, count}].
+  let entries = [];
+  if (Array.isArray(recordTypes)) {
+    entries = recordTypes.map((r) => ({
+      type: r.record_type || r.type || r.name,
+      count: Number(r.count ?? r.record_count ?? r.total ?? 0),
+    }));
+  } else if (recordTypes && typeof recordTypes === "object") {
+    entries = Object.entries(recordTypes).map(([type, count]) => ({
+      type,
+      count: Number(count) || 0,
+    }));
+  }
+
+  entries = entries.filter((e) => e.type && e.count > 0).sort((a, b) => b.count - a.count);
+
+  if (!entries.length) {
+    typeBars.innerHTML = `<p class="text-muted small mb-0">Sin datos por tipo todavia.</p>`;
+    return;
+  }
+
+  const max = entries[0].count;
+  const rows = entries
+    .map((e, i) => {
+      const pct = Math.max(2, Math.round((e.count / max) * 100));
+      const peak = i === 0 ? " bar--peak" : "";
+      return `
+        <li class="bar${peak}">
+          <span class="bar__label">${escapeHtml(typeLabel(e.type))}</span>
+          <span class="bar__track"><span class="bar__fill" style="width:${pct}%"></span></span>
+          <span class="bar__value">${compactNumber(e.count)}</span>
+        </li>
+      `;
+    })
+    .join("");
+
+  typeBars.innerHTML = `<ul class="bars">${rows}</ul>`;
+}
+
 // ---------- Pulso de la red ----------
 async function loadStats() {
   try {
@@ -439,6 +485,8 @@ async function loadStats() {
 
     statRecords.textContent = compactNumber(data.total_records);
     statSources.textContent = compactNumber(data.total_sources);
+
+    renderTypeBars(data.record_types);
 
     const lastSync = (data.sources || [])
       .map((s) => s.last_sync)

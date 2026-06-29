@@ -8,56 +8,49 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
-    <!-- Bootstrap 5.3 CSS (jsdelivr CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Tema sobrio humanitario (DEBE ir despues de Bootstrap) -->
-    <link rel="stylesheet" href="/static/theme.css?v=bs4">
+    <!-- Sistema de diseno propio (sin Bootstrap) -->
+    <link rel="stylesheet" href="/static/rhd.css?v=bs5">
     <!-- Favicons existentes -->
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
   </head>
-  <body class="d-flex flex-column min-vh-100">
+  <body>
 
     <a class="visually-hidden-focusable" href="#main">Saltar al contenido</a>
 
-    <nav class="navbar navbar-expand-lg sticky-top py-2" aria-label="Navegacion principal">
-      <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="/" aria-label="Inicio">
-          <span class="brand-mark" aria-hidden="true">HV</span>
-          <span class="d-flex flex-column lh-1">
-            <strong>Red Humanitaria de Datos</strong>
-            <small class="text-muted fs-8">Indexador de datos humanitarios</small>
+    <nav class="site-nav" aria-label="Navegacion principal">
+      <div class="container site-nav__inner">
+        <a class="brand" href="/" aria-label="Inicio">
+          <span class="brand__mark" aria-hidden="true">HV</span>
+          <span class="brand__name">Red Humanitaria de Datos
+            <span class="brand__sub">Indexador de datos humanitarios</span>
           </span>
         </a>
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menu">
-          <span class="navbar-toggler-icon"></span>
+        <button class="nav-toggle" type="button" data-toggle="collapse" data-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menu">
+          <span class="nav-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
         </button>
-        <div class="collapse navbar-collapse" id="mainNav">
-          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
-            <li class="nav-item"><a class="nav-link" href="/red" data-nav="red">Red</a></li>
-            <li class="nav-item"><a class="nav-link" href="/" data-nav="buscar">Buscar</a></li>
-            <li class="nav-item"><a class="nav-link" href="/fuentes" data-nav="fuentes">Fuentes</a></li>
-            <li class="nav-item"><a class="nav-link" href="/integrar" data-nav="integrar">Integrar</a></li>
-            <li class="nav-item"><a class="nav-link" href="/contribuir" data-nav="contribuir">Registrar fuente</a></li>
-            <li class="nav-item"><a class="nav-link" href="/docs" data-nav="docs">API docs</a></li>
-            <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
-              <span id="healthStatus" class="status-pill status-muted">Verificando</span>
-            </li>
-          </ul>
-        </div>
+        <ul class="nav-menu collapse" id="mainNav">
+          <li class="nav-menu__item"><a class="nav-link" href="/red" data-nav="red">Red</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/" data-nav="buscar">Buscar</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/fuentes" data-nav="fuentes">Fuentes</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/integrar" data-nav="integrar">Integrar</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/contribuir" data-nav="contribuir">Registrar fuente</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/docs" data-nav="docs">API docs</a></li>
+          <li class="nav-menu__item">
+            <span id="healthStatus" class="status-pill status-muted">Verificando</span>
+          </li>
+        </ul>
       </div>
     </nav>
 
-    <main id="main" tabindex="-1" class="container py-4 py-lg-5">
+    <main id="main" tabindex="-1" class="container py-5">
 
       <!-- A. Hero del concepto -->
       <header class="rh-hub-hero mb-5 border-bottom pb-4">
-        <p class="eyebrow">Como funciona</p>
+        <p class="eyebrow eyebrow--accent">Como funciona</p>
         <h1 class="mb-3">La red, conectada</h1>
         <p class="rh-hub-lead mb-4">Un índice común al que las apps se conectan en vez de duplicarlo. Este es el mapa de cómo entran y se comparten los datos.</p>
-        <div class="d-flex flex-wrap gap-2">
+        <div class="cluster">
           <a class="btn btn-primary btn-lg" href="/integrar">Conecta tu app a la red</a>
         </div>
       </header>
@@ -65,8 +58,8 @@
       <!-- B. Diagrama de interconexion -->
       <section class="rh-diagram" aria-labelledby="rh-diagram-title">
         <p class="eyebrow mb-1">Como se conecta</p>
-        <h2 id="rh-diagram-title" class="h4 mb-2">Una sola red en vez de muchos indices duplicados</h2>
-        <p class="text-muted fs-7 mb-4" style="max-width:62ch">
+        <h2 id="rh-diagram-title" class="mb-2">Una sola red en vez de muchos indices duplicados</h2>
+        <p class="text-muted mb-4" style="max-width:62ch">
           Hoy varias apps repiten el mismo trabajo: cada una arma su propio indice de
           desaparecidos, centros de acopio y hospitales. Aqui se conectan todas a traves
           de una API y un idioma comun, el esquema <code>IndexedRecord</code>.
@@ -132,51 +125,45 @@
 
         </div>
 
-        <div class="d-flex flex-wrap gap-2 mt-4">
+        <div class="cluster mt-4">
           <a href="/integrar" class="btn btn-primary">Conecta tu app a la red</a>
-          <a href="/contribuir" class="btn btn-outline-primary">Registrar tu fuente</a>
+          <a href="/contribuir" class="btn btn-outline">Registrar tu fuente</a>
         </div>
       </section>
 
       <!-- C. Apps conectadas (directorio en vivo) -->
       <section class="mt-5 pt-4 border-top" aria-label="Apps conectadas">
         <p class="eyebrow mb-1">Apps conectadas</p>
-        <h2 class="h4 mb-1">Apps conectadas</h2>
+        <h2 class="mb-1">Apps conectadas</h2>
         <p class="text-muted mb-3">Las fuentes que hoy alimentan el índice y comparten registros con el resto de la red.</p>
         <div id="redSourcesMessage" aria-live="polite"></div>
-        <div id="redSources" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3"></div>
+        <div id="redSources" class="grid grid--auto"></div>
       </section>
 
       <!-- D. Las 3 vias (detalle) -->
       <section class="mt-5 pt-4 border-top" aria-label="Formas de conectarte">
         <p class="eyebrow mb-1">Como te conectas</p>
-        <h2 class="h4 mb-3">Tres vías para unirte</h2>
-        <div class="row g-3 row-cols-1 row-cols-md-3">
-          <div class="col">
-            <div class="card h-100">
-              <div class="card-body">
-                <h3 class="h6 d-flex align-items-center gap-2"><i class="bi bi-box-arrow-in-down text-primary" aria-hidden="true"></i>Te jalamos</h3>
-                <p class="text-muted fs-7 mb-3">Tu app expone un endpoint JSON de lectura. Lo registras con un mapeo de tus campos al esquema común y nosotros lo sincronizamos cada cierto tiempo. No tienes que cambiar tu base de datos.</p>
-                <a href="/contribuir" class="btn btn-outline-primary btn-sm">Registrar tu fuente</a>
-              </div>
+        <h2 class="mb-3">Tres vías para unirte</h2>
+        <div class="grid grid--3">
+          <div class="card">
+            <div class="card__body">
+              <h3 class="card__title">Te jalamos</h3>
+              <p class="text-muted mb-3">Tu app expone un endpoint JSON de lectura. Lo registras con un mapeo de tus campos al esquema común y nosotros lo sincronizamos cada cierto tiempo. No tienes que cambiar tu base de datos.</p>
+              <a href="/contribuir" class="btn btn-outline btn-sm">Registrar tu fuente</a>
             </div>
           </div>
-          <div class="col">
-            <div class="card h-100">
-              <div class="card-body">
-                <h3 class="h6 d-flex align-items-center gap-2"><i class="bi bi-box-arrow-up text-primary" aria-hidden="true"></i>Tú empujas</h3>
-                <p class="text-muted fs-7 mb-3">Tu app envía los datos ya en el esquema común a la API de ingesta (<code>POST /api/ingest</code>), autenticada con tu clave. Controlas qué compartes y cuándo.</p>
-                <a href="/integrar" class="btn btn-outline-primary btn-sm">Ver cómo integrar</a>
-              </div>
+          <div class="card">
+            <div class="card__body">
+              <h3 class="card__title">Tú empujas</h3>
+              <p class="text-muted mb-3">Tu app envía los datos ya en el esquema común a la API de ingesta (<code>POST /api/ingest</code>), autenticada con tu clave. Controlas qué compartes y cuándo.</p>
+              <a href="/integrar" class="btn btn-outline btn-sm">Ver cómo integrar</a>
             </div>
           </div>
-          <div class="col">
-            <div class="card h-100">
-              <div class="card-body">
-                <h3 class="h6 d-flex align-items-center gap-2"><i class="bi bi-diagram-3 text-primary" aria-hidden="true"></i>Federación</h3>
-                <p class="text-muted fs-7 mb-3">Nodos independientes que se sincronizan entre sí (<code>/api/peers</code>). Cada uno mantiene su propio índice y comparte lo que indexa con los demás nodos de la red.</p>
-                <a href="/docs" class="btn btn-outline-primary btn-sm">API docs</a>
-              </div>
+          <div class="card">
+            <div class="card__body">
+              <h3 class="card__title">Federación</h3>
+              <p class="text-muted mb-3">Nodos independientes que se sincronizan entre sí (<code>/api/peers</code>). Cada uno mantiene su propio índice y comparte lo que indexa con los demás nodos de la red.</p>
+              <a href="/docs" class="btn btn-outline btn-sm">API docs</a>
             </div>
           </div>
         </div>
@@ -185,43 +172,37 @@
       <!-- E. Estadisticas de la red -->
       <section class="mt-5 pt-4 border-top" aria-label="Estadisticas de la red">
         <p class="eyebrow mb-1">Pulso de la red</p>
-        <h2 class="h4 mb-3">Estado en vivo</h2>
-        <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-md-3 mb-4">
-          <div class="col">
-            <div class="card h-100">
-              <div class="card-body py-3">
-                <div class="h4 mb-0" id="statRecords">—</div>
-                <div class="text-muted fs-7"><i class="bi bi-collection me-1" aria-hidden="true"></i>Registros indexados</div>
-              </div>
+        <h2 class="mb-3">Estado en vivo</h2>
+        <div class="grid grid--3 mb-4">
+          <div class="card">
+            <div class="card__body">
+              <div class="display" id="statRecords">—</div>
+              <div class="eyebrow mt-2 mb-0">Registros indexados</div>
             </div>
           </div>
-          <div class="col">
-            <div class="card h-100">
-              <div class="card-body py-3">
-                <div class="h4 mb-0" id="statSources">—</div>
-                <div class="text-muted fs-7"><i class="bi bi-database me-1" aria-hidden="true"></i>Fuentes conectadas</div>
-              </div>
+          <div class="card">
+            <div class="card__body">
+              <div class="display" id="statSources">—</div>
+              <div class="eyebrow mt-2 mb-0">Fuentes conectadas</div>
             </div>
           </div>
-          <div class="col">
-            <div class="card h-100">
-              <div class="card-body py-3">
-                <div class="h4 mb-0" id="statFresh">—</div>
-                <div class="text-muted fs-7"><i class="bi bi-clock-history me-1" aria-hidden="true"></i>Última sincronización</div>
-              </div>
+          <div class="card">
+            <div class="card__body">
+              <div class="display" id="statFresh">—</div>
+              <div class="eyebrow mt-2 mb-0">Última sincronización</div>
             </div>
           </div>
         </div>
-        <div id="redTypeBreakdown" class="d-flex flex-wrap gap-2"></div>
-        <p class="text-muted fs-7 mt-3 mb-0">Registros, fuentes y tipos provienen del estado en vivo de la red. Se actualizan en cada sincronización.</p>
+        <div id="redTypeBreakdown"></div>
+        <p class="text-muted mt-3 mb-0">Registros, fuentes y tipos provienen del estado en vivo de la red. Se actualizan en cada sincronización.</p>
       </section>
 
     </main>
 
-    <footer class="site-footer mt-auto py-4">
-      <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-2">
+    <footer class="site-footer">
+      <div class="container cluster cluster--between">
         <span>Red Humanitaria de Datos — un índice común para las apps de ayuda de Venezuela, en lugar de duplicar el mismo esfuerzo.</span>
-        <nav class="d-flex gap-3" aria-label="Enlaces del pie">
+        <nav class="cluster" aria-label="Enlaces del pie">
           <a href="/fuentes">Fuentes</a>
           <a href="/contribuir">Registrar fuente</a>
           <a href="/docs">API docs</a>
@@ -229,8 +210,7 @@
       </div>
     </footer>
 
-    <!-- Bootstrap bundle (Popper incluido). Va al final del body, antes de los scripts de pagina. -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="/static/red.js?v=bs4" defer></script>
+    <script src="/static/ui.js?v=bs5" defer></script>
+    <script src="/static/red.js?v=bs5" defer></script>
   </body>
 </html>

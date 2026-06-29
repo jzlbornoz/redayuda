@@ -7,87 +7,80 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/static/theme.css?v=bs4">
+    <link rel="stylesheet" href="/static/rhd.css?v=bs5">
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
   </head>
-  <body class="d-flex flex-column min-vh-100">
+  <body>
     <a class="visually-hidden-focusable" href="#main">Saltar al contenido</a>
-    <nav class="navbar navbar-expand-lg sticky-top py-2" aria-label="Navegacion principal">
-      <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="/" aria-label="Inicio">
-          <span class="brand-mark" aria-hidden="true">HV</span>
-          <span class="d-flex flex-column lh-1">
-            <strong>Red Humanitaria de Datos</strong>
-            <small class="text-muted fs-8">Indexador de datos humanitarios</small>
+    <nav class="site-nav" aria-label="Navegacion principal">
+      <div class="container site-nav__inner">
+        <a class="brand" href="/" aria-label="Inicio">
+          <span class="brand__mark" aria-hidden="true">HV</span>
+          <span class="brand__name">Red Humanitaria de Datos
+            <span class="brand__sub">Indexador de datos humanitarios</span>
           </span>
         </a>
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menu">
-          <span class="navbar-toggler-icon"></span>
+        <button class="nav-toggle" type="button" data-toggle="collapse" data-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menu">
+          <span class="nav-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
         </button>
-        <div class="collapse navbar-collapse" id="mainNav">
-          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
-            <li class="nav-item"><a class="nav-link" href="/red" data-nav="red">Red</a></li>
-            <li class="nav-item"><a class="nav-link" href="/" data-nav="buscar">Buscar</a></li>
-            <li class="nav-item"><a class="nav-link" href="/fuentes" data-nav="fuentes">Fuentes</a></li>
-            <li class="nav-item"><a class="nav-link active" aria-current="page" href="/integrar" data-nav="integrar">Integrar</a></li>
-            <li class="nav-item"><a class="nav-link" href="/contribuir" data-nav="contribuir">Registrar fuente</a></li>
-            <li class="nav-item"><a class="nav-link" href="/docs" data-nav="docs">API docs</a></li>
-            <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
-              <span id="healthStatus" class="status-pill status-muted">Verificando</span>
-            </li>
-          </ul>
-        </div>
+        <ul class="nav-menu collapse" id="mainNav">
+          <li class="nav-menu__item"><a class="nav-link" href="/red" data-nav="red">Red</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/" data-nav="buscar">Buscar</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/fuentes" data-nav="fuentes">Fuentes</a></li>
+          <li class="nav-menu__item"><a class="nav-link active" aria-current="page" href="/integrar" data-nav="integrar">Integrar</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/contribuir" data-nav="contribuir">Registrar fuente</a></li>
+          <li class="nav-menu__item"><a class="nav-link" href="/docs" data-nav="docs">API docs</a></li>
+          <li class="nav-menu__item">
+            <span id="healthStatus" class="status-pill status-muted">Verificando</span>
+          </li>
+        </ul>
       </div>
     </nav>
 
-    <main id="main" tabindex="-1" class="container py-4 py-lg-5">
-      <header class="mb-4">
-        <p class="eyebrow">Integrar</p>
-        <h1 class="h3 mb-2">Conecta tu app a la red</h1>
-        <p class="text-muted mb-0" style="max-width: 70ch;">
+    <main id="main" tabindex="-1" class="container py-5">
+      <header class="stack stack--sm mb-5">
+        <p class="eyebrow eyebrow--accent">Integrar</p>
+        <h1>Conecta tu app a la red</h1>
+        <p class="lead">
           El esquema comun <code>IndexedRecord</code> es el idioma compartido. Tu app puede
           unirse de dos formas, y puedes hacerlo con ayuda de un LLM (Claude Code u otro):
           copia uno de los prompts de abajo, pegalo en tu asistente sobre tu proyecto, y listo.
         </p>
       </header>
 
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <div class="card h-100"><div class="card-body p-3 p-lg-4">
-            <h2 class="h6"><i class="bi bi-box-arrow-in-down me-1" aria-hidden="true"></i> Opcion A — Te jalamos</h2>
-            <p class="text-muted small mb-0">Expon un endpoint de lectura (JSON) en tu app. Lo registras en
-            <a href="/contribuir">Registrar fuente</a> con el mapeo de tus campos y nosotros lo sincronizamos.
-            Ideal si ya tienes una base de datos.</p>
-          </div></div>
-        </div>
-        <div class="col-md-6">
-          <div class="card h-100"><div class="card-body p-3 p-lg-4">
-            <h2 class="h6"><i class="bi bi-box-arrow-up me-1" aria-hidden="true"></i> Opcion B — Tu empujas</h2>
-            <p class="text-muted small mb-0">Tu app envia los datos ya en el esquema comun a <code>/api/ingest</code>
-            con tu clave. Ideal si quieres controlar cuando y que compartes.</p>
-          </div></div>
-        </div>
+      <div class="grid grid--2 mb-5">
+        <div class="card"><div class="card__body">
+          <p class="eyebrow">Opcion A</p>
+          <h2 class="card__title">Te jalamos</h2>
+          <p class="text-muted mb-0">Expon un endpoint de lectura (JSON) en tu app. Lo registras en
+          <a href="/contribuir">Registrar fuente</a> con el mapeo de tus campos y nosotros lo sincronizamos.
+          Ideal si ya tienes una base de datos.</p>
+        </div></div>
+        <div class="card"><div class="card__body">
+          <p class="eyebrow">Opcion B</p>
+          <h2 class="card__title">Tu empujas</h2>
+          <p class="text-muted mb-0">Tu app envia los datos ya en el esquema comun a <code>/api/ingest</code>
+          con tu clave. Ideal si quieres controlar cuando y que compartes.</p>
+        </div></div>
       </div>
 
-      <h2 class="h5 mb-3">Prompts para tu LLM</h2>
-      <div id="prompts" class="vstack gap-3"></div>
+      <h2 class="mb-3">Prompts para tu LLM</h2>
+      <div id="prompts" class="stack stack--lg"></div>
 
-      <details class="mt-4">
-        <summary class="h6 d-inline">Esquema comun (campos)</summary>
+      <details class="mt-5">
+        <summary class="h6 d-inline cursor-pointer">Esquema comun (campos)</summary>
         <div id="schemaFields" class="mt-2"></div>
       </details>
     </main>
 
-    <footer class="border-top py-3 mt-auto">
-      <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-2">
+    <footer class="site-footer">
+      <div class="container cluster cluster--between">
         <small class="text-muted">Red Humanitaria de Datos — un índice común para las apps de ayuda de Venezuela, en lugar de duplicar el mismo esfuerzo.</small>
         <small class="text-muted"><a href="/docs">API docs</a> · <a href="/fuentes">Fuentes</a></small>
       </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/static/integrar.js?v=bs4" defer></script>
+    <script src="/static/ui.js?v=bs5" defer></script>
+    <script src="/static/integrar.js?v=bs5" defer></script>
   </body>
 </html>

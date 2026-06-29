@@ -35,15 +35,13 @@ async function loadHealth() {
   }
 }
 
-function promptCard(id, icon, title, desc, body) {
+function promptCard(id, title, desc, body) {
   return `
     <div class="card">
-      <div class="card-body p-3 p-lg-4">
+      <div class="card__body">
         <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
-          <h3 class="h6 mb-0"><i class="bi ${icon} me-1" aria-hidden="true"></i>${esc(title)}</h3>
-          <button class="btn btn-sm btn-outline-primary copy-btn" data-target="${id}" type="button">
-            <i class="bi bi-clipboard me-1" aria-hidden="true"></i>Copiar
-          </button>
+          <h3 class="card__title mb-0">${esc(title)}</h3>
+          <button class="btn btn-sm btn-outline copy-btn" data-target="${id}" type="button">Copiar</button>
         </div>
         <p class="text-muted small">${esc(desc)}</p>
         <pre class="doc-block mb-0" id="${id}">${esc(body)}</pre>
@@ -108,11 +106,11 @@ entity_id para agrupar duplicados entre fuentes. Tarea: integra una busqueda/lis
 mi app consumiendo estos endpoints, mostrando la fuente de cada dato.`;
 
   promptsEl.innerHTML = [
-    promptCard("promptA", "bi-box-arrow-in-down", "A. Crear un endpoint de lectura en mi app",
+    promptCard("promptA", "A. Crear un endpoint de lectura en mi app",
       "Pega esto en Claude Code (u otro LLM) sobre tu proyecto. Genera el endpoint que la red sincronizara.", promptA),
-    promptCard("promptB", "bi-box-arrow-up", "B. Empujar mis datos a la red",
+    promptCard("promptB", "B. Empujar mis datos a la red",
       "Para que tu app envie sus datos ya mapeados al esquema comun.", promptB),
-    promptCard("promptC", "bi-search", "C. Consumir la red en mi app",
+    promptCard("promptC", "C. Consumir la red en mi app",
       "Para mostrar en tu app los datos federados de todas las fuentes.", promptC),
   ].join("");
 
@@ -121,9 +119,9 @@ mi app consumiendo estos endpoints, mostrando la fuente de cada dato.`;
       const text = document.getElementById(btn.dataset.target).textContent;
       try {
         await navigator.clipboard.writeText(text);
-        const prev = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Copiado';
-        setTimeout(() => { btn.innerHTML = prev; }, 1600);
+        const prev = btn.textContent;
+        btn.textContent = "Copiado";
+        setTimeout(() => { btn.textContent = prev; }, 1600);
       } catch {
         btn.textContent = "Selecciona y copia manualmente";
       }
@@ -131,9 +129,9 @@ mi app consumiendo estos endpoints, mostrando la fuente de cada dato.`;
   });
 
   schemaFieldsEl.innerHTML =
-    '<div class="d-flex flex-wrap gap-2">' +
+    '<div class="cluster">' +
     (schema.record_fields || []).map((f) =>
-      `<span class="badge ${f.required ? "text-bg-primary" : "text-bg-secondary"}">${esc(f.name)}${f.required ? " *" : ""}</span>`
+      `<span class="tag ${f.required ? "tag--accent" : ""}">${esc(f.name)}${f.required ? " *" : ""}</span>`
     ).join("") + "</div>";
 }
 
