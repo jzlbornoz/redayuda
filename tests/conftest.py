@@ -33,6 +33,7 @@ def _reset_caches():
     config.get_settings.cache_clear()
     main.get_store.cache_clear()
     main.get_proposal_rate_limiter.cache_clear()
+    main.get_read_rate_limiter.cache_clear()
 
 
 @pytest.fixture

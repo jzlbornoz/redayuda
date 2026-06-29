@@ -1,3 +1,4 @@
+import hashlib
 import json
 import sqlite3
 import uuid
@@ -172,6 +173,7 @@ _RECORD_MIGRATIONS = [
     ("origin_source", "ALTER TABLE records ADD COLUMN origin_source TEXT"),
     ("feed_seq", "ALTER TABLE records ADD COLUMN feed_seq INTEGER"),
     ("entity_id", "ALTER TABLE records ADD COLUMN entity_id TEXT"),
+    ("content_hash", "ALTER TABLE records ADD COLUMN content_hash TEXT"),
 ]
 
 _FEED_SEQ_KEY = "feed_seq"
@@ -434,9 +436,19 @@ class IndexStore:
 
     def upsert_records(self, records):
         indexed_at = datetime.now(timezone.utc).isoformat()
+        changed = 0
         with self.connect() as connection:
             next_seq = self._read_feed_seq(connection)
             for record in records:
+                content_hash = _content_hash(record)
+                existing = connection.execute(
+                    "SELECT content_hash FROM records WHERE id = ?", (record.id,)
+                ).fetchone()
+                if existing is not None and existing[0] == content_hash:
+                    # Sin cambios reales: no re-escribir, no re-resolver entidad,
+                    # no consumir feed_seq. Hace los re-sync casi gratis.
+                    continue
+                changed += 1
                 next_seq += 1
                 connection.execute(
                     """
@@ -446,11 +458,11 @@ class IndexStore:
                         longitude, contact, status, verified, source_id, source_name,
                         source_url, source_record_id, observed_at, updated_at,
                         tags_json, raw_json, search_text, indexed_at,
-                        origin_node, origin_source, feed_seq
+                        origin_node, origin_source, feed_seq, content_hash
                     )
                     VALUES (
                         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                     )
                     ON CONFLICT(id) DO UPDATE SET
                         record_type = excluded.record_type,
@@ -481,13 +493,14 @@ class IndexStore:
                         indexed_at = excluded.indexed_at,
                         origin_node = COALESCE(records.origin_node, excluded.origin_node),
                         origin_source = COALESCE(records.origin_source, excluded.origin_source),
-                        feed_seq = excluded.feed_seq
+                        feed_seq = excluded.feed_seq,
+                        content_hash = excluded.content_hash
                     """,
-                    _record_values(record, indexed_at, next_seq),
+                    _record_values(record, indexed_at, next_seq, content_hash),
                 )
                 self._resolve_entity(connection, record)
             self._write_feed_seq(connection, next_seq)
-        return len(records)
+        return changed
 
     def feed_records(self, since_seq=0, limit=100, exclude_origin=None):
         with self.connect() as connection:
@@ -997,7 +1010,25 @@ def _add_score(score, reasons, amount, reason):
     return score
 
 
-def _record_values(record, indexed_at, feed_seq):
+def _content_hash(record):
+    """Hash del contenido sustantivo (excluye timestamps/feed/origin/indexed_at).
+
+    Permite saltar re-escrituras cuando el registro no cambio realmente, aunque
+    la fuente regenere campos de fecha en cada respuesta.
+    """
+    parts = [
+        record.record_type, record.title, record.summary, record.person_name,
+        digits_only(record.cedula), record.age, record.organization,
+        record.location_name, record.city, record.state, record.country,
+        record.latitude, record.longitude, record.contact, record.status,
+        record.verified, record.source_id, record.source_record_id,
+        record.tags, record.raw,
+    ]
+    blob = json.dumps(parts, ensure_ascii=False, sort_keys=True, default=str)
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+
+def _record_values(record, indexed_at, feed_seq, content_hash):
     return (
         record.id,
         record.record_type,
@@ -1029,6 +1060,7 @@ def _record_values(record, indexed_at, feed_seq):
         record.origin_node,
         record.origin_source,
         feed_seq,
+        content_hash,
     )
 
 

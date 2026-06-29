@@ -14,15 +14,19 @@ from . import connectors
 logger = logging.getLogger(__name__)
 
 
-async def sync_all_sources(store, settings):
+async def sync_all_sources(store, settings, only_auto=False):
     """Corre el sync de cada conector con fuente habilitada. Devuelve resultados.
 
-    Un fallo en un conector (p.ej. falta su API key) no detiene a los demas.
+    only_auto=True (loop horario): salta los conectores marcados auto_sync=False
+    (fuentes pesadas), que solo se sincronizan a demanda. Un fallo en un conector
+    (p.ej. falta su API key) no detiene a los demas.
     """
     connectors.load_builtin_connectors()
     results = []
     for connector in connectors.all_connectors():
         if not getattr(connector.source, "enabled", False):
+            continue
+        if only_auto and not getattr(connector, "auto_sync", True):
             continue
         sid = connector.source_id
         try:
@@ -53,7 +57,7 @@ async def sync_loop(store, settings):  # pragma: no cover - loop de fondo
     await asyncio.sleep(5)
     while True:
         try:
-            await sync_all_sources(store, settings)
+            await sync_all_sources(store, settings, only_auto=True)
         except asyncio.CancelledError:
             raise
         except Exception:

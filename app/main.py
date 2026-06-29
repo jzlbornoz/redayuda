@@ -7,7 +7,7 @@ from time import perf_counter
 from typing import Optional
 
 from fastapi import Depends, Header, HTTPException, Query, FastAPI, Request, status
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import connectors, federation, proposals, scheduler
@@ -85,20 +85,58 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
-@app.middleware("http")
-async def revalidate_assets(request, call_next):
-    """Evita servir JS/CSS/HTML viejos tras un deploy.
+_READ_CACHE_PREFIXES = (
+    "/api/records/search",
+    "/api/records/feed",
+    "/api/records/",
+    "/api/sources",
+    "/api/network/stats",
+    "/api/connectors/schema",
+    "/api/entities/",
+)
 
-    - HTML (rutas de página): no-store -> el navegador nunca cachea el HTML, así
-      siempre carga la versión de assets vigente.
-    - /static: no-cache -> revalida por ETag (304 baratos) en cada carga.
+
+@lru_cache(maxsize=1)
+def get_read_rate_limiter():
+    return proposals.RateLimiter(
+        get_settings().read_rate_limit_per_min, window_seconds=60
+    )
+
+
+@app.middleware("http")
+async def cache_and_limit(request, call_next):
+    """Cabeceras de caché y rate-limit para servir a muchos consumidores.
+
+    - HTML de páginas: no-store (carga siempre la versión de assets vigente).
+    - /static: no-cache (revalida por ETag).
+    - Lecturas GET de la API: rate-limit por IP + Cache-Control corto para que
+      navegadores y el borde (Cloudflare) absorban el grueso del tráfico.
+    - Escrituras/otros: no-store.
     """
-    response = await call_next(request)
     path = request.url.path
-    if path in ("/", "/contribuir", "/fuentes"):
+    settings = get_settings()
+    is_read = request.method == "GET" and path.startswith(_READ_CACHE_PREFIXES)
+
+    if is_read and settings.read_rate_limit_per_min:
+        ip = request.client.host if request.client else "desconocido"
+        if not get_read_rate_limiter().check(ip):
+            return JSONResponse(
+                status_code=429,
+                content={"ok": False, "error_code": "rate_limit",
+                         "error": "Demasiadas solicitudes; intenta en un momento."},
+            )
+
+    response = await call_next(request)
+
+    if path in ("/", "/contribuir", "/fuentes", "/integrar"):
         response.headers["Cache-Control"] = "no-store"
     elif path.startswith("/static"):
         response.headers["Cache-Control"] = "no-cache"
+    elif is_read and settings.read_cache_seconds:
+        s = settings.read_cache_seconds
+        response.headers["Cache-Control"] = (
+            "public, max-age=%d, stale-while-revalidate=%d" % (s, s * 4)
+        )
     return response
 
 

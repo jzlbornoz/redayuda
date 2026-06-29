@@ -20,6 +20,7 @@ HF_CALL = HF_BASE + "/gradio_api/call/api_personas"
 
 
 class HfYofranConnector(Connector):
+    auto_sync = False  # pesada: solo sync a demanda
     source = SourceInfo(
         id=HF_SOURCE_ID,
         name="Registro Hospitales (Yofran)",

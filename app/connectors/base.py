@@ -21,6 +21,10 @@ class Connector:
     #: fuente (source.id) es tambien el id del conector en el registro.
     source = None
 
+    #: Si False, el scheduler horario NO lo sincroniza (solo a demanda via
+    #: /api/sources/{id}/sync o /api/sources/sync-all). Para fuentes grandes.
+    auto_sync = True
+
     @property
     def source_id(self):
         return self.source.id

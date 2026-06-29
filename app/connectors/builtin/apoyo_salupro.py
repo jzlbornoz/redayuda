@@ -24,6 +24,7 @@ def _record_type(status):
 
 
 class ApoyoSaluProConnector(Connector):
+    auto_sync = False  # pesada: solo sync a demanda
     source = SourceInfo(
         id=AS_SOURCE_ID,
         name="Apoyo SaluPro",

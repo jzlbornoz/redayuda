@@ -20,6 +20,7 @@ def _record_type(estado):
 
 
 class EncuentralosConnector(HttpListConnector):
+    auto_sync = False  # pesada: solo sync a demanda
     source = SourceInfo(
         id=EN_SOURCE_ID,
         name="Encuentralos",
