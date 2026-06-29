@@ -7,6 +7,15 @@ API y mapearlas a `IndexedRecord`. El endpoint de sync solo necesita
 """
 
 
+def stamp_and_upsert(store, settings, source_id, records):
+    """Estampa procedencia local y persiste; devuelve nº importado."""
+    for record in records:
+        if record.origin_node is None:
+            record.origin_node = settings.node_id
+            record.origin_source = source_id
+    return store.upsert_records(records)
+
+
 class Connector:
     #: SourceInfo de la fuente; cada subclase debe definirlo. El id de la
     #: fuente (source.id) es tambien el id del conector en el registro.

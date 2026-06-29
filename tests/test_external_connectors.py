@@ -17,6 +17,7 @@ def test_external_connectors_are_discovered():
         "faro_ve", "venezuela_ayuda", "venezuela_solidaria",
         "encuentralos", "data_guaira", "mapa_insumos", "sos_venezuela", "hf_yofran",
         "tebusco", "conecta_venezuela", "refugios_vzla", "angeles_autopista",
+        "vnzla_ayuda", "red_pana", "venezuela_encuentra", "apoyo_salupro",
     }.issubset(ids)
 
 
