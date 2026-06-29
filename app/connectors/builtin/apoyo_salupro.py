@@ -85,6 +85,7 @@ def _map(r):
         observed_at=r.get("ultima_vez") or None,
         updated_at=r.get("created_at"),
         tags=["persona", "desaparecida"],
+        image_url=r.get("foto_url") or None,
         raw=r,
     )
 

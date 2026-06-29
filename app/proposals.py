@@ -46,6 +46,7 @@ MAPPING_HINTS = [
     (("status", "condicion", "estatus"), "status"),
     (("descripcion", "descrip", "summary", "resumen", "nota"), "summary"),
     (("titulo", "title"), "title"),
+    (("foto", "photo", "imagen", "image", "avatar"), "image_url"),
     (("url", "link", "enlace"), "source_url"),
 ]
 

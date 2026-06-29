@@ -375,7 +375,15 @@ function detail(rec) {
 
   const hasRaw = rec.raw && Object.keys(rec.raw).length;
 
+  const img = rec.image_url
+    ? `<img src="${esc(rec.image_url)}" alt="Imagen de ${esc(rec.title || "registro")}"
+         class="img-fluid rounded mb-3 d-block" style="max-height:280px;object-fit:cover;width:100%"
+         loading="lazy" referrerpolicy="no-referrer"
+         onerror="this.remove()">`
+    : "";
+
   return `
+    ${img}
     <div class="d-flex flex-wrap gap-1 mb-3">${badges.join(" ")}</div>
     ${rec.summary ? `<p class="text-muted">${esc(rec.summary)}</p>` : ""}
     <dl class="mb-3">

@@ -64,6 +64,7 @@ class TeBuscoConnector(HttpListConnector):
             observed_at=item.get("fecha_visto_ultima_vez"),
             updated_at=item.get("actualizado_en") or item.get("creado_en"),
             tags=["persona"],
+            image_url=item.get("foto_url"),
             raw=item,
         )
 

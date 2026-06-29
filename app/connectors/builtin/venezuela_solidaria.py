@@ -101,6 +101,7 @@ def _resource_to_record(item):
         observed_at=_parse_dt(item.get("created_at")),
         updated_at=_parse_dt(item.get("updated_at")) or datetime.now(timezone.utc),
         tags=tags,
+        image_url=item.get("image"),
         raw=item,
     )
 

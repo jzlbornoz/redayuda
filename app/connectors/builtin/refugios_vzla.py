@@ -71,6 +71,7 @@ def _map(item):
         source_record_id=rid,
         updated_at=updated,
         tags=[tipo or "refugio", "logistica"],
+        image_url=(item.get("fotos") or [None])[0] if isinstance(item.get("fotos"), list) else None,
         raw=item,
     )
 

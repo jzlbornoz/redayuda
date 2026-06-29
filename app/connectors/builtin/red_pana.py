@@ -67,6 +67,7 @@ def _map_albergue(x):
         source_url=RP_BASE,
         source_record_id="alb:" + rid,
         tags=["albergue", "refugio", str(x.get("tipo") or "")],
+        image_url=x.get("foto_url") or x.get("foto"),
         raw=x,
     )
 

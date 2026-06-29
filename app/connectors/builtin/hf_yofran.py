@@ -100,6 +100,7 @@ def _map(item):
         source_record_id=rid,
         updated_at=item.get("fecha_update"),
         tags=["persona", "hospital", "centro_salud"],
+        image_url=item.get("imagen_path") or None,
         raw=item,
     )
 

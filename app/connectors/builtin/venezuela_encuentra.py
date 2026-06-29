@@ -76,6 +76,7 @@ def _map_person(x):
         source_url=VE_BASE,
         source_record_id="p:" + rid,
         tags=["persona"],
+        image_url=x.get("photo_url"),
         raw=x,
     )
 

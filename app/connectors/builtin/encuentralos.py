@@ -62,6 +62,7 @@ class EncuentralosConnector(HttpListConnector):
             observed_at=item.get("ultima_vez"),
             updated_at=item.get("creado"),
             tags=["persona", "desaparecida"],
+            image_url=item.get("foto"),
             raw=item,
         )
 

@@ -174,6 +174,7 @@ _RECORD_MIGRATIONS = [
     ("feed_seq", "ALTER TABLE records ADD COLUMN feed_seq INTEGER"),
     ("entity_id", "ALTER TABLE records ADD COLUMN entity_id TEXT"),
     ("content_hash", "ALTER TABLE records ADD COLUMN content_hash TEXT"),
+    ("image_url", "ALTER TABLE records ADD COLUMN image_url TEXT"),
 ]
 
 _FEED_SEQ_KEY = "feed_seq"
@@ -458,11 +459,11 @@ class IndexStore:
                         longitude, contact, status, verified, source_id, source_name,
                         source_url, source_record_id, observed_at, updated_at,
                         tags_json, raw_json, search_text, indexed_at,
-                        origin_node, origin_source, feed_seq, content_hash
+                        origin_node, origin_source, feed_seq, image_url, content_hash
                     )
                     VALUES (
                         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                     )
                     ON CONFLICT(id) DO UPDATE SET
                         record_type = excluded.record_type,
@@ -494,6 +495,7 @@ class IndexStore:
                         origin_node = COALESCE(records.origin_node, excluded.origin_node),
                         origin_source = COALESCE(records.origin_source, excluded.origin_source),
                         feed_seq = excluded.feed_seq,
+                        image_url = excluded.image_url,
                         content_hash = excluded.content_hash
                     """,
                     _record_values(record, indexed_at, next_seq, content_hash),
@@ -1022,7 +1024,7 @@ def _content_hash(record):
         record.location_name, record.city, record.state, record.country,
         record.latitude, record.longitude, record.contact, record.status,
         record.verified, record.source_id, record.source_record_id,
-        record.tags, record.raw,
+        record.tags, record.raw, record.image_url,
     ]
     blob = json.dumps(parts, ensure_ascii=False, sort_keys=True, default=str)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
@@ -1060,6 +1062,7 @@ def _record_values(record, indexed_at, feed_seq, content_hash):
         record.origin_node,
         record.origin_source,
         feed_seq,
+        record.image_url,
         content_hash,
     )
 
@@ -1119,6 +1122,7 @@ def _record_from_row(row):
         origin_node=raw["origin_node"],
         origin_source=raw["origin_source"],
         entity_id=raw["entity_id"],
+        image_url=raw["image_url"],
     )
 
 

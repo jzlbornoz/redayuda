@@ -26,6 +26,7 @@ ALLOWED_TARGET_FIELDS = [
     "updated_at",
     "source_record_id",
     "tags",
+    "image_url",
 ]
 
 ALLOWED_KINDS = [
@@ -147,6 +148,7 @@ class IndexedRecord(BaseModel):
     origin_node: Optional[str] = None
     origin_source: Optional[str] = None
     entity_id: Optional[str] = None
+    image_url: Optional[str] = None
 
 
 class IndexedSearchResult(BaseModel):

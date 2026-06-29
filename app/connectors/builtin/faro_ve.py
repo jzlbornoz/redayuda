@@ -84,6 +84,7 @@ def faro_person_to_record(person):
         observed_at=person.get("last_seen_at"),
         updated_at=person.get("last_seen_at") or person.get("created_at"),
         tags=tags,
+        image_url=person.get("photo_url"),
         raw=person,
     )
 

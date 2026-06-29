@@ -93,6 +93,7 @@ class ConectaVenezuelaConnector(Connector):
             source_url=CV_BASE,
             source_record_id="persona:" + rid,
             tags=["persona"],
+            image_url=item.get("foto") or item.get("foto_url"),
             raw=item,
         )
 
@@ -118,6 +119,7 @@ class ConectaVenezuelaConnector(Connector):
             source_url=CV_BASE,
             source_record_id="centro:" + rid,
             tags=["centro", tipo or "recurso"],
+            image_url=item.get("cover_photo"),
             raw=item,
         )
 
