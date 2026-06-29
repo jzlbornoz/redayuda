@@ -186,6 +186,12 @@ async def integrar():
     return FileResponse(STATIC_DIR / "integrar.html")
 
 
+@app.get("/red", include_in_schema=False)
+@app.head("/red", include_in_schema=False)
+async def red():
+    return FileResponse(STATIC_DIR / "red.html")
+
+
 @app.get("/favicon.ico", include_in_schema=False)
 @app.head("/favicon.ico", include_in_schema=False)
 async def favicon():

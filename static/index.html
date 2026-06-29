@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Buscar · Red Humanitaria de Datos</title>
+    <title>Inicio · Red Humanitaria de Datos</title>
     <meta name="description" content="Indexador federado de datos humanitarios de Venezuela: personas desaparecidas, centros de acopio, hospitales y recursos.">
     <!-- Tipografia: titulares Archivo, cuerpo Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Tema sobrio humanitario (DEBE ir despues de Bootstrap) -->
-    <link rel="stylesheet" href="/static/theme.css?v=bs3">
+    <link rel="stylesheet" href="/static/theme.css?v=bs4">
     <!-- Favicons existentes -->
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
@@ -35,6 +35,7 @@
         </button>
         <div class="collapse navbar-collapse" id="mainNav">
           <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+            <li class="nav-item"><a class="nav-link" href="/red" data-nav="red">Red</a></li>
             <li class="nav-item"><a class="nav-link" href="/" data-nav="buscar">Buscar</a></li>
             <li class="nav-item"><a class="nav-link" href="/fuentes" data-nav="fuentes">Fuentes</a></li>
             <li class="nav-item"><a class="nav-link" href="/integrar" data-nav="integrar">Integrar</a></li>
@@ -49,20 +50,120 @@
     </nav>
 
     <main id="main" tabindex="-1" class="container py-4 py-lg-5">
-      <!-- Encabezado de pagina -->
-      <header class="mb-4">
-        <p class="eyebrow">Buscar</p>
-        <h1 class="h3 mb-1">Buscar en el indice federado</h1>
-        <p class="text-muted mb-0">Personas desaparecidas, centros de acopio y donacion, hospitales y recursos de Venezuela.</p>
+      <!-- A. HERO connect-first -->
+      <header class="rh-hub-hero mb-5 border-bottom pb-4">
+        <p class="eyebrow">La red</p>
+        <h1 class="mb-3">Una sola red para las apps de ayuda</h1>
+        <p class="rh-hub-lead mb-4">Muchas apps reconstruyen el mismo listado de desaparecidos, centros de acopio y hospitales por separado. Aquí se conectan a un índice común con una sola API, en lugar de repetir el trabajo cada una por su cuenta.</p>
+        <div class="d-flex flex-wrap gap-2">
+          <a class="btn btn-primary btn-lg" href="/integrar">Conecta tu app a la red</a>
+          <a class="btn btn-outline-primary btn-lg" href="/red">Ver la red</a>
+        </div>
       </header>
 
-      <!-- Panel de busqueda -->
-      <section class="card search-hero mb-4" aria-labelledby="searchHeading">
-        <div class="card-body p-3 p-lg-4">
+      <!-- B. Tres formas de conectarte -->
+      <section class="mb-5">
+        <p class="eyebrow">Cómo te conectas</p>
+        <h2 class="h4 mb-3">Tres formas de conectarte</h2>
+        <div class="row g-3 row-cols-1 row-cols-md-3">
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body">
+                <p class="h5 mb-2"><i class="bi bi-box-arrow-in-down text-primary me-2" aria-hidden="true"></i>Te jalamos</p>
+                <p class="text-muted mb-3">Expones un endpoint JSON de lectura y lo registras con el mapeo de tus campos. Nosotros lo sincronizamos.</p>
+                <a class="link-primary text-decoration-none" href="/contribuir">Registrar tu fuente <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body">
+                <p class="h5 mb-2"><i class="bi bi-box-arrow-up text-primary me-2" aria-hidden="true"></i>Tú empujas</p>
+                <p class="text-muted mb-3">Tu app envía los datos ya en el esquema común a la API de ingesta (<code>POST /api/ingest</code>), con tu clave, cuando quieras.</p>
+                <a class="link-primary text-decoration-none" href="/integrar">Ver cómo integrar <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body">
+                <p class="h5 mb-2"><i class="bi bi-diagram-3 text-primary me-2" aria-hidden="true"></i>Federación</p>
+                <p class="text-muted mb-3">Nodos que se sincronizan entre sí vía <code>/api/peers</code>. Lo que indexa uno queda disponible para los demás.</p>
+                <a class="link-primary text-decoration-none" href="/red">Ver la red <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- C. Estado inicial: pulso de la red (sin tabla vacia) -->
+      <section id="networkState" aria-label="Estado de la red">
+        <p class="eyebrow mb-2">Pulso de la red</p>
+        <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-md-3 mb-4">
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body py-3">
+                <div class="h4 mb-0" id="statRecords">
+                  <span class="placeholder col-5"></span>
+                </div>
+                <div class="text-muted fs-7"><i class="bi bi-database me-1" aria-hidden="true"></i>Registros indexados</div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body py-3">
+                <div class="h4 mb-0" id="statSources">
+                  <span class="placeholder col-4"></span>
+                </div>
+                <div class="text-muted fs-7"><i class="bi bi-diagram-3 me-1" aria-hidden="true"></i>Fuentes</div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body py-3">
+                <div class="h4 mb-0" id="statFresh">
+                  <span class="placeholder col-6"></span>
+                </div>
+                <div class="text-muted fs-7"><i class="bi bi-clock-history me-1" aria-hidden="true"></i>Ultima sincronizacion</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <p class="eyebrow mb-2">Tipos disponibles</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-type="persona_desaparecida"><i class="bi bi-person me-1" aria-hidden="true"></i>Persona desaparecida</button>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-type="persona_hospitalizada"><i class="bi bi-hospital me-1" aria-hidden="true"></i>Persona localizada</button>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-type="centro_acopio"><i class="bi bi-box-seam me-1" aria-hidden="true"></i>Centro de acopio</button>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-type="centro_donacion"><i class="bi bi-box-seam me-1" aria-hidden="true"></i>Centro de donacion</button>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-type="recurso"><i class="bi bi-people me-1" aria-hidden="true"></i>Recurso</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="eyebrow mb-2">Prueba una busqueda</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-q="Maria Perez">Maria Perez</button>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-q="centro de acopio">centro de acopio</button>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-q="12345678">12345678</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- D. BUSQUEDA demotada (utilidad secundaria) -->
+      <section class="mt-5 pt-4 border-top">
+        <p class="eyebrow">Búsqueda</p>
+        <h2 class="h4 mb-1">Buscar en el índice</h2>
+        <p class="text-muted mb-3">También puedes consultar el índice directamente. Personas desaparecidas y localizadas, centros de acopio y donación, hospitales y recursos.</p>
+
+        <div class="rh-search-secondary" aria-labelledby="searchHeading">
           <h2 id="searchHeading" class="visually-hidden">Formulario de busqueda</h2>
           <form id="searchForm" novalidate>
             <!-- Buscador principal -->
-            <div class="input-group input-group-lg mb-3">
+            <div class="input-group mb-3">
               <span class="input-group-text" aria-hidden="true"><i class="bi bi-search"></i></span>
               <input id="queryInput" name="q" type="search" class="form-control" autocomplete="off"
                      placeholder="Ej. Maria Perez, centro de acopio, Caracas" aria-label="Texto de busqueda">
@@ -138,64 +239,7 @@
       </section>
 
       <!-- Avisos / errores -->
-      <div id="messageArea" aria-live="polite"></div>
-
-      <!-- Estado inicial: pulso de la red (sin tabla vacia) -->
-      <section id="networkState" aria-label="Estado de la red">
-        <p class="eyebrow mb-2">Pulso de la red</p>
-        <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-md-3 mb-4">
-          <div class="col">
-            <div class="card h-100">
-              <div class="card-body py-3">
-                <div class="h4 mb-0" id="statRecords">
-                  <span class="placeholder col-5"></span>
-                </div>
-                <div class="text-muted fs-7"><i class="bi bi-database me-1" aria-hidden="true"></i>Registros indexados</div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card h-100">
-              <div class="card-body py-3">
-                <div class="h4 mb-0" id="statSources">
-                  <span class="placeholder col-4"></span>
-                </div>
-                <div class="text-muted fs-7"><i class="bi bi-diagram-3 me-1" aria-hidden="true"></i>Fuentes</div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card h-100">
-              <div class="card-body py-3">
-                <div class="h4 mb-0" id="statFresh">
-                  <span class="placeholder col-6"></span>
-                </div>
-                <div class="text-muted fs-7"><i class="bi bi-clock-history me-1" aria-hidden="true"></i>Ultima sincronizacion</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <p class="eyebrow mb-2">Tipos disponibles</p>
-          <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-type="persona_desaparecida"><i class="bi bi-person me-1" aria-hidden="true"></i>Persona desaparecida</button>
-            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-type="persona_hospitalizada"><i class="bi bi-hospital me-1" aria-hidden="true"></i>Persona localizada</button>
-            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-type="centro_acopio"><i class="bi bi-box-seam me-1" aria-hidden="true"></i>Centro de acopio</button>
-            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-type="centro_donacion"><i class="bi bi-box-seam me-1" aria-hidden="true"></i>Centro de donacion</button>
-            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-type="recurso"><i class="bi bi-people me-1" aria-hidden="true"></i>Recurso</button>
-          </div>
-        </div>
-
-        <div>
-          <p class="eyebrow mb-2">Prueba una busqueda</p>
-          <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-q="Maria Perez">Maria Perez</button>
-            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-q="centro de acopio">centro de acopio</button>
-            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" data-q="12345678">12345678</button>
-          </div>
-        </div>
-      </section>
+      <div id="messageArea" class="mt-4" aria-live="polite"></div>
 
       <!-- Estado tras buscar: metricas + resultados -->
       <section id="resultsView" hidden aria-label="Resultados de la busqueda">
@@ -246,7 +290,7 @@
 
     <footer class="site-footer mt-auto py-4">
       <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-2">
-        <span>Red Humanitaria de Datos — indexador federado de datos humanitarios de Venezuela.</span>
+        <span>Red Humanitaria de Datos — un índice común para las apps de ayuda de Venezuela, en lugar de duplicar el mismo esfuerzo.</span>
         <nav class="d-flex gap-3" aria-label="Enlaces del pie">
           <a href="/fuentes">Fuentes</a>
           <a href="/contribuir">Registrar fuente</a>
@@ -267,6 +311,6 @@
 
     <!-- Bootstrap bundle (Popper incluido). Va al final del body, antes de los scripts de pagina. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="/static/app.js?v=bs3" defer></script>
+    <script src="/static/app.js?v=bs4" defer></script>
   </body>
 </html>
