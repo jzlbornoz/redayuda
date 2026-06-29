@@ -23,14 +23,28 @@
     const members = (data.members || []).map((m) => m.record);
     const title = e.canonical_title || (members[0] && (members[0].title || members[0].person_name)) || "Entidad";
 
-    // ¿qué campos están en conflicto entre fuentes?
+    // Agrupar por fuente: una columna por fuente (no por registro). members viene
+    // ordenado por updated_at desc → el representante es el más reciente.
+    const bySource = new Map();
+    members.forEach((r) => {
+      const k = r.source_id || r.source_name || "—";
+      if (!bySource.has(k)) bySource.set(k, []);
+      bySource.get(k).push(r);
+    });
+    const sources = Array.from(bySource.entries()).map(([sid, recs]) => ({
+      sid, recs, rep: recs[0], count: recs.length,
+    }));
+    const reps = sources.map((s) => s.rep);
+    const distinctCount = sources.length;
+
+    // Conflictos ENTRE fuentes (sobre los representantes, no entre duplicados).
     const conflicts = {};
     COMPARE.forEach(([k]) => {
-      const vals = new Set(members.map((r) => (r[k] == null ? "" : String(r[k]))).filter((x) => x !== ""));
+      const vals = new Set(reps.map((r) => (r[k] == null ? "" : String(r[k]))).filter((x) => x !== ""));
       conflicts[k] = vals.size > 1;
     });
 
-    // timeline por observed_at
+    // timeline por observed_at (todas las observaciones, incl. intra-fuente)
     const timeline = members
       .filter((r) => r.observed_at)
       .sort((a, b) => new Date(a.observed_at) - new Date(b.observed_at));
@@ -44,7 +58,7 @@
           <div class="min-w-0 flex-1">
             <div class="mb-1.5 flex flex-wrap items-center gap-2">
               ${typeChip(headRecord.record_type)}
-              <span class="inline-flex items-center gap-1 bg-ink-900 px-2.5 py-0.5 text-xs font-semibold text-white">aparece en ${compactNumber(members.length)} ${members.length === 1 ? "fuente" : "fuentes"}</span>
+              <span class="inline-flex items-center gap-1 bg-ink-900 px-2.5 py-0.5 text-xs font-semibold text-white">aparece en ${compactNumber(distinctCount)} ${distinctCount === 1 ? "fuente" : "fuentes"}</span>${members.length > distinctCount ? `<span class="text-xs text-slate-400">${compactNumber(members.length)} registros en total</span>` : ""}
             </div>
             <h1 class="text-2xl">${escapeHtml(title)}</h1>
             ${e.canonical_cedula ? `<p class="mt-0.5 text-sm text-slate-500">Cédula ${escapeHtml(e.canonical_cedula)}</p>` : ""}
@@ -62,17 +76,17 @@
           <thead>
             <tr class="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-400">
               <th class="px-3 py-2 font-medium">Campo</th>
-              ${members.map((r) => `<th class="px-3 py-2 font-medium text-slate-600">${escapeHtml(r.source_name || r.source_id)}</th>`).join("")}
+              ${sources.map((s) => `<th class="px-3 py-2 font-medium text-slate-600">${escapeHtml(s.rep.source_name || s.sid)}${s.count > 1 ? ` <span class="font-normal normal-case text-slate-400">· ${s.count} reg.</span>` : ""}</th>`).join("")}
             </tr>
           </thead>
           <tbody>
             ${COMPARE.map(([k, label]) => `<tr class="border-b border-slate-100 last:border-0">
-              <td class="px-3 py-2 text-xs font-medium uppercase tracking-wide text-slate-400">${label}${conflicts[k] ? ' <span class="text-amber-500">≠</span>' : ""}</td>
-              ${members.map((r) => fieldCell(fmt(k, r[k]), conflicts[k])).join("")}
+              <td class="px-3 py-2 text-xs font-medium uppercase tracking-wide text-slate-400">${label}${conflicts[k] ? ' <span class="font-bold text-ink-900">≠</span>' : ""}</td>
+              ${sources.map((s) => fieldCell(fmt(k, s.rep[k]), conflicts[k])).join("")}
             </tr>`).join("")}
             <tr>
               <td class="px-3 py-2 text-xs font-medium uppercase tracking-wide text-slate-400">Observado</td>
-              ${members.map((r) => fieldCell(formatDate(r.observed_at), false)).join("")}
+              ${sources.map((s) => fieldCell(formatDate(s.rep.observed_at), false)).join("")}
             </tr>
           </tbody>
         </table>
@@ -90,14 +104,15 @@
 
       <h2 class="mt-8 mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Versiones completas</h2>
       <div class="grid gap-3 sm:grid-cols-2">
-        ${members.map((r) => `<div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div class="mb-2 flex items-center justify-between">
-            <span class="font-semibold text-slate-900">${escapeHtml(r.source_name || r.source_id)}</span>
+        ${sources.map((s) => { const r = s.rep; return `<div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div class="mb-2 flex items-center justify-between gap-2">
+            <span class="font-semibold text-slate-900">${escapeHtml(r.source_name || s.sid)}${s.count > 1 ? ` <span class="text-xs font-normal text-slate-400">· ${s.count} registros</span>` : ""}</span>
             ${r.verified === true ? '<span class="text-xs font-medium text-ink-900">✓ Verificado</span>' : ""}
           </div>
           ${r.summary ? `<p class="mb-2 text-sm text-slate-500">${escapeHtml(r.summary)}</p>` : ""}
+          ${s.count > 1 ? `<p class="mb-2 text-xs text-slate-400">Esta fuente tiene ${s.count} registros enlazados; se muestra el más reciente.</p>` : ""}
           ${r.source_url ? `<a href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener" class="text-sm font-medium text-ink-900 underline">Ir a la fuente →</a>` : ""}
-        </div>`).join("")}
+        </div>`; }).join("")}
       </div>`;
   }
 
