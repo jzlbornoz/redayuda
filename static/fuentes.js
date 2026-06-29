@@ -308,9 +308,10 @@ function row(result) {
 
   return `
     <button type="button"
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3"
+            class="list-group-item list-group-item-action d-flex align-items-center gap-3"
             data-record="${esc(rec.id)}" data-title="${esc(rec.title)}" data-type="${esc(rec.record_type)}">
-      <span class="min-w-0">
+      ${thumb(rec)}
+      <span class="min-w-0 flex-grow-1">
         <span class="d-block fw-semibold text-truncate">${esc(rec.title || "Sin título")}</span>
         <span class="d-block text-muted small text-truncate">${bits.join(" · ") || "&nbsp;"}</span>
       </span>
@@ -319,6 +320,22 @@ function row(result) {
         <span class="text-muted fs-8"><i class="bi bi-clock-history me-1" aria-hidden="true"></i>${fmtDate(rec.updated_at)}</span>
       </span>
     </button>`;
+}
+
+function thumbIcon(recordType) {
+  const t = recordType || "";
+  if (t.startsWith("persona")) return "person";
+  if (t === "centro_acopio" || t === "centro_donacion") return "box-seam";
+  return "geo-alt";
+}
+
+function thumb(rec) {
+  const icon = thumbIcon(rec.record_type);
+  if (rec.image_url) {
+    return `<img src="${esc(rec.image_url)}" alt="" class="rh-thumb flex-shrink-0"
+      loading="lazy" referrerpolicy="no-referrer" onerror="this.classList.add('d-none')">`;
+  }
+  return `<span class="rh-thumb rh-thumb-ph flex-shrink-0"><i class="bi bi-${icon}" aria-hidden="true"></i></span>`;
 }
 
 function renderPager(data) {

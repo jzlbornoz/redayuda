@@ -382,3 +382,23 @@ code:not(pre code) { color: var(--rh-primary-700); background: var(--rh-primary-
   /* En móvil/tablet el panel lateral no debe quedar fijo */
   .position-sticky { position: static !important; }
 }
+
+/* Miniaturas de imagen en listas (resultados de busqueda y registros) */
+.rh-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--bs-tertiary-bg, #eee);
+}
+.rh-thumb-ph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bs-secondary-color, #888);
+  font-size: 1.4rem;
+  border: 1px solid var(--bs-border-color);
+}
+@media (max-width: 575.98px) {
+  .rh-thumb { width: 44px; height: 44px; }
+}

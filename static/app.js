@@ -230,18 +230,39 @@ function renderResultItem(result) {
 
   return `
     <button type="button" class="list-group-item list-group-item-action" data-id="${escapeHtml(record.id)}">
-      <div class="d-flex justify-content-between align-items-start gap-3">
-        <div class="min-w-0">
-          <div class="fw-semibold text-truncate">${escapeHtml(title)}</div>
-          <div class="d-flex flex-wrap gap-1 mt-1">${badges.join(" ")}</div>
+      <div class="d-flex gap-3">
+        ${thumb(record)}
+        <div class="flex-grow-1 min-w-0">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div class="min-w-0">
+              <div class="fw-semibold text-truncate">${escapeHtml(title)}</div>
+              <div class="d-flex flex-wrap gap-1 mt-1">${badges.join(" ")}</div>
+            </div>
+            <span class="text-muted fs-7 flex-shrink-0">${escapeHtml(record.source_name || "")}</span>
+          </div>
+          ${record.summary ? `<p class="text-muted small mb-2 mt-2">${escapeHtml(record.summary)}</p>` : '<div class="mt-2"></div>'}
+          ${reasons ? `<div class="d-flex flex-wrap gap-1 mb-2">${reasons}</div>` : ""}
+          <div class="score-bar" title="Relevancia"><span style="width:${scorePct}%"></span></div>
         </div>
-        <span class="text-muted fs-7 flex-shrink-0">${escapeHtml(record.source_name || "")}</span>
       </div>
-      ${record.summary ? `<p class="text-muted small mb-2 mt-2">${escapeHtml(record.summary)}</p>` : '<div class="mt-2"></div>'}
-      ${reasons ? `<div class="d-flex flex-wrap gap-1 mb-2">${reasons}</div>` : ""}
-      <div class="score-bar" title="Relevancia"><span style="width:${scorePct}%"></span></div>
     </button>
   `;
+}
+
+function thumbIcon(recordType) {
+  const t = recordType || "";
+  if (t.startsWith("persona")) return "person";
+  if (t === "centro_acopio" || t === "centro_donacion") return "box-seam";
+  return "geo-alt";
+}
+
+function thumb(record) {
+  const icon = thumbIcon(record.record_type);
+  if (record.image_url) {
+    return `<img src="${escapeHtml(record.image_url)}" alt="" class="rh-thumb flex-shrink-0"
+      loading="lazy" referrerpolicy="no-referrer" onerror="this.classList.add('d-none')">`;
+  }
+  return `<div class="rh-thumb rh-thumb-ph flex-shrink-0"><i class="bi bi-${icon}" aria-hidden="true"></i></div>`;
 }
 
 function renderResponse(data, append = false) {
