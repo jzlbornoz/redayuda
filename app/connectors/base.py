@@ -95,6 +95,7 @@ class HttpListConnector(Connector):
     page_size_param = "limit"
     page_size = 100
     page_start = 0               # 0 para offset, 1 para page
+    page_step = None             # paso de avance; por defecto page_size (offset) o 1 (page)
     safety_max = 100000
     extra_params = None
 
@@ -140,7 +141,11 @@ class HttpListConnector(Connector):
                 break
             if len(items) < self.page_size:
                 break
-            page_value += 1 if self.page_param == "page" else self.page_size
+            if self.page_step is not None:
+                step = self.page_step
+            else:
+                step = 1 if self.page_param == "page" else self.page_size
+            page_value += step
 
         store.touch_source_sync(self.source_id)
         return imported, scanned, pages
