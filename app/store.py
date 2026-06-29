@@ -362,9 +362,19 @@ class IndexStore:
             )
 
     def list_sources(self):
+        # record_count se calcula en vivo desde records para que el directorio
+        # coincida siempre con la busqueda; la columna sources.record_count puede
+        # quedar rezagada (p.ej. ingestas federadas sin touch_source_sync).
         with self.connect() as connection:
             rows = connection.execute(
-                "SELECT * FROM sources ORDER BY enabled DESC, name ASC"
+                """
+                SELECT s.*, COALESCE(r.cnt, 0) AS live_count
+                FROM sources s
+                LEFT JOIN (
+                    SELECT source_id, COUNT(*) AS cnt FROM records GROUP BY source_id
+                ) r ON r.source_id = s.id
+                ORDER BY s.enabled DESC, s.name ASC
+                """
             ).fetchall()
         return [_source_from_row(row) for row in rows]
 
@@ -1198,7 +1208,7 @@ def _source_from_row(row):
         url=raw["url"],
         access=raw["access"],
         enabled=bool(raw["enabled"]),
-        record_count=raw["record_count"],
+        record_count=raw["live_count"] if "live_count" in raw else raw["record_count"],
         last_sync=_text_to_datetime(raw["last_sync"]),
     )
 
