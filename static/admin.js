@@ -123,7 +123,7 @@
 
   function sourceRow(s) {
     const f = freshness(s.last_sync);
-    const dot = { emerald: "bg-emerald-500", amber: "bg-amber-500", rose: "bg-rose-500", slate: "bg-slate-300" }[f.tone];
+    const dot = { emerald: "bg-ink-900", amber: "bg-ink-400", rose: "bg-red-600", slate: "bg-ink-200" }[f.tone];
     return `<tr class="border-b border-slate-100 last:border-0" data-sid="${escapeHtml(s.id)}">
       <td class="px-3 py-2"><div class="font-medium text-slate-800">${escapeHtml(s.name)}</div><div class="text-xs text-slate-400">${escapeHtml(s.id)}</div></td>
       <td class="px-3 py-2 tabular-nums">${compactNumber(s.record_count)}</td>

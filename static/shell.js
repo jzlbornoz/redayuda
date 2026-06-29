@@ -62,22 +62,25 @@
   };
 
   // Metadatos por record_type: etiqueta, icono, color (clases Tailwind) y hex para mapa.
+  // Monocromático: el chip es idéntico (borde negro); el tipo se distingue por
+  // el cuadrito (sombra de gris) y la etiqueta. El mapa usa shades de gris.
+  const CHIP = "bg-white text-ink-900 ring-ink-900";
   const TYPE_META = {
-    persona_desaparecida: { label: "Persona desaparecida", icon: "persona", chip: "bg-rose-50 text-rose-700 ring-rose-200", dot: "bg-rose-500", hex: "#f43f5e" },
-    persona_localizada:   { label: "Persona localizada",   icon: "persona", chip: "bg-emerald-50 text-emerald-700 ring-emerald-200", dot: "bg-emerald-500", hex: "#10b981" },
-    persona_hospitalizada:{ label: "Persona hospitalizada",icon: "hospital",chip: "bg-sky-50 text-sky-700 ring-sky-200", dot: "bg-sky-500", hex: "#0ea5e9" },
-    centro_acopio:        { label: "Centro de acopio",     icon: "centro",  chip: "bg-amber-50 text-amber-700 ring-amber-200", dot: "bg-amber-500", hex: "#f59e0b" },
-    centro_donacion:      { label: "Centro de donación",   icon: "centro",  chip: "bg-violet-50 text-violet-700 ring-violet-200", dot: "bg-violet-500", hex: "#8b5cf6" },
-    recurso:              { label: "Recurso",              icon: "lugar",   chip: "bg-teal-50 text-teal-700 ring-teal-200", dot: "bg-teal-500", hex: "#14b8a6" },
-    otro:                 { label: "Otro",                 icon: "lugar",   chip: "bg-slate-100 text-slate-600 ring-slate-200", dot: "bg-slate-400", hex: "#94a3b8" },
+    persona_desaparecida: { label: "Persona desaparecida", icon: "persona", chip: CHIP, dot: "bg-ink-900", hex: "#121212" },
+    persona_localizada:   { label: "Persona localizada",   icon: "persona", chip: CHIP, dot: "bg-ink-500", hex: "#4a4a4a" },
+    persona_hospitalizada:{ label: "Persona hospitalizada",icon: "hospital",chip: CHIP, dot: "bg-ink-600", hex: "#292929" },
+    centro_acopio:        { label: "Centro de acopio",     icon: "centro",  chip: CHIP, dot: "bg-ink-700", hex: "#3a3a3a" },
+    centro_donacion:      { label: "Centro de donación",   icon: "centro",  chip: CHIP, dot: "bg-ink-400", hex: "#9b9b9b" },
+    recurso:              { label: "Recurso",              icon: "lugar",   chip: CHIP, dot: "bg-ink-300", hex: "#cfcfcf" },
+    otro:                 { label: "Otro",                 icon: "lugar",   chip: CHIP, dot: "bg-ink-200", hex: "#e0e0e0" },
   };
-  function typeMeta(t) { return TYPE_META[t] || { label: t || "—", icon: "lugar", chip: "bg-slate-100 text-slate-600 ring-slate-200", dot: "bg-slate-400", hex: "#94a3b8" }; }
+  function typeMeta(t) { return TYPE_META[t] || { label: t || "—", icon: "lugar", chip: CHIP, dot: "bg-ink-400", hex: "#9b9b9b" }; }
   function typeLabel(t) { return typeMeta(t).label; }
 
-  // Chip de tipo
+  // Chip de tipo (cuadrado, borde negro, etiqueta en mayúsculas)
   function typeChip(t) {
     const m = typeMeta(t);
-    return `<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${m.chip}"><span class="h-1.5 w-1.5 rounded-full ${m.dot}"></span>${escapeHtml(m.label)}</span>`;
+    return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide ring-1 ring-inset ${m.chip}"><span class="h-1.5 w-1.5 ${m.dot}"></span>${escapeHtml(m.label)}</span>`;
   }
 
   // Miniatura: imagen o icono por tipo
@@ -93,20 +96,22 @@
 
   // Acciones directas de un registro (tel / mapa / fuente)
   function actionLinks(record) {
+    const solid = "rh-action inline-flex items-center gap-1.5 bg-ink-900 px-3 py-1.5 text-xs text-white hover:bg-ink-600";
+    const ghost = "rh-action inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-ink-900 ring-1 ring-inset ring-ink-900 hover:bg-ink-50";
     const out = [];
     if (record.contact) {
       const tel = String(record.contact).replace(/[^\d+]/g, "");
       if (tel.length >= 7) {
-        out.push(`<a href="tel:${escapeHtml(tel)}" class="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"><span class="h-3.5 w-3.5">${ICONS.phone}</span>Llamar</a>`);
+        out.push(`<a href="tel:${escapeHtml(tel)}" class="${solid}"><span class="h-3.5 w-3.5">${ICONS.phone}</span>Llamar</a>`);
       } else {
-        out.push(`<span class="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-600">${escapeHtml(record.contact)}</span>`);
+        out.push(`<span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-ink-600 ring-1 ring-inset ring-ink-200">${escapeHtml(record.contact)}</span>`);
       }
     }
     if (record.latitude != null && record.longitude != null) {
-      out.push(`<a href="https://www.openstreetmap.org/?mlat=${record.latitude}&mlon=${record.longitude}#map=16/${record.latitude}/${record.longitude}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-slate-700"><span class="h-3.5 w-3.5">${ICONS.pin}</span>Mapa</a>`);
+      out.push(`<a href="https://www.openstreetmap.org/?mlat=${record.latitude}&mlon=${record.longitude}#map=16/${record.latitude}/${record.longitude}" target="_blank" rel="noopener" class="${solid}"><span class="h-3.5 w-3.5">${ICONS.pin}</span>Mapa</a>`);
     }
     if (record.source_url) {
-      out.push(`<a href="${escapeHtml(record.source_url)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold text-brand ring-1 ring-inset ring-slate-200 hover:bg-slate-50"><span class="h-3.5 w-3.5">${ICONS.link}</span>Fuente</a>`);
+      out.push(`<a href="${escapeHtml(record.source_url)}" target="_blank" rel="noopener" class="${ghost}"><span class="h-3.5 w-3.5">${ICONS.link}</span>Fuente</a>`);
     }
     return out.join("");
   }
@@ -145,30 +150,30 @@
       const links = NAV.map((n) => {
         const active = isActive(n.href);
         const cls = active
-          ? "text-slate-900 font-semibold"
-          : "text-slate-500 hover:text-slate-900";
-        return `<a href="${n.href}" data-nav="${n.key}" ${active ? 'aria-current="page"' : ""} class="rounded-md px-2.5 py-1.5 text-sm transition ${cls}">${n.label}</a>`;
+          ? "text-ink-900 border-ink-900"
+          : "text-ink-500 border-transparent hover:text-ink-900";
+        return `<a href="${n.href}" data-nav="${n.key}" ${active ? 'aria-current="page"' : ""} class="px-1 py-1 text-xs font-medium uppercase tracking-wide border-b-2 ${cls} transition">${n.label}</a>`;
       }).join("");
 
-      header.className = "sticky top-0 z-40 border-b border-slate-200 bg-white/85 backdrop-blur";
+      header.className = "sticky top-0 z-40 border-b border-ink-900 bg-white";
       header.innerHTML = `
-        <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+        <div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
           <a href="/" class="flex items-center gap-2.5">
-            <span class="grid h-9 w-9 place-items-center rounded-lg bg-slate-900 text-sm font-bold tracking-tight text-white">RH</span>
+            <span class="grid h-9 w-9 place-items-center bg-ink-900 text-sm font-bold tracking-tight text-white">RH</span>
             <span class="hidden sm:flex flex-col leading-tight">
-              <span class="text-sm font-semibold text-slate-900">Red Humanitaria de Datos</span>
-              <span class="text-xs text-slate-500">Índice común de ayuda · Venezuela</span>
+              <span class="text-sm font-medium text-ink-900">Red Humanitaria de Datos</span>
+              <span class="text-[0.65rem] uppercase tracking-wide text-ink-500">Índice común · Venezuela</span>
             </span>
           </a>
-          <nav class="ml-auto hidden items-center gap-1 md:flex" aria-label="Navegación principal">${links}
-            <span id="rh-health" class="ml-2 inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-slate-300"></span>…</span>
+          <nav class="ml-auto hidden items-center gap-5 md:flex" aria-label="Navegación principal">${links}
+            <span id="rh-health" class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-wide text-ink-500 ring-1 ring-inset ring-ink-200"><span class="h-1.5 w-1.5 bg-ink-300"></span>…</span>
           </nav>
-          <button id="rh-menu-btn" type="button" class="ml-auto inline-grid h-9 w-9 place-items-center rounded-md text-slate-600 ring-1 ring-slate-200 md:hidden" aria-label="Abrir menú" aria-expanded="false">
+          <button id="rh-menu-btn" type="button" class="ml-auto inline-grid h-9 w-9 place-items-center text-ink-900 ring-1 ring-ink-900 md:hidden" aria-label="Abrir menú" aria-expanded="false">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
           </button>
         </div>
-        <nav id="rh-menu" hidden class="border-t border-slate-200 bg-white px-4 py-2 md:hidden" aria-label="Navegación móvil">
-          ${NAV.map((n) => `<a href="${n.href}" class="block rounded-md px-2 py-2 text-sm ${isActive(n.href) ? "font-semibold text-slate-900" : "text-slate-600"}">${n.label}</a>`).join("")}
+        <nav id="rh-menu" hidden class="border-t border-ink-200 bg-white px-4 py-2 md:hidden" aria-label="Navegación móvil">
+          ${NAV.map((n) => `<a href="${n.href}" class="block px-2 py-2 text-xs font-medium uppercase tracking-wide ${isActive(n.href) ? "text-ink-900" : "text-ink-500"}">${n.label}</a>`).join("")}
         </nav>`;
 
       const btn = header.querySelector("#rh-menu-btn");
@@ -182,15 +187,15 @@
 
     const footer = document.getElementById("rh-footer");
     if (footer) {
-      footer.className = "mt-16 border-t border-slate-200 bg-white";
+      footer.className = "mt-16 border-t border-ink-900 bg-white";
       footer.innerHTML = `
-        <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-ink-500 sm:flex-row sm:items-center sm:justify-between">
           <span>Red Humanitaria de Datos — un índice común para las apps de ayuda, en vez de duplicar el esfuerzo.</span>
-          <nav class="flex gap-4" aria-label="Enlaces del pie">
-            <a class="hover:text-slate-900" href="/fuentes">Fuentes</a>
-            <a class="hover:text-slate-900" href="/desarrolladores">Desarrolladores</a>
-            <a class="hover:text-slate-900" href="/docs">API docs</a>
-            <a class="hover:text-slate-900" href="/admin">Admin</a>
+          <nav class="flex gap-5 text-xs font-medium uppercase tracking-wide" aria-label="Enlaces del pie">
+            <a class="hover:text-ink-900" href="/fuentes">Fuentes</a>
+            <a class="hover:text-ink-900" href="/desarrolladores">Desarrolladores</a>
+            <a class="hover:text-ink-900" href="/docs">API docs</a>
+            <a class="hover:text-ink-900" href="/admin">Admin</a>
           </nav>
         </div>`;
     }
@@ -202,13 +207,13 @@
     try {
       const s = await fetchJSON("/api/network/stats");
       const ok = s.total_records > 0;
-      pill.className = `ml-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${ok ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`;
-      pill.innerHTML = `<span class="h-1.5 w-1.5 rounded-full ${ok ? "bg-emerald-500" : "bg-amber-500"}"></span>${compactNumber(s.total_records)} registros`;
+      pill.className = "inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-wide text-ink-900 ring-1 ring-inset ring-ink-900";
+      pill.innerHTML = `<span class="h-1.5 w-1.5 ${ok ? "bg-ink-900" : "bg-ink-300"}"></span>${compactNumber(s.total_records)} registros`;
       window.RH._stats = s;
       document.dispatchEvent(new CustomEvent("rh:stats", { detail: s }));
     } catch (_) {
-      pill.className = "ml-2 inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-600";
-      pill.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>sin conexión`;
+      pill.className = "inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-wide text-red-600 ring-1 ring-inset ring-red-600";
+      pill.innerHTML = `<span class="h-1.5 w-1.5 bg-red-600"></span>sin conexión`;
     }
   }
 

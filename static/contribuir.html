@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/static/tw-config.js"></script>
-    <link rel="stylesheet" href="/static/app.css?v=tw1">
+    <link rel="stylesheet" href="/static/app.css?v=tw2">
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
   </head>
   <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
@@ -115,15 +115,16 @@
     <footer id="rh-footer"></footer>
 
     <style>
-      .rh-in { display:block; width:100%; border-radius:.5rem; border:1px solid rgb(203 213 225); background:#fff; padding:.5rem .75rem; font-size:.875rem; outline:none; }
-      .rh-in:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgb(37 99 235 / .25); }
-      .rh-in.is-invalid { border-color:#f43f5e; }
-      .rh-fb { display:block; margin-top:.25rem; font-size:.75rem; color:#e11d48; min-height:0; }
+      .rh-in { display:block; width:100%; border:1px solid var(--color-black); background:#fff; padding:.5rem .75rem; font-size:.875rem; outline:none; }
+      .rh-in:focus { border-color:var(--color-dark-gray); box-shadow:0 0 0 2px rgba(0,0,0,.1); }
+      .rh-in.is-invalid { border-color:var(--color-error) !important; }
+      .rh-fb { display:block; margin-top:.25rem; font-size:.75rem; color:var(--color-error); min-height:0; }
       .rh-fb:empty { display:none; }
+      #proposalForm label > span:first-child { text-transform:uppercase; letter-spacing:.05em; font-size:.72rem; font-weight:500; }
     </style>
 
-    <script src="/static/ui.js?v=tw1" defer></script>
-    <script src="/static/shell.js?v=tw1" defer></script>
-    <script src="/static/contribuir.js?v=tw1" defer></script>
+    <script src="/static/ui.js?v=tw2" defer></script>
+    <script src="/static/shell.js?v=tw2" defer></script>
+    <script src="/static/contribuir.js?v=tw2" defer></script>
   </body>
 </html>

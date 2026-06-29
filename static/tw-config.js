@@ -1,24 +1,46 @@
-/* tw-config.js — configuración de Tailwind (CDN).
- * Se carga justo DESPUÉS de cdn.tailwindcss.com, sin defer, para que el JIT
- * la tome antes de pintar. */
+/* tw-config.js — Sistema monocromático minimalista (Space Grotesk).
+ * Remapea TODAS las familias de color a un ramp de grises + un único rojo de
+ * error, y pone todos los radios en 0. Así las utilidades existentes
+ * (bg-slate-50, text-emerald-700, rounded-xl…) se vuelven monocromáticas y
+ * rectas sin tocar el markup. */
 window.tailwind = window.tailwind || {};
+
+// Ramp monocromático (de la paleta del brief: #121212 / #292929 / #4a4a4a / #e0e0e0 / #fff)
+var MONO = {
+  DEFAULT: "#121212",
+  50: "#f7f7f7", 100: "#ededed", 200: "#e0e0e0", 300: "#cfcfcf",
+  400: "#9b9b9b", 500: "#4a4a4a", 600: "#292929", 700: "#292929",
+  800: "#1c1c1c", 900: "#121212", 950: "#121212",
+};
+// Único color permitido fuera del gris: rojo de error/destructivo (#d32f2f)
+var RED = {
+  DEFAULT: "#d32f2f",
+  50: "#fdecea", 100: "#f9d2cd", 200: "#f3b4ad", 300: "#e88a80",
+  400: "#dd5c4e", 500: "#d32f2f", 600: "#c62828", 700: "#b71c1c",
+  800: "#9f1717", 900: "#7f1414", 950: "#5f0f0f",
+};
+
 tailwind.config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        sans: ["'Space Grotesk'", "system-ui", "sans-serif"],
+        mono: ["'Space Grotesk'", "ui-monospace", "monospace"],
       },
+      letterSpacing: { tightest: "-0.03em", tighter: "-0.02em" },
       colors: {
-        brand: {
-          DEFAULT: '#2563eb',
-          50: '#eff6ff', 100: '#dbeafe', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a',
-        },
+        // todo a gris…
+        brand: MONO, slate: MONO, gray: MONO, zinc: MONO, neutral: MONO, stone: MONO,
+        emerald: MONO, teal: MONO, sky: MONO, blue: MONO, indigo: MONO,
+        violet: MONO, purple: MONO, amber: MONO, yellow: MONO, orange: MONO, green: MONO,
+        // …salvo el rojo de error/destructivo
+        rose: RED, red: RED,
+        ink: MONO,
       },
-      keyframes: {
-        'fade-in': { '0%': { opacity: 0, transform: 'translateY(4px)' }, '100%': { opacity: 1, transform: 'none' } },
+      borderRadius: {
+        none: "0", sm: "0", DEFAULT: "0", md: "0", lg: "0",
+        xl: "0", "2xl": "0", "3xl": "0", full: "0",
       },
-      animation: { 'fade-in': 'fade-in .2s ease both' },
     },
   },
 };

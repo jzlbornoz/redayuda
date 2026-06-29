@@ -21,8 +21,8 @@
 
   // ---------------------------------------------------------------- lista
   function freshDot(tone) {
-    const map = { emerald: "bg-emerald-500", amber: "bg-amber-500", rose: "bg-rose-500", slate: "bg-slate-300" };
-    return map[tone] || "bg-slate-300";
+    const map = { emerald: "bg-ink-900", amber: "bg-ink-400", rose: "bg-red-600", slate: "bg-ink-200" };
+    return map[tone] || "bg-ink-200";
   }
 
   function sourceCard(s) {
