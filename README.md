@@ -150,3 +150,31 @@ curl -X POST "http://127.0.0.1:8000/api/ingest" \
 ```bash
 pytest
 ```
+
+## Contribuir
+
+Este proyecto es **open source** y la idea es que la comunidad lo continúe: una sola
+red para que las apps de ayuda dejen de duplicar el mismo índice.
+
+Formas de aportar:
+
+- **Conectar una fuente sin tocar código:** expón un endpoint JSON de lectura y
+  regístralo desde `/contribuir` (queda pendiente de revisión).
+- **Agregar un conector:** una fuente nueva = un archivo en `app/connectors/builtin/`
+  que expone `CONNECTOR` (ver los ejemplos existentes).
+- **Mejorar el frontend/UX, la resolución de entidades o la federación:** abre un
+  issue o un pull request.
+
+Antes de un PR: `pytest` debe pasar. Las escrituras son *fail-closed* por defecto
+(ver Seguridad arriba); no subas claves ni datos personales (el `.gitignore` ya
+excluye `.env*` y las bases `*.db`).
+
+## Privacidad
+
+El índice contiene datos sensibles (personas desaparecidas, cédulas). La base de
+datos **no se versiona**: vive solo en cada nodo. Trata cualquier despliegue con el
+cuidado que merece esta información.
+
+## Licencia
+
+[MIT](LICENSE) © Erik Taveras y colaboradores.
