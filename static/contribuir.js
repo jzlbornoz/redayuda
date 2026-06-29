@@ -1,489 +1,222 @@
-"use strict";
+/* contribuir.js — registrar fuente (asistente). Lógica de detección/validación
+ * sobre /api/connectors/preview, /schema y /proposals. DOM con clases Tailwind. */
+(function () {
+  "use strict";
+  const { escapeHtml, fetchJSON } = window.RH;
 
-const form = document.getElementById("proposalForm");
-const messageArea = document.getElementById("messageArea");
-const formStatus = document.getElementById("formStatus");
-const mappingRows = document.getElementById("mappingRows");
-const contractFields = document.getElementById("contractFields");
-const exampleRequest = document.getElementById("exampleRequest");
-const healthStatus = document.getElementById("healthStatus");
+  const form = document.getElementById("proposalForm");
+  const messageArea = document.getElementById("messageArea");
+  const formStatus = document.getElementById("formStatus");
+  const mappingRows = document.getElementById("mappingRows");
+  const contractFields = document.getElementById("contractFields");
+  let targetFields = [];
 
-let targetFields = [];
-
-/* ---------- utilidades ---------- */
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function setMessage(type, title, body = "") {
-  // type: success | danger | warning
-  messageArea.innerHTML = `
-    <div class="alert alert-${type}" role="alert">
-      <strong>${escapeHtml(title)}</strong>
-      ${body ? `<div class="small mb-0">${escapeHtml(body)}</div>` : ""}
-    </div>
-  `;
-  messageArea.scrollIntoView({ behavior: "smooth", block: "nearest" });
-}
-
-function clearMessage() {
-  messageArea.innerHTML = "";
-}
-
-function extractError(payload, fallback) {
-  const detail = payload && payload.detail;
-  if (typeof detail === "string") return detail;
-  if (detail && detail.error) return detail.error;
-  if (Array.isArray(detail) && detail.length && detail[0].msg) return detail[0].msg;
-  return fallback;
-}
-
-function fillSelect(select, values) {
-  if (!select) return;
-  select.innerHTML = (values || [])
-    .map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`)
-    .join("");
-}
-
-let feedbackIdSeq = 0;
-
-function setInvalid(field, message = "") {
-  if (!field) return;
-  field.classList.add("is-invalid");
-  field.setAttribute("aria-invalid", "true");
-  const feedback = field.parentElement.querySelector(".invalid-feedback");
-  if (feedback) {
-    if (message) feedback.textContent = message;
-    if (!feedback.id) feedback.id = `invfb-${++feedbackIdSeq}`;
-    const describedBy = (field.getAttribute("aria-describedby") || "")
-      .split(/\s+/)
-      .filter(Boolean);
-    if (!describedBy.includes(feedback.id)) describedBy.push(feedback.id);
-    field.setAttribute("aria-describedby", describedBy.join(" "));
+  // ---------------------------------------------------------------- mensajes
+  function setMessage(type, title, body = "") {
+    const tone = type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : type === "warning" ? "border-amber-200 bg-amber-50 text-amber-800"
+      : "border-rose-200 bg-rose-50 text-rose-800";
+    messageArea.innerHTML = `<div role="alert" class="rounded-lg border ${tone} px-4 py-3 text-sm"><strong>${escapeHtml(title)}</strong>${body ? `<div class="mt-0.5 opacity-90">${escapeHtml(body)}</div>` : ""}</div>`;
+    messageArea.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
-}
+  const clearMessage = () => { messageArea.innerHTML = ""; };
 
-function clearFieldInvalid(field) {
-  field.classList.remove("is-invalid");
-  field.removeAttribute("aria-invalid");
-  const feedback = field.parentElement.querySelector(".invalid-feedback");
-  if (feedback && feedback.id) {
-    const describedBy = (field.getAttribute("aria-describedby") || "")
-      .split(/\s+/)
-      .filter((id) => id && id !== feedback.id);
-    if (describedBy.length) field.setAttribute("aria-describedby", describedBy.join(" "));
-    else field.removeAttribute("aria-describedby");
+  function extractError(payload, fallback) {
+    const d = payload && payload.detail;
+    if (typeof d === "string") return d;
+    if (d && d.error) return d.error;
+    if (Array.isArray(d) && d.length && d[0].msg) return d[0].msg;
+    return fallback;
   }
-}
 
-function clearValidation() {
-  form.querySelectorAll(".is-invalid").forEach(clearFieldInvalid);
-  const mappingError = document.getElementById("mappingError");
-  if (mappingError) {
-    mappingError.hidden = true;
-    mappingError.textContent = "";
+  // ---------------------------------------------------------------- validación
+  function fb(field) { const l = field.closest("label"); return l ? l.querySelector(".rh-fb") : null; }
+  function setInvalid(field, msg = "") { if (!field) return; field.classList.add("is-invalid"); field.setAttribute("aria-invalid", "true"); const f = fb(field); if (f && msg) f.textContent = msg; }
+  function clearInvalid(field) { field.classList.remove("is-invalid"); field.removeAttribute("aria-invalid"); const f = fb(field); if (f) f.textContent = ""; }
+  function clearValidation() {
+    form.querySelectorAll(".is-invalid").forEach(clearInvalid);
+    const me = document.getElementById("mappingError"); if (me) { me.hidden = true; me.textContent = ""; }
   }
-}
+  function markInvalid(name, msg = "") { const f = form.querySelector(`[name="${name}"]`); if (f) setInvalid(f, msg); }
+  function showMappingError(msg) { const me = document.getElementById("mappingError"); if (me) { me.textContent = msg; me.hidden = false; } }
 
-function markInvalid(name, message = "") {
-  const field = form.querySelector(`[name="${name}"]`);
-  if (!field) return;
-  setInvalid(field, message);
-}
+  function fillSelect(sel, values) { if (sel) sel.innerHTML = (values || []).map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join(""); }
 
-function showMappingError(message) {
-  const mappingError = document.getElementById("mappingError");
-  if (!mappingError) return;
-  mappingError.textContent = message;
-  mappingError.hidden = false;
-}
-
-/* ---------- navbar + health ---------- */
-
-function markActiveNav() {
-  const path = location.pathname;
-  document.querySelectorAll("[data-nav]").forEach((link) => {
-    const href = link.getAttribute("href");
-    if (href === path || (href === "/contribuir" && path.startsWith("/contribuir"))) {
-      link.classList.add("active");
-      link.setAttribute("aria-current", "page");
-    }
-  });
-}
-
-async function checkHealth() {
-  try {
-    const response = await fetch("/api/network/stats");
-    if (!response.ok) throw new Error("stats no disponible");
-    const data = await response.json();
-    if (data && Number(data.total_records) > 0) {
-      healthStatus.className = "status-pill status-ok";
-      healthStatus.textContent = "Indice activo";
-    } else {
-      healthStatus.className = "status-pill status-warn";
-      healthStatus.textContent = "Indice vacio";
-    }
-  } catch {
-    healthStatus.className = "status-pill status-warn";
-    healthStatus.textContent = "Sin conexion";
-  }
-}
-
-/* ---------- mapeo de campos ---------- */
-
-let mappingRowSeq = 0;
-
-function addMappingRow(target = "", source = "") {
-  const rowId = `maprow-${++mappingRowSeq}`;
-  const row = document.createElement("div");
-  row.className = "mapping-row";
-  row.dataset.rowId = rowId;
-  row.dataset.target = target;
-  const options = ['<option value="">— campo destino —</option>']
-    .concat(
-      targetFields.map(
-        (f) =>
-          `<option value="${escapeHtml(f.name)}" ${f.name === target ? "selected" : ""}>${escapeHtml(f.name)}${f.required ? " *" : ""}</option>`
-      )
-    )
-    .join("");
-  row.innerHTML = `
-    <select class="select form-select-sm map-target" data-row-id="${rowId}" name="map_target_${mappingRowSeq}" aria-label="Campo del esquema">${options}</select>
-    <span class="text-muted text-center" aria-hidden="true">&larr;</span>
-    <input class="input form-control-sm map-source" data-row-id="${rowId}" name="map_source_${mappingRowSeq}" placeholder="campo en tu API" aria-label="Campo en tu API" value="${escapeHtml(source)}">
-    <button type="button" class="btn btn-danger-outline btn-sm map-remove" aria-label="Quitar campo">&times;</button>
-  `;
-  const select = row.querySelector(".map-target");
-  select.addEventListener("change", () => {
-    row.dataset.target = select.value;
-    markDuplicateTargets();
-  });
-  row.querySelector(".map-remove").addEventListener("click", () => {
-    row.remove();
-    markDuplicateTargets();
-  });
-  mappingRows.appendChild(row);
-}
-
-// Marca las filas cuyo campo destino esta repetido. Devuelve la lista de
-// destinos duplicados (para mensajes).
-function markDuplicateTargets() {
-  const counts = {};
-  const rows = Array.from(mappingRows.querySelectorAll(".mapping-row"));
-  rows.forEach((row) => {
-    const target = row.querySelector(".map-target").value.trim();
-    if (target) counts[target] = (counts[target] || 0) + 1;
-  });
-  const duplicates = [];
-  rows.forEach((row) => {
-    const select = row.querySelector(".map-target");
-    const target = select.value.trim();
-    if (target && counts[target] > 1) {
-      select.classList.add("is-invalid");
-      select.setAttribute("aria-invalid", "true");
-      if (!duplicates.includes(target)) duplicates.push(target);
-    } else {
-      select.classList.remove("is-invalid");
-      select.removeAttribute("aria-invalid");
-    }
-  });
-  return duplicates;
-}
-
-// Resalta la fila cuyo destino coincide (para errores 422 de field_mapping).
-function markMappingRowInvalid(targetName) {
-  const rows = Array.from(mappingRows.querySelectorAll(".mapping-row"));
-  let marked = false;
-  rows.forEach((row) => {
-    if (row.dataset.target && row.dataset.target === String(targetName)) {
-      const select = row.querySelector(".map-target");
-      select.classList.add("is-invalid");
-      select.setAttribute("aria-invalid", "true");
-      marked = true;
-    }
-  });
-  return marked;
-}
-
-function collectMapping() {
-  const mapping = {};
-  mappingRows.querySelectorAll(".mapping-row").forEach((row) => {
-    const target = row.querySelector(".map-target").value.trim();
-    const source = row.querySelector(".map-source").value.trim();
-    if (target && source) mapping[target] = source;
-  });
-  return mapping;
-}
-
-/* ---------- esquema ---------- */
-
-async function loadSchema() {
-  try {
-    const response = await fetch("/api/connectors/schema");
-    const schema = await response.json();
-    targetFields = schema.record_fields || [];
-
-    fillSelect(document.getElementById("kindSelect"), schema.allowed_kinds);
-    fillSelect(document.getElementById("authType"), schema.auth_types);
-    fillSelect(document.getElementById("pageStyle"), schema.pagination_styles);
-    toggleAuthHeader();
-
-    contractFields.innerHTML = targetFields
-      .map(
-        (f) => `
-          <div class="row-item d-flex align-items-center justify-content-between">
-            <code>${escapeHtml(f.name)}</code>
-            ${f.required ? '<span class="tag tag--accent">obligatorio</span>' : ""}
-          </div>`
-      )
+  // ---------------------------------------------------------------- mapeo
+  let seq = 0;
+  function addMappingRow(target = "", source = "") {
+    seq += 1;
+    const row = document.createElement("div");
+    row.className = "flex items-center gap-2";
+    row.dataset.target = target;
+    const options = ['<option value="">— campo del esquema —</option>']
+      .concat(targetFields.map((f) => `<option value="${escapeHtml(f.name)}" ${f.name === target ? "selected" : ""}>${escapeHtml(f.name)}${f.required ? " *" : ""}</option>`))
       .join("");
-
-    exampleRequest.textContent = JSON.stringify(schema.example_request, null, 2);
-
-    addMappingRow("title");
-    addMappingRow("person_name");
-  } catch (error) {
-    contractFields.innerHTML = "";
-    exampleRequest.textContent = "";
-    setMessage("danger", "No se pudo cargar el esquema", String(error));
-  }
-}
-
-function toggleAuthHeader() {
-  const wrap = document.getElementById("authHeaderWrap");
-  const authHeader = document.getElementById("authHeader");
-  const isApiKey = document.getElementById("authType").value === "api_key";
-  wrap.hidden = !isApiKey;
-  if (authHeader) {
-    authHeader.required = isApiKey;
-    if (!isApiKey) clearFieldInvalid(authHeader);
-  }
-}
-
-/* ---------- envio ---------- */
-
-async function submitForm(event) {
-  event.preventDefault();
-  clearMessage();
-  clearValidation();
-
-  const data = new FormData(form);
-
-  if (data.get("website")) return; // honeypot: bot detectado, ignorar en silencio
-
-  // Validacion nativa: vuelca validationMessage en cada feedback y enfoca el
-  // primer campo invalido.
-  if (!form.checkValidity()) {
-    const invalids = form.querySelectorAll(":invalid");
-    invalids.forEach((el) => setInvalid(el, el.validationMessage));
-    setMessage("danger", "Faltan datos obligatorios", "Revisa los campos marcados en rojo.");
-    const first = invalids[0];
-    if (first) {
-      first.scrollIntoView({ behavior: "smooth", block: "center" });
-      first.focus({ preventScroll: true });
-    }
-    return;
+    row.innerHTML = `
+      <select class="rh-in map-target" aria-label="Campo del esquema">${options}</select>
+      <span class="text-slate-300" aria-hidden="true">←</span>
+      <input class="rh-in map-source" placeholder="campo en tu API" aria-label="Campo en tu API" value="${escapeHtml(source)}">
+      <button type="button" class="map-remove grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg text-slate-400 ring-1 ring-inset ring-slate-200 hover:bg-rose-50 hover:text-rose-600" aria-label="Quitar">×</button>`;
+    const select = row.querySelector(".map-target");
+    select.addEventListener("change", () => { row.dataset.target = select.value; markDuplicates(); });
+    row.querySelector(".map-remove").addEventListener("click", () => { row.remove(); markDuplicates(); });
+    mappingRows.appendChild(row);
   }
 
-  // Validacion del JSON de ejemplo (si no esta vacio).
-  const sampleField = document.getElementById("sampleResponse");
-  const sampleRaw = (data.get("sample_response") || "").trim();
-  if (sampleRaw) {
+  function markDuplicates() {
+    const rows = Array.from(mappingRows.children);
+    const counts = {};
+    rows.forEach((r) => { const t = r.querySelector(".map-target").value.trim(); if (t) counts[t] = (counts[t] || 0) + 1; });
+    const dups = [];
+    rows.forEach((r) => {
+      const s = r.querySelector(".map-target"); const t = s.value.trim();
+      if (t && counts[t] > 1) { s.classList.add("is-invalid"); if (!dups.includes(t)) dups.push(t); }
+      else s.classList.remove("is-invalid");
+    });
+    return dups;
+  }
+  function markRowInvalid(target) {
+    let m = false;
+    Array.from(mappingRows.children).forEach((r) => { if (r.dataset.target === String(target)) { r.querySelector(".map-target").classList.add("is-invalid"); m = true; } });
+    return m;
+  }
+  function collectMapping() {
+    const map = {};
+    Array.from(mappingRows.children).forEach((r) => {
+      const t = r.querySelector(".map-target").value.trim();
+      const s = r.querySelector(".map-source").value.trim();
+      if (t && s) map[t] = s;
+    });
+    return map;
+  }
+
+  // ---------------------------------------------------------------- esquema
+  function toggleAuthHeader() {
+    const wrap = document.getElementById("authHeaderWrap");
+    const h = document.getElementById("authHeader");
+    const isKey = document.getElementById("authType").value === "api_key";
+    wrap.hidden = !isKey;
+    if (h) { h.required = isKey; if (!isKey) clearInvalid(h); }
+  }
+
+  async function loadSchema() {
     try {
-      JSON.parse(sampleRaw);
-    } catch (err) {
-      setInvalid(sampleField, `JSON invalido: ${err.message}`);
-      setMessage("danger", "JSON de ejemplo invalido", "Corrige el ejemplo de respuesta o dejalo vacio.");
-      sampleField.scrollIntoView({ behavior: "smooth", block: "center" });
-      sampleField.focus({ preventScroll: true });
-      return;
-    }
-  }
-
-  const mapping = collectMapping();
-  if (!Object.keys(mapping).length) {
-    showMappingError("Mapea al menos un campo destino con su campo de origen.");
-    setMessage("danger", "Falta el mapeo", "Mapea al menos un campo destino con su campo de origen.");
-    document.getElementById("mappingRows").scrollIntoView({ behavior: "smooth", block: "center" });
-    return;
-  }
-
-  // Destinos duplicados.
-  const duplicates = markDuplicateTargets();
-  if (duplicates.length) {
-    showMappingError(`Campos destino repetidos: ${duplicates.join(", ")}. Usa cada destino una sola vez.`);
-    setMessage("danger", "Mapeo duplicado", `Hay campos destino repetidos: ${duplicates.join(", ")}.`);
-    document.getElementById("mappingRows").scrollIntoView({ behavior: "smooth", block: "center" });
-    return;
-  }
-
-  // Regla del esquema: al menos uno de title/person_name/organization y todos
-  // los campos required mapeados.
-  const missing = [];
-  const anchors = ["title", "person_name", "organization"];
-  if (!anchors.some((f) => mapping[f])) {
-    missing.push("uno de title/person_name/organization");
-  }
-  targetFields
-    .filter((f) => f.required && !mapping[f.name])
-    .forEach((f) => {
-      missing.push(f.name);
-      markMappingRowInvalid(f.name);
-    });
-  if (missing.length) {
-    const text = `Falta mapear: ${missing.join(", ")}.`;
-    showMappingError(text);
-    setMessage("danger", "Mapeo incompleto", text);
-    document.getElementById("mappingRows").scrollIntoView({ behavior: "smooth", block: "center" });
-    return;
-  }
-
-  const payload = {
-    source_name: data.get("source_name"),
-    kind: data.get("kind"),
-    description: data.get("description") || "",
-    endpoint_url: data.get("endpoint_url"),
-    http_method: data.get("http_method") || "GET",
-    auth_type: data.get("auth_type") || "none",
-    auth_header: data.get("auth_header") || null,
-    data_path: data.get("data_path") || null,
-    field_mapping: mapping,
-    sample_response: data.get("sample_response") || null,
-    docs: data.get("docs") || null,
-    contact_name: data.get("contact_name") || null,
-    contact_email: data.get("contact_email") || null,
-    website: "",
-    pagination: {
-      style: data.get("pagination_style") || "none",
-      page_size: Number(data.get("page_size")) || 100,
-    },
-  };
-
-  const button = form.querySelector('[type="submit"]');
-  const originalHtml = button.innerHTML;
-  button.disabled = true;
-  button.innerHTML =
-    '<span class="spinner me-2" aria-hidden="true"></span>Enviando...';
-  formStatus.textContent = "Enviando...";
-
-  try {
-    const response = await fetch("/api/connectors/proposals", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const body = await response.json().catch(() => ({}));
-
-    if (response.status === 202) {
-      form.reset();
-      clearValidation();
-      mappingRows.innerHTML = "";
+      const schema = await fetchJSON("/api/connectors/schema");
+      targetFields = schema.record_fields || [];
+      fillSelect(document.getElementById("kindSelect"), schema.allowed_kinds);
+      fillSelect(document.getElementById("authType"), schema.auth_types);
+      fillSelect(document.getElementById("pageStyle"), schema.pagination_styles);
+      toggleAuthHeader();
+      contractFields.innerHTML = targetFields.map((f) =>
+        `<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${f.required ? "bg-brand-50 text-brand-700 ring-brand-100" : "bg-slate-100 text-slate-600 ring-slate-200"}">${escapeHtml(f.name)}${f.required ? " *" : ""}</span>`
+      ).join("");
       addMappingRow("title");
       addMappingRow("person_name");
-      toggleAuthHeader();
-      formStatus.textContent = "";
-      setMessage(
-        "success",
-        "Propuesta recibida",
-        "Gracias. Un administrador revisara tu fuente antes de activarla."
-      );
-    } else if (response.status === 429) {
-      const retryAfter = Number(response.headers.get("Retry-After"));
-      const msg =
-        Number.isFinite(retryAfter) && retryAfter > 0
-          ? `Reintenta en ${retryAfter} segundos.`
-          : extractError(body, "Reintenta luego.");
-      setMessage("warning", "Demasiados envios", msg);
-    } else if (response.status === 422) {
-      // marcar campos invalidos cuando el detalle lo indique
-      const detail = body && body.detail;
-      let mappingFlagged = false;
-      if (Array.isArray(detail)) {
-        detail.forEach((err) => {
-          const loc = err.loc || [];
-          if (loc.includes("field_mapping")) {
-            // el ultimo segmento suele ser la clave destino del mapeo
-            const idx = loc.indexOf("field_mapping");
-            const targetKey = loc[idx + 1];
-            if (targetKey && markMappingRowInvalid(String(targetKey))) {
-              mappingFlagged = true;
-            } else {
-              showMappingError(err.msg || "Revisa el mapeo de campos.");
-              mappingFlagged = true;
-            }
-            return;
-          }
-          const name = loc[loc.length - 1];
-          if (name) markInvalid(String(name), err.msg || "");
-        });
-      }
-      if (mappingFlagged) {
-        document.getElementById("mappingRows").scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-      setMessage("danger", "No se pudo enviar", extractError(body, "Revisa los datos del formulario."));
-    } else {
-      setMessage("danger", "No se pudo enviar", extractError(body, "Revisa los datos del formulario."));
+    } catch (e) {
+      setMessage("danger", "No se pudo cargar el esquema", String(e));
     }
-  } catch (error) {
-    setMessage("danger", "Error de red", String(error));
-  } finally {
-    button.disabled = false;
-    button.innerHTML = originalHtml;
-    if (formStatus.textContent === "Enviando...") formStatus.textContent = "";
   }
-}
 
-/* ---------- init ---------- */
-
-async function autodetectFields() {
-  const detectBtn = document.getElementById("detectBtn");
-  const detectStatus = document.getElementById("detectStatus");
-  const url = (document.getElementById("endpointUrl").value || "").trim();
-  const dataPath = (document.getElementById("dataPath").value || "").trim();
-  if (!url) {
-    detectStatus.textContent = "Pega primero la URL del endpoint.";
-    return;
+  // ---------------------------------------------------------------- detección
+  async function autodetect() {
+    const btn = document.getElementById("detectBtn");
+    const status = document.getElementById("detectStatus");
+    const url = (document.getElementById("endpointUrl").value || "").trim();
+    const dataPath = (document.getElementById("dataPath").value || "").trim();
+    if (!url) { status.textContent = "Pega primero la URL del endpoint."; return; }
+    btn.disabled = true; status.textContent = "Consultando tu endpoint…";
+    try {
+      const body = await fetchJSON("/api/connectors/preview", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ endpoint_url: url, data_path: dataPath || null }),
+      });
+      const suggested = body.suggested_mapping || {};
+      const fields = body.fields || [];
+      mappingRows.innerHTML = "";
+      Object.entries(suggested).forEach(([src, tgt]) => addMappingRow(tgt, src));
+      fields.filter((f) => !(f in suggested)).forEach((f) => addMappingRow("", f));
+      if (!fields.length) addMappingRow("title");
+      const n = Object.keys(suggested).length;
+      status.textContent = `${fields.length} campos detectados (${body.count} registros). ${n} mapeados automáticamente; revisa el resto.`;
+    } catch (err) {
+      status.textContent = extractError(err.payload, "No se pudieron detectar los campos.");
+    } finally { btn.disabled = false; }
   }
-  detectBtn.disabled = true;
-  detectStatus.textContent = "Consultando tu endpoint…";
-  try {
-    const res = await fetch("/api/connectors/preview", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ endpoint_url: url, data_path: dataPath || null }),
-    });
-    const body = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      detectStatus.textContent = extractError(body, "No se pudieron detectar los campos.");
+
+  // ---------------------------------------------------------------- envío
+  async function submitForm(event) {
+    event.preventDefault();
+    clearMessage(); clearValidation();
+    const data = new FormData(form);
+    if (data.get("website")) return; // honeypot
+
+    if (!form.checkValidity()) {
+      const invalids = form.querySelectorAll(":invalid");
+      invalids.forEach((el) => setInvalid(el, el.validationMessage));
+      setMessage("danger", "Faltan datos obligatorios", "Revisa los campos marcados.");
+      invalids[0] && invalids[0].scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    const suggested = body.suggested_mapping || {};
-    const fields = body.fields || [];
-    // Reconstruye el mapeo: primero los sugeridos, luego el resto sin destino.
-    mappingRows.innerHTML = "";
-    Object.entries(suggested).forEach(([src, tgt]) => addMappingRow(tgt, src));
-    fields.filter((f) => !(f in suggested)).forEach((f) => addMappingRow("", f));
-    const n = Object.keys(suggested).length;
-    detectStatus.textContent =
-      `${fields.length} campos detectados (${body.count} registros). ${n} mapeados automaticamente; revisa el resto.`;
-  } catch (err) {
-    detectStatus.textContent = "Error de red al consultar el endpoint.";
-  } finally {
-    detectBtn.disabled = false;
+
+    const sampleField = document.getElementById("sampleResponse");
+    const sampleRaw = (data.get("sample_response") || "").trim();
+    if (sampleRaw) { try { JSON.parse(sampleRaw); } catch (err) { setInvalid(sampleField, `JSON inválido: ${err.message}`); setMessage("danger", "JSON de ejemplo inválido", "Corrígelo o déjalo vacío."); return; } }
+
+    const mapping = collectMapping();
+    if (!Object.keys(mapping).length) { showMappingError("Mapea al menos un campo."); setMessage("danger", "Falta el mapeo", "Mapea al menos un campo destino con su origen."); return; }
+    const dups = markDuplicates();
+    if (dups.length) { showMappingError(`Destinos repetidos: ${dups.join(", ")}.`); setMessage("danger", "Mapeo duplicado", `Repetidos: ${dups.join(", ")}.`); return; }
+
+    const missing = [];
+    if (!["title", "person_name", "organization"].some((f) => mapping[f])) missing.push("uno de title/person_name/organization");
+    targetFields.filter((f) => f.required && !mapping[f.name]).forEach((f) => { missing.push(f.name); markRowInvalid(f.name); });
+    if (missing.length) { const t = `Falta mapear: ${missing.join(", ")}.`; showMappingError(t); setMessage("danger", "Mapeo incompleto", t); return; }
+
+    const payload = {
+      source_name: data.get("source_name"), kind: data.get("kind"), description: data.get("description") || "",
+      endpoint_url: data.get("endpoint_url"), http_method: data.get("http_method") || "GET",
+      auth_type: data.get("auth_type") || "none", auth_header: data.get("auth_header") || null,
+      data_path: data.get("data_path") || null, field_mapping: mapping,
+      sample_response: data.get("sample_response") || null, docs: data.get("docs") || null,
+      contact_name: data.get("contact_name") || null, contact_email: data.get("contact_email") || null,
+      website: "", pagination: { style: data.get("pagination_style") || "none", page_size: Number(data.get("page_size")) || 100 },
+    };
+
+    const button = form.querySelector('[type="submit"]');
+    button.disabled = true; const prev = button.textContent; button.textContent = "Enviando…"; formStatus.textContent = "";
+    try {
+      const res = await fetch("/api/connectors/proposals", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const body = await res.json().catch(() => ({}));
+      if (res.status === 202) {
+        form.reset(); clearValidation(); mappingRows.innerHTML = ""; addMappingRow("title"); addMappingRow("person_name"); toggleAuthHeader();
+        document.getElementById("detectStatus").textContent = "";
+        setMessage("success", "Propuesta recibida", "Gracias. Un administrador la revisará antes de activarla.");
+      } else if (res.status === 429) {
+        const ra = Number(res.headers.get("Retry-After"));
+        setMessage("warning", "Demasiados envíos", ra > 0 ? `Reintenta en ${ra} s.` : extractError(body, "Reintenta luego."));
+      } else if (res.status === 422 && Array.isArray(body.detail)) {
+        let flagged = false;
+        body.detail.forEach((err) => {
+          const loc = err.loc || [];
+          if (loc.includes("field_mapping")) { const key = loc[loc.indexOf("field_mapping") + 1]; if (key && markRowInvalid(String(key))) flagged = true; else { showMappingError(err.msg || "Revisa el mapeo."); flagged = true; } return; }
+          const name = loc[loc.length - 1]; if (name) markInvalid(String(name), err.msg || "");
+        });
+        if (flagged) mappingRows.scrollIntoView({ behavior: "smooth", block: "center" });
+        setMessage("danger", "No se pudo enviar", extractError(body, "Revisa los datos."));
+      } else {
+        setMessage("danger", "No se pudo enviar", extractError(body, "Revisa los datos."));
+      }
+    } catch (e) {
+      setMessage("danger", "Error de red", String(e));
+    } finally {
+      button.disabled = false; button.textContent = prev;
+    }
   }
-}
 
-document.getElementById("detectBtn").addEventListener("click", autodetectFields);
-document.getElementById("addMappingRow").addEventListener("click", () => addMappingRow());
-document.getElementById("authType").addEventListener("change", toggleAuthHeader);
-form.addEventListener("submit", submitForm);
-
-markActiveNav();
-checkHealth();
-loadSchema();
+  // ---------------------------------------------------------------- init
+  document.getElementById("detectBtn").addEventListener("click", autodetect);
+  document.getElementById("addMappingRow").addEventListener("click", () => addMappingRow());
+  document.getElementById("authType").addEventListener("change", toggleAuthHeader);
+  form.addEventListener("submit", submitForm);
+  loadSchema();
+})();

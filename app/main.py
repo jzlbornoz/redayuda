@@ -180,16 +180,33 @@ async def fuentes():
     return FileResponse(STATIC_DIR / "fuentes.html")
 
 
+@app.get("/desarrolladores", include_in_schema=False)
+@app.head("/desarrolladores", include_in_schema=False)
 @app.get("/integrar", include_in_schema=False)
 @app.head("/integrar", include_in_schema=False)
-async def integrar():
-    return FileResponse(STATIC_DIR / "integrar.html")
-
-
 @app.get("/red", include_in_schema=False)
 @app.head("/red", include_in_schema=False)
-async def red():
-    return FileResponse(STATIC_DIR / "red.html")
+async def desarrolladores():
+    # /integrar y /red se conservan como alias de la página de desarrolladores.
+    return FileResponse(STATIC_DIR / "dev.html")
+
+
+@app.get("/mapa", include_in_schema=False)
+@app.head("/mapa", include_in_schema=False)
+async def mapa():
+    return FileResponse(STATIC_DIR / "mapa.html")
+
+
+@app.get("/entidad", include_in_schema=False)
+@app.head("/entidad", include_in_schema=False)
+async def entidad():
+    return FileResponse(STATIC_DIR / "entidad.html")
+
+
+@app.get("/admin", include_in_schema=False)
+@app.head("/admin", include_in_schema=False)
+async def admin():
+    return FileResponse(STATIC_DIR / "admin.html")
 
 
 @app.get("/favicon.ico", include_in_schema=False)

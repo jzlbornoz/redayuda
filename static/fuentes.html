@@ -4,177 +4,96 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Fuentes · Red Humanitaria de Datos</title>
-    <!-- Tipografia: titulares Archivo, cuerpo Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
-    <!-- Sistema de diseno propio (sin Bootstrap) -->
-    <link rel="stylesheet" href="/static/rhd.css?v=bs5">
-    <!-- Favicons existentes -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/tw-config.js"></script>
+    <link rel="stylesheet" href="/static/app.css?v=tw1">
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
-    <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
   </head>
-  <body>
+  <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
+    <a class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2" href="#main">Saltar al contenido</a>
+    <header id="rh-header"></header>
 
-    <a class="visually-hidden-focusable" href="#main">Saltar al contenido</a>
+    <main id="main" tabindex="-1" class="mx-auto max-w-6xl px-4 py-8">
 
-    <nav class="site-nav" aria-label="Navegacion principal">
-      <div class="container site-nav__inner">
-        <a class="brand" href="/" aria-label="Inicio">
-          <span class="brand__mark" aria-hidden="true">HV</span>
-          <span class="d-flex flex-column lh-1">
-            <strong class="brand__name">Red Humanitaria de Datos</strong>
-            <small class="brand__sub">Indexador de datos humanitarios</small>
-          </span>
-        </a>
-        <button class="nav-toggle" type="button" data-toggle="collapse" data-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menu">
-          <span class="nav-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
-        </button>
-        <ul class="nav-menu collapse" id="mainNav">
-          <li class="nav-menu__item"><a class="nav-link" href="/red" data-nav="red">Red</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/" data-nav="buscar">Buscar</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/fuentes" data-nav="fuentes">Fuentes</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/integrar" data-nav="integrar">Integrar</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/contribuir" data-nav="contribuir">Registrar fuente</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/docs" data-nav="docs">API docs</a></li>
-          <li class="nav-menu__item"><span id="healthStatus" class="status-pill status-muted">Verificando</span></li>
-        </ul>
-      </div>
-    </nav>
+      <!-- Vista lista -->
+      <section id="sourcesView">
+        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Fuentes conectadas</h1>
+        <p class="mt-1 text-slate-500">Las apps y bases que alimentan el índice. El color indica la frescura de su última sincronización.</p>
 
-    <main class="container py-4 py-lg-5" id="main" tabindex="-1">
-
-      <!-- ===== Vista 1: listado de fuentes ===== -->
-      <section id="sourcesView" aria-label="Fuentes registradas">
-        <header class="mb-5">
-          <p class="eyebrow eyebrow--accent">La red</p>
-          <h1 class="mb-3">Apps conectadas</h1>
-          <p class="lead text-muted mb-4">El directorio de apps y bases que alimentan el índice común. Entra a cada una para ver sus registros y su última sincronización.</p>
-          <a class="btn btn-outline" href="/integrar">Conecta tu app a la red</a>
-        </header>
-
-        <!-- Metricas -->
-        <div class="grid grid--3 mb-5">
-          <div class="col">
-            <div class="card h-100">
-              <div class="card__body">
-                <div class="h3 mb-1" id="statSources">—</div>
-                <div class="eyebrow mb-0">Apps conectadas</div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card h-100">
-              <div class="card__body">
-                <div class="h3 mb-1" id="statRecords">—</div>
-                <div class="eyebrow mb-0">Registros</div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card h-100">
-              <div class="card__body">
-                <div class="h3 mb-1" id="statActive">—</div>
-                <div class="eyebrow mb-0">Activas</div>
-              </div>
-            </div>
-          </div>
+        <div class="mt-5 grid gap-3 sm:grid-cols-4">
+          <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div id="kSources" class="text-2xl font-bold tabular-nums">—</div><div class="text-xs font-medium uppercase tracking-wide text-slate-400">Fuentes</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div id="kRecords" class="text-2xl font-bold tabular-nums">—</div><div class="text-xs font-medium uppercase tracking-wide text-slate-400">Registros</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div id="kFresh" class="text-2xl font-bold tabular-nums text-emerald-600">—</div><div class="text-xs font-medium uppercase tracking-wide text-slate-400">Al día (&lt;24h)</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div id="kStale" class="text-2xl font-bold tabular-nums text-rose-600">—</div><div class="text-xs font-medium uppercase tracking-wide text-slate-400">Obsoletas (&gt;7d)</div></div>
         </div>
 
-        <!-- Toolbar -->
-        <div class="row g-2 mb-4">
-          <div class="col-12 col-md">
-            <input id="sourceFilter" type="search" class="input" autocomplete="off"
-                   placeholder="Filtrar fuentes…" aria-label="Filtrar fuentes">
-          </div>
-          <div class="col-12 col-md-auto">
-            <select id="sourceSort" class="select" aria-label="Ordenar fuentes">
-              <option value="records">Más registros</option>
-              <option value="name">Nombre (A–Z)</option>
-              <option value="recent">Sincronización reciente</option>
-            </select>
-          </div>
+        <div class="mt-5 flex flex-wrap items-center gap-2">
+          <input id="sourceFilter" type="search" autocomplete="off" placeholder="Filtrar fuentes…"
+                 class="w-56 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/30">
+          <select id="sourceSort" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/30">
+            <option value="records">Más registros</option>
+            <option value="name">Nombre (A–Z)</option>
+            <option value="recent">Sincronización reciente</option>
+            <option value="stale">Más rezagadas</option>
+          </select>
+          <a href="/desarrolladores" class="ml-auto rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">Conectar mi app</a>
         </div>
 
-        <div id="sourcesMessage" aria-live="polite"></div>
-        <div id="sourcesList" class="grid grid--auto"></div>
+        <div id="sourcesMessage" class="mt-4" aria-live="polite"></div>
+        <div id="sourcesList" class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
       </section>
 
-      <!-- ===== Vista 2: detalle de una fuente ===== -->
-      <section id="recordsView" aria-label="Registros de la fuente" hidden>
-        <button id="backButton" class="btn btn-ghost px-0 mb-3" type="button">← Todas las fuentes</button>
+      <!-- Vista detalle -->
+      <section id="recordsView" hidden>
+        <button id="backButton" type="button" class="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900">← Todas las fuentes</button>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 id="sdTitle" class="text-2xl font-bold tracking-tight">—</h1>
+            <div id="sdMeta" class="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-slate-500"></div>
+          </div>
+        </div>
 
-        <header class="mb-5">
-          <p class="eyebrow eyebrow--accent">Fuente</p>
-          <h1 class="sd-title mb-3" id="sdTitle">—</h1>
-          <div class="cluster sd-meta" id="sdMeta"></div>
-        </header>
-
-        <form id="recordsSearch" class="row g-2 mb-4">
-          <div class="col-12 col-md">
-            <input id="qInput" type="search" class="input" autocomplete="off"
-                   placeholder="Buscar en esta fuente…" aria-label="Buscar en la fuente">
-          </div>
-          <div class="col-12 col-sm-6 col-md-auto">
-            <select id="typeInput" class="select" aria-label="Tipo de registro">
-              <option value="">Todos los tipos</option>
-            </select>
-          </div>
-          <div class="col-12 col-sm-6 col-md-auto">
-            <select id="limitInput" class="select" aria-label="Por página">
-              <option value="25">25 / pág.</option>
-              <option value="50">50 / pág.</option>
-              <option value="100">100 / pág.</option>
-            </select>
-          </div>
-          <div class="col-12 col-md-auto">
-            <button type="submit" class="btn btn-primary w-100">Buscar</button>
-          </div>
+        <form id="recordsSearch" class="mt-5 flex flex-wrap items-center gap-2" novalidate>
+          <input id="qInput" type="search" autocomplete="off" placeholder="Buscar en esta fuente…"
+                 class="w-56 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/30">
+          <select id="typeInput" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"><option value="">Todos los tipos</option></select>
+          <button type="submit" class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">Buscar</button>
         </form>
 
-        <p class="text-muted fs-7 mb-2" id="recordsCount" aria-live="polite"></p>
+        <p id="recordsCount" class="mt-3 text-sm text-slate-400" aria-live="polite"></p>
         <div id="recordsMessage" aria-live="polite"></div>
-        <div id="recordsList" class="rows mb-3"></div>
+        <div id="recordsList" class="mt-2 space-y-2"></div>
 
-        <nav id="pager" aria-label="Paginación de registros" hidden>
-          <div class="d-flex align-items-center justify-content-center gap-3">
-            <button id="prevButton" class="btn btn-outline btn-sm" type="button" aria-label="Anterior">Anterior</button>
-            <span id="pagerLabel" class="text-muted fs-7">—</span>
-            <button id="nextButton" class="btn btn-outline btn-sm" type="button" aria-label="Siguiente">Siguiente</button>
-          </div>
-        </nav>
+        <div class="mt-5 flex items-center justify-center gap-3">
+          <button id="prevButton" type="button" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40" disabled>Anterior</button>
+          <span id="pagerLabel" class="text-sm text-slate-400">—</span>
+          <button id="nextButton" type="button" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40" disabled>Siguiente</button>
+        </div>
       </section>
-
     </main>
 
-    <footer class="site-footer mt-auto py-4">
-      <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-2">
-        <span>Red Humanitaria de Datos — un índice común para las apps de ayuda de Venezuela, en lugar de duplicar el mismo esfuerzo.</span>
-        <nav class="d-flex gap-3" aria-label="Enlaces del pie">
-          <a href="/fuentes">Fuentes</a>
-          <a href="/contribuir">Registrar fuente</a>
-          <a href="/docs">API docs</a>
-        </nav>
-      </div>
-    </footer>
+    <footer id="rh-footer"></footer>
 
-    <!-- ===== Drawer de detalle de registro ===== -->
-    <div class="drawer" id="recordOffcanvas" aria-labelledby="drawerTitle" aria-hidden="true">
+    <!-- Drawer -->
+    <div class="drawer" id="recordDrawer" aria-labelledby="drawerTitle" aria-hidden="true">
       <div class="drawer__backdrop" data-drawer-close></div>
       <div class="drawer__panel">
-        <div class="drawer__head">
-          <div class="min-w-0">
-            <p class="eyebrow eyebrow--accent mb-0" id="drawerType"></p>
-            <h2 class="drawer__title h5 mb-0 text-truncate" id="drawerTitle">—</h2>
-          </div>
-          <button type="button" class="drawer__close" data-drawer-close aria-label="Cerrar">×</button>
+        <div class="flex items-start justify-between gap-3 border-b border-slate-200 p-5">
+          <div class="min-w-0"><div id="drawerType" class="mb-1"></div><h2 id="drawerTitle" class="truncate text-lg font-bold">Detalle</h2></div>
+          <button type="button" data-drawer-close class="grid h-8 w-8 flex-shrink-0 place-items-center rounded-md text-slate-400 hover:bg-slate-100" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
         </div>
-        <div class="drawer__body" id="drawerBody"></div>
+        <div id="drawerBody" class="flex-1 overflow-auto p-5"></div>
       </div>
     </div>
 
-    <!-- UI propia (Drawer + initCollapse), antes del script de pagina. -->
-    <script src="/static/ui.js?v=bs5" defer></script>
-    <script src="/static/fuentes.js?v=bs5" defer></script>
+    <script src="/static/ui.js?v=tw1" defer></script>
+    <script src="/static/shell.js?v=tw1" defer></script>
+    <script src="/static/detail.js?v=tw1" defer></script>
+    <script src="/static/fuentes.js?v=tw1" defer></script>
   </body>
 </html>

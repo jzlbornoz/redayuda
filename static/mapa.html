@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mapa · Red Humanitaria de Datos</title>
+    <meta name="description" content="Mapa de centros de acopio, donación, hospitales y recursos del índice humanitario.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/tw-config.js"></script>
+    <link rel="stylesheet" href="/static/app.css?v=tw1">
+    <link rel="icon" href="/static/assets/favicon.png" type="image/png">
+  </head>
+  <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
+    <a class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2" href="#main">Saltar al contenido</a>
+    <header id="rh-header"></header>
+
+    <main id="main" tabindex="-1" class="mx-auto max-w-6xl px-4 py-8">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Mapa de la red</h1>
+          <p class="mt-1 text-slate-500">Centros, hospitales y recursos con ubicación. <span id="mapCount" class="font-medium text-slate-700"></span></p>
+        </div>
+        <a href="/" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">Ir a búsqueda</a>
+      </div>
+
+      <form id="mapForm" class="mt-4 flex flex-wrap items-center gap-2" novalidate>
+        <input id="mapQuery" type="search" autocomplete="off" placeholder="Filtrar por texto…"
+               class="w-56 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/30">
+        <div id="mapChips" class="flex flex-wrap gap-1.5" role="group" aria-label="Filtrar por tipo"></div>
+      </form>
+
+      <div id="mapMessage" class="mt-3" aria-live="polite"></div>
+      <div id="map" class="rh-map mt-4 w-full overflow-hidden rounded-xl border border-slate-200 shadow-sm"></div>
+      <p class="mt-2 text-xs text-slate-400">Mapas © OpenStreetMap. Solo se muestran registros con coordenadas.</p>
+    </main>
+
+    <footer id="rh-footer"></footer>
+
+    <!-- Drawer de detalle -->
+    <div class="drawer" id="recordDrawer" aria-labelledby="drawerTitle" aria-hidden="true">
+      <div class="drawer__backdrop" data-drawer-close></div>
+      <div class="drawer__panel">
+        <div class="flex items-start justify-between gap-3 border-b border-slate-200 p-5">
+          <div class="min-w-0">
+            <div id="drawerType" class="mb-1"></div>
+            <h2 id="drawerTitle" class="truncate text-lg font-bold">Detalle</h2>
+          </div>
+          <button type="button" data-drawer-close class="grid h-8 w-8 flex-shrink-0 place-items-center rounded-md text-slate-400 hover:bg-slate-100" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <div id="drawerBody" class="flex-1 overflow-auto p-5"></div>
+      </div>
+    </div>
+
+    <script src="/static/ui.js?v=tw1" defer></script>
+    <script src="/static/shell.js?v=tw1" defer></script>
+    <script src="/static/detail.js?v=tw1" defer></script>
+    <script src="/static/mapa.js?v=tw1" defer></script>
+  </body>
+</html>

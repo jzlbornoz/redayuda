@@ -4,243 +4,126 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Registrar fuente · Red Humanitaria de Datos</title>
-    <!-- Tipografia: titulares Archivo, cuerpo Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
-    <!-- Sistema de diseno propio (sin Bootstrap) -->
-    <link rel="stylesheet" href="/static/rhd.css?v=bs5">
-    <!-- Favicons existentes -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/tw-config.js"></script>
+    <link rel="stylesheet" href="/static/app.css?v=tw1">
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
-    <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
   </head>
-  <body>
-    <a class="visually-hidden-focusable" href="#main">Saltar al contenido</a>
+  <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
+    <a class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2" href="#main">Saltar al contenido</a>
+    <header id="rh-header"></header>
 
-    <nav class="site-nav" aria-label="Navegacion principal">
-      <div class="container site-nav__inner">
-        <a class="brand" href="/" aria-label="Inicio">
-          <span class="brand__mark" aria-hidden="true">HV</span>
-          <span class="brand__name">Red Humanitaria de Datos
-            <span class="brand__sub">Indexador de datos humanitarios</span>
-          </span>
-        </a>
-        <button class="nav-toggle" type="button" data-toggle="collapse" data-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menu">
-          <span class="nav-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
-        </button>
-        <ul class="nav-menu collapse" id="mainNav">
-          <li class="nav-menu__item"><a class="nav-link" href="/red" data-nav="red">Red</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/" data-nav="buscar">Buscar</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/fuentes" data-nav="fuentes">Fuentes</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/integrar" data-nav="integrar">Integrar</a></li>
-          <li class="nav-menu__item"><a class="nav-link active" aria-current="page" href="/contribuir" data-nav="contribuir">Registrar fuente</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/docs" data-nav="docs">API docs</a></li>
-          <li class="nav-menu__item"><span id="healthStatus" class="status-pill status-muted">Verificando</span></li>
-        </ul>
-      </div>
-    </nav>
+    <main id="main" tabindex="-1" class="mx-auto max-w-3xl px-4 py-8">
+      <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Registrar una fuente</h1>
+      <p class="mt-2 text-slate-500">Pega la URL de tu endpoint, deja que detectemos los campos y revisa el mapeo. Queda pendiente de revisión antes de activarse. <strong class="text-slate-700">No envíes claves secretas:</strong> declara solo el tipo de autenticación.</p>
 
-    <main id="main" tabindex="-1" class="container py-5">
-      <header class="mb-5">
-        <p class="eyebrow eyebrow--accent">Contribuir</p>
-        <h1 class="mb-3">Registrar una fuente</h1>
-        <p class="lead mb-0">
-          Describe tu endpoint y como mapear tus campos al esquema comun. La
-          propuesta queda pendiente de revision por un administrador antes de
-          activarse. <strong>No envies claves secretas aqui:</strong> declara
-          solo el tipo de autenticacion; la credencial se coordina al aprobar.
-        </p>
-      </header>
+      <div id="messageArea" class="mt-4" aria-live="polite"></div>
 
-      <div id="messageArea" aria-live="polite"></div>
+      <form id="proposalForm" autocomplete="off" novalidate class="mt-6 space-y-6">
 
-      <div class="sidebar-layout">
-        <!-- ===== Formulario ===== -->
-        <form id="proposalForm" autocomplete="off" novalidate>
-          <!-- Contacto -->
-          <div class="card mb-3">
-            <div class="card__body">
-              <h2 class="h6 mb-3">Contacto</h2>
-              <div class="grid grid--2">
-                <div class="field field--float">
-                  <input class="input" id="contactName" name="contact_name" maxlength="120" placeholder=" ">
-                  <label for="contactName">Tu nombre</label>
-                  <div class="invalid-feedback"></div>
-                </div>
-                <div class="field field--float">
-                  <input class="input" id="contactEmail" name="contact_email" type="email" required maxlength="160" placeholder=" ">
-                  <label for="contactEmail">Email de contacto *</label>
-                  <div class="invalid-feedback"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Fuente -->
-          <div class="card mb-3">
-            <div class="card__body">
-              <h2 class="h6 mb-3">Fuente</h2>
-              <div class="stack stack--sm">
-                <div class="grid grid--2">
-                  <div class="field field--float">
-                    <input class="input" id="sourceName" name="source_name" required minlength="3" maxlength="120" placeholder=" ">
-                    <label for="sourceName">Nombre de la fuente *</label>
-                    <div class="invalid-feedback"></div>
-                  </div>
-                  <div class="field field--float">
-                    <select class="select" id="kindSelect" name="kind" required></select>
-                    <label for="kindSelect">Tipo *</label>
-                    <div class="invalid-feedback"></div>
-                  </div>
-                </div>
-                <div class="field field--float">
-                  <textarea class="input" id="description" name="description" maxlength="600" style="height: 5rem" placeholder=" "></textarea>
-                  <label for="description">Descripcion</label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Endpoint y autenticacion -->
-          <div class="card mb-3">
-            <div class="card__body">
-              <h2 class="h6 mb-3">Endpoint y autenticacion</h2>
-              <div class="stack stack--sm">
-                <div class="field field--float">
-                  <input class="input" id="endpointUrl" name="endpoint_url" type="url" required maxlength="400" placeholder=" ">
-                  <label for="endpointUrl">URL del endpoint *</label>
-                  <div class="invalid-feedback"></div>
-                </div>
-                <div class="grid grid--3">
-                  <div class="field field--float">
-                    <select class="select" id="httpMethod" name="http_method">
-                      <option>GET</option>
-                      <option>POST</option>
-                    </select>
-                    <label for="httpMethod">Metodo</label>
-                  </div>
-                  <div class="field field--float">
-                    <select class="select" id="authType" name="auth_type"></select>
-                    <label for="authType">Autenticacion</label>
-                  </div>
-                  <div class="field field--float" id="authHeaderWrap" hidden>
-                    <input class="input" id="authHeader" name="auth_header" maxlength="80" placeholder=" ">
-                    <label for="authHeader">Nombre del header</label>
-                    <div class="invalid-feedback"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Paginacion -->
-          <div class="card mb-3">
-            <div class="card__body">
-              <h2 class="h6 mb-3">Paginacion</h2>
-              <div class="grid grid--3">
-                <div class="field field--float">
-                  <select class="select" id="pageStyle" name="pagination_style"></select>
-                  <label for="pageStyle">Estilo</label>
-                </div>
-                <div class="field field--float">
-                  <input class="input" id="dataPath" name="data_path" maxlength="120" placeholder=" ">
-                  <label for="dataPath">Ruta a los datos</label>
-                </div>
-                <div class="field field--float">
-                  <input class="input" id="pageSize" name="page_size" type="number" min="1" max="5000" value="100" placeholder=" ">
-                  <label for="pageSize">Tamano de pagina</label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Mapeo de campos -->
-          <div class="card mb-3">
-            <div class="card__body">
-              <h2 class="h6 mb-2">Mapeo de campos *</h2>
-              <p class="text-muted small mb-3">
-                Indica que campo de TU API alimenta cada campo del esquema comun.
-                Incluye al menos <code>title</code>, <code>person_name</code> u
-                <code>organization</code>.
-              </p>
-              <div class="cluster mb-3">
-                <button type="button" id="detectBtn" class="btn btn-primary btn-sm">Detectar campos del endpoint</button>
-                <span id="detectStatus" class="text-muted small" aria-live="polite"></span>
-              </div>
-              <div id="mappingRows" class="stack stack--sm"></div>
-              <div id="mappingError" class="text-danger small mt-2" role="alert" aria-live="polite" hidden></div>
-              <button type="button" id="addMappingRow" class="btn btn-outline btn-sm mt-3">Anadir campo</button>
-            </div>
-          </div>
-
-          <!-- Documentacion -->
-          <div class="card mb-3">
-            <div class="card__body">
-              <h2 class="h6 mb-3">Documentacion (opcional)</h2>
-              <div class="stack stack--sm">
-                <div class="field field--float">
-                  <textarea class="input font-monospace" id="sampleResponse" name="sample_response" maxlength="8000" style="height: 7rem" placeholder=" "></textarea>
-                  <label for="sampleResponse">Ejemplo de respuesta de tu API (JSON)</label>
-                  <div class="invalid-feedback"></div>
-                </div>
-                <div class="field field--float">
-                  <textarea class="input" id="docs" name="docs" maxlength="4000" style="height: 6rem" placeholder=" "></textarea>
-                  <label for="docs">Notas de integracion</label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Honeypot anti-spam: oculto, debe quedar vacio. -->
-          <div class="honeypot" aria-hidden="true">
-            <label>No llenar
-              <input name="website" tabindex="-1" autocomplete="off">
+        <!-- Paso 1: Endpoint + detección -->
+        <fieldset class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <legend class="flex items-center gap-2 px-1 text-sm font-semibold text-slate-900"><span class="grid h-6 w-6 place-items-center rounded-full bg-brand text-xs text-white">1</span>Tu endpoint</legend>
+          <div class="mt-3 space-y-3">
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">URL del endpoint de lectura (JSON) *</span>
+              <input class="rh-in mt-1" id="endpointUrl" name="endpoint_url" type="url" required maxlength="400" placeholder="https://mi-app.org/api/registros">
+              <span class="rh-fb"></span>
             </label>
-          </div>
-
-          <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-primary w-100" type="submit">Enviar propuesta</button>
-            <span id="formStatus" class="text-muted small" aria-live="polite"></span>
-          </div>
-        </form>
-
-        <!-- ===== Panel lateral: esquema comun ===== -->
-        <aside>
-          <div class="sticky">
-            <div class="card">
-              <div class="card__body">
-                <p class="eyebrow">Contrato</p>
-                <h2 class="h6 mb-1">Esquema comun (IndexedRecord)</h2>
-                <p class="text-muted small mb-3">
-                  Tus datos se normalizan a estos campos. Mapea los que apliquen.
-                </p>
-                <div id="contractFields" class="rows mb-4">
-                  <div class="row-item"><span class="skeleton skeleton--text skeleton-glow" style="inline-size:60%"></span></div>
-                  <div class="row-item"><span class="skeleton skeleton--text skeleton-glow" style="inline-size:45%"></span></div>
-                  <div class="row-item"><span class="skeleton skeleton--text skeleton-glow" style="inline-size:70%"></span></div>
-                </div>
-                <p class="eyebrow">Ejemplo</p>
-                <h3 class="h6 mb-2">Ejemplo de propuesta</h3>
-                <pre id="exampleRequest" class="doc-block mb-0">Cargando...</pre>
-              </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <label class="block">
+                <span class="text-sm font-medium text-slate-700">Ruta a los datos <span class="text-slate-400">(opcional)</span></span>
+                <input class="rh-in mt-1" id="dataPath" name="data_path" maxlength="120" placeholder="p.ej. items o data.results">
+              </label>
+              <label class="block">
+                <span class="text-sm font-medium text-slate-700">Método</span>
+                <select class="rh-in mt-1" id="httpMethod" name="http_method"><option>GET</option><option>POST</option></select>
+              </label>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 pt-1">
+              <button type="button" id="detectBtn" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Detectar campos →</button>
+              <span id="detectStatus" class="text-sm text-slate-500" aria-live="polite"></span>
             </div>
           </div>
-        </aside>
-      </div>
+        </fieldset>
+
+        <!-- Paso 2: Mapeo -->
+        <fieldset class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <legend class="flex items-center gap-2 px-1 text-sm font-semibold text-slate-900"><span class="grid h-6 w-6 place-items-center rounded-full bg-brand text-xs text-white">2</span>Mapeo al esquema común *</legend>
+          <p class="mt-2 text-sm text-slate-500">Qué campo de TU API alimenta cada campo del esquema. Incluye al menos <code class="text-xs">title</code>, <code class="text-xs">person_name</code> u <code class="text-xs">organization</code>.</p>
+          <div id="mappingRows" class="mt-3 space-y-2"></div>
+          <div id="mappingError" class="mt-2 text-sm text-rose-600" role="alert" aria-live="polite" hidden></div>
+          <button type="button" id="addMappingRow" class="mt-3 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50">+ Añadir campo</button>
+          <details class="mt-4">
+            <summary class="cursor-pointer text-sm font-medium text-slate-600">Ver esquema común completo</summary>
+            <div id="contractFields" class="mt-2 flex flex-wrap gap-1.5"></div>
+          </details>
+        </fieldset>
+
+        <!-- Paso 3: Datos de la fuente -->
+        <fieldset class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <legend class="flex items-center gap-2 px-1 text-sm font-semibold text-slate-900"><span class="grid h-6 w-6 place-items-center rounded-full bg-brand text-xs text-white">3</span>Datos de la fuente</legend>
+          <div class="mt-3 grid gap-3 sm:grid-cols-2">
+            <label class="block"><span class="text-sm font-medium text-slate-700">Nombre de la fuente *</span>
+              <input class="rh-in mt-1" id="sourceName" name="source_name" required minlength="3" maxlength="120"><span class="rh-fb"></span></label>
+            <label class="block"><span class="text-sm font-medium text-slate-700">Tipo *</span>
+              <select class="rh-in mt-1" id="kindSelect" name="kind" required></select><span class="rh-fb"></span></label>
+          </div>
+          <label class="mt-3 block"><span class="text-sm font-medium text-slate-700">Descripción</span>
+            <textarea class="rh-in mt-1 h-20" id="description" name="description" maxlength="600"></textarea></label>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-3">
+            <label class="block"><span class="text-sm font-medium text-slate-700">Autenticación</span>
+              <select class="rh-in mt-1" id="authType" name="auth_type"></select></label>
+            <label class="block" id="authHeaderWrap" hidden><span class="text-sm font-medium text-slate-700">Nombre del header</span>
+              <input class="rh-in mt-1" id="authHeader" name="auth_header" maxlength="80"><span class="rh-fb"></span></label>
+            <label class="block"><span class="text-sm font-medium text-slate-700">Paginación</span>
+              <select class="rh-in mt-1" id="pageStyle" name="pagination_style"></select></label>
+            <label class="block"><span class="text-sm font-medium text-slate-700">Tamaño de página</span>
+              <input class="rh-in mt-1" id="pageSize" name="page_size" type="number" min="1" max="5000" value="100"></label>
+          </div>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <label class="block"><span class="text-sm font-medium text-slate-700">Tu nombre</span>
+              <input class="rh-in mt-1" id="contactName" name="contact_name" maxlength="120"></label>
+            <label class="block"><span class="text-sm font-medium text-slate-700">Email de contacto *</span>
+              <input class="rh-in mt-1" id="contactEmail" name="contact_email" type="email" required maxlength="160"><span class="rh-fb"></span></label>
+          </div>
+
+          <details class="mt-4">
+            <summary class="cursor-pointer text-sm font-medium text-slate-600">Documentación (opcional)</summary>
+            <label class="mt-2 block"><span class="text-sm font-medium text-slate-700">Ejemplo de respuesta (JSON)</span>
+              <textarea class="rh-in mt-1 h-28 font-mono text-xs" id="sampleResponse" name="sample_response" maxlength="8000"></textarea><span class="rh-fb"></span></label>
+            <label class="mt-2 block"><span class="text-sm font-medium text-slate-700">Notas de integración</span>
+              <textarea class="rh-in mt-1 h-20" id="docs" name="docs" maxlength="4000"></textarea></label>
+          </details>
+        </fieldset>
+
+        <!-- Honeypot -->
+        <div class="sr-only" aria-hidden="true"><label>No llenar<input name="website" tabindex="-1" autocomplete="off"></label></div>
+
+        <div class="flex items-center gap-3">
+          <button type="submit" class="rounded-lg bg-brand px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">Enviar propuesta</button>
+          <span id="formStatus" class="text-sm text-slate-500" aria-live="polite"></span>
+        </div>
+      </form>
     </main>
 
-    <footer class="site-footer">
-      <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-2">
-        <span>Red Humanitaria de Datos — un índice común para las apps de ayuda de Venezuela, en lugar de duplicar el mismo esfuerzo.</span>
-        <nav class="d-flex gap-3" aria-label="Enlaces del pie">
-          <a href="/fuentes">Fuentes</a>
-          <a href="/contribuir">Registrar fuente</a>
-          <a href="/docs">API docs</a>
-        </nav>
-      </div>
-    </footer>
+    <footer id="rh-footer"></footer>
 
-    <script src="/static/ui.js?v=bs5" defer></script>
-    <script src="/static/contribuir.js?v=bs5" defer></script>
+    <style>
+      .rh-in { display:block; width:100%; border-radius:.5rem; border:1px solid rgb(203 213 225); background:#fff; padding:.5rem .75rem; font-size:.875rem; outline:none; }
+      .rh-in:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgb(37 99 235 / .25); }
+      .rh-in.is-invalid { border-color:#f43f5e; }
+      .rh-fb { display:block; margin-top:.25rem; font-size:.75rem; color:#e11d48; min-height:0; }
+      .rh-fb:empty { display:none; }
+    </style>
+
+    <script src="/static/ui.js?v=tw1" defer></script>
+    <script src="/static/shell.js?v=tw1" defer></script>
+    <script src="/static/contribuir.js?v=tw1" defer></script>
   </body>
 </html>

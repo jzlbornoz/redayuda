@@ -108,11 +108,11 @@ def test_detect_and_suggest_mapping():
     fields, sample, count = proposals.detect_fields(payload)
     assert count == 1 and "nombre" in fields
     m = proposals.suggest_mapping(fields)
-    # token-based: sin falsos positivos (city!=cedula, image!=age)
+    # token-based: sin falsos positivos (city!=cedula)
     assert m["nombre"] == "person_name"
     assert m["city"] == "city"
     assert m["cedula"] == "cedula"
-    assert "image" not in m
+    assert m["image"] == "image_url"
     assert m["lat"] == "latitude" and m["lng"] == "longitude"
 
 

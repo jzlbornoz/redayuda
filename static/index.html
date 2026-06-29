@@ -3,286 +3,141 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Inicio · Red Humanitaria de Datos</title>
-    <meta name="description" content="Indexador federado de datos humanitarios de Venezuela: personas desaparecidas, centros de acopio, hospitales y recursos.">
-    <!-- Tipografia: titulares Archivo, cuerpo Inter -->
+    <title>Buscar · Red Humanitaria de Datos</title>
+    <meta name="description" content="Busca personas desaparecidas, centros de acopio, donación, hospitales y recursos en el índice común de datos humanitarios de Venezuela.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
-    <!-- Sistema de diseno propio -->
-    <link rel="stylesheet" href="/static/rhd.css?v=bs5">
-    <!-- Favicons existentes -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/tw-config.js"></script>
+    <link rel="stylesheet" href="/static/app.css?v=tw1">
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
   </head>
-  <body>
-    <a class="visually-hidden-focusable" href="#main">Saltar al contenido</a>
-    <nav class="site-nav" aria-label="Navegacion principal">
-      <div class="container site-nav__inner">
-        <a class="brand" href="/" aria-label="Inicio">
-          <span class="brand__mark" aria-hidden="true">HV</span>
-          <span class="brand__name">Red Humanitaria de Datos
-            <small class="brand__sub">Indexador de datos humanitarios</small>
-          </span>
-        </a>
-        <button class="nav-toggle" type="button" data-toggle="collapse" data-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menu">
-          <span class="nav-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
-        </button>
-        <ul class="nav-menu collapse" id="mainNav">
-          <li class="nav-menu__item"><a class="nav-link" href="/red" data-nav="red">Red</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/" data-nav="buscar">Buscar</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/fuentes" data-nav="fuentes">Fuentes</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/integrar" data-nav="integrar">Integrar</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/contribuir" data-nav="contribuir">Registrar fuente</a></li>
-          <li class="nav-menu__item"><a class="nav-link" href="/docs" data-nav="docs">API docs</a></li>
-          <li class="nav-menu__item">
-            <span id="healthStatus" class="status-pill status-muted">Verificando</span>
-          </li>
-        </ul>
-      </div>
-    </nav>
+  <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
+    <a class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2" href="#main">Saltar al contenido</a>
+    <header id="rh-header"></header>
 
-    <main id="main" tabindex="-1" class="container py-5">
-      <!-- A. HERO connect-first -->
-      <header class="rh-hub-hero mb-5 border-bottom pb-4">
-        <p class="eyebrow eyebrow--accent">La red</p>
-        <h1 class="display mb-3">Una sola red para las apps de ayuda</h1>
-        <p class="lead mb-4">Muchas apps reconstruyen el mismo listado de desaparecidos, centros de acopio y hospitales por separado. Aquí se conectan a un índice común con una sola API, en lugar de repetir el trabajo cada una por su cuenta.</p>
-        <div class="cluster">
-          <a class="btn btn-primary btn-lg" href="/integrar">Conecta tu app a la red</a>
-          <a class="btn btn-outline btn-lg" href="/red">Ver la red</a>
-        </div>
-      </header>
+    <main id="main" tabindex="-1" class="mx-auto max-w-6xl px-4 py-8">
 
-      <!-- B. Tres formas de conectarte -->
-      <section class="mb-5">
-        <p class="eyebrow">Cómo te conectas</p>
-        <h2 class="mb-3">Tres formas de conectarte</h2>
-        <div class="grid grid--3">
-          <article class="card">
-            <div class="card__body">
-              <h3 class="card__title">01 — Te jalamos</h3>
-              <p class="text-muted mb-3">Expones un endpoint JSON de lectura y lo registras con el mapeo de tus campos. Nosotros lo sincronizamos.</p>
-              <a class="text-decoration-none" href="/contribuir">Registrar tu fuente &rarr;</a>
+      <!-- ===== Buscador ===== -->
+      <section aria-label="Búsqueda">
+        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">¿A quién o qué buscas?</h1>
+        <p class="mt-1 text-slate-500">Una sola búsqueda sobre todas las fuentes conectadas: personas, centros de acopio y donación, hospitales y recursos.</p>
+
+        <form id="searchForm" class="mt-5" novalidate>
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <div class="relative flex-1">
+              <span class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+              </span>
+              <input id="queryInput" name="q" type="search" autocomplete="off" enterkeyhint="search"
+                     class="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-base shadow-sm outline-none placeholder:text-slate-400 focus:border-brand focus:ring-2 focus:ring-brand/30"
+                     placeholder="Nombre, cédula, centro de acopio, ciudad…" aria-label="Texto de búsqueda">
             </div>
-          </article>
-          <article class="card">
-            <div class="card__body">
-              <h3 class="card__title">02 — Tú empujas</h3>
-              <p class="text-muted mb-3">Tu app envía los datos ya en el esquema común a la API de ingesta (<code>POST /api/ingest</code>), con tu clave, cuando quieras.</p>
-              <a class="text-decoration-none" href="/integrar">Ver cómo integrar &rarr;</a>
-            </div>
-          </article>
-          <article class="card">
-            <div class="card__body">
-              <h3 class="card__title">03 — Federación</h3>
-              <p class="text-muted mb-3">Nodos que se sincronizan entre sí vía <code>/api/peers</code>. Lo que indexa uno queda disponible para los demás.</p>
-              <a class="text-decoration-none" href="/red">Ver la red &rarr;</a>
-            </div>
-          </article>
-        </div>
+            <button type="submit" class="rounded-xl bg-brand px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:ring-2 focus:ring-brand/40">Buscar</button>
+          </div>
+
+          <!-- Chips de tipo -->
+          <div id="typeChips" class="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filtrar por tipo">
+            <button type="button" data-type="" class="rh-chip" aria-pressed="true">Todo</button>
+            <button type="button" data-type="persona_desaparecida" class="rh-chip">Desaparecidos</button>
+            <button type="button" data-type="persona_localizada" class="rh-chip">Localizados</button>
+            <button type="button" data-type="centro_acopio" class="rh-chip">Acopio</button>
+            <button type="button" data-type="centro_donacion" class="rh-chip">Donación</button>
+            <button type="button" data-type="persona_hospitalizada" class="rh-chip">Hospitales</button>
+            <button type="button" data-type="recurso" class="rh-chip">Recursos</button>
+          </div>
+
+          <!-- Filtros secundarios -->
+          <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
+            <input id="cityInput" name="city" autocomplete="off" placeholder="Ciudad"
+                   class="w-36 rounded-lg border border-slate-300 bg-white px-3 py-1.5 outline-none focus:border-brand focus:ring-2 focus:ring-brand/30">
+            <select id="sourceInput" name="source_id" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 outline-none focus:border-brand focus:ring-2 focus:ring-brand/30">
+              <option value="">Todas las fuentes</option>
+            </select>
+            <label class="ml-auto inline-flex items-center gap-2 text-slate-500">
+              <input id="dedupInput" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand/40">
+              Agrupar duplicados
+            </label>
+            <button id="clearButton" type="button" class="rounded-lg px-3 py-1.5 text-slate-500 ring-1 ring-inset ring-slate-200 hover:bg-white">Limpiar</button>
+          </div>
+        </form>
       </section>
 
-      <!-- C. Estado inicial: pulso de la red (sin tabla vacia) -->
-      <section id="networkState" aria-label="Estado de la red">
-        <p class="eyebrow mb-2">Pulso de la red</p>
-        <div class="grid grid--3 mb-5">
-          <div class="card">
-            <div class="card__body">
-              <div class="h3 mb-0" id="statRecords">
-                <span class="skeleton skeleton--text skeleton-glow" style="inline-size:42%"></span>
-              </div>
-              <div class="text-muted small">Registros indexados</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card__body">
-              <div class="h3 mb-0" id="statSources">
-                <span class="skeleton skeleton--text skeleton-glow" style="inline-size:33%"></span>
-              </div>
-              <div class="text-muted small">Fuentes</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card__body">
-              <div class="h3 mb-0" id="statFresh">
-                <span class="skeleton skeleton--text skeleton-glow" style="inline-size:50%"></span>
-              </div>
-              <div class="text-muted small">Ultima sincronizacion</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Desglose por tipo (visualizacion real de datos) -->
-        <div class="mb-5">
-          <p class="eyebrow mb-2">Desglose por tipo</p>
-          <div id="typeBars" aria-label="Registros por tipo"></div>
-        </div>
-
-        <div class="mb-5">
-          <p class="eyebrow mb-2">Tipos disponibles</p>
-          <div class="cluster">
-            <button type="button" class="btn btn-outline btn-sm btn-pill" data-type="persona_desaparecida">Persona desaparecida</button>
-            <button type="button" class="btn btn-outline btn-sm btn-pill" data-type="persona_hospitalizada">Persona localizada</button>
-            <button type="button" class="btn btn-outline btn-sm btn-pill" data-type="centro_acopio">Centro de acopio</button>
-            <button type="button" class="btn btn-outline btn-sm btn-pill" data-type="centro_donacion">Centro de donacion</button>
-            <button type="button" class="btn btn-outline btn-sm btn-pill" data-type="recurso">Recurso</button>
-          </div>
-        </div>
-
-        <div>
-          <p class="eyebrow mb-2">Prueba una busqueda</p>
-          <div class="cluster">
-            <button type="button" class="btn btn-outline btn-sm btn-pill" data-q="Maria Perez">Maria Perez</button>
-            <button type="button" class="btn btn-outline btn-sm btn-pill" data-q="centro de acopio">centro de acopio</button>
-            <button type="button" class="btn btn-outline btn-sm btn-pill" data-q="12345678">12345678</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- D. BUSQUEDA demotada (utilidad secundaria) -->
-      <section class="mt-5 pt-4 border-top">
-        <p class="eyebrow">Búsqueda</p>
-        <h2 class="mb-1">Buscar en el índice</h2>
-        <p class="text-muted mb-3">También puedes consultar el índice directamente. Personas desaparecidas y localizadas, centros de acopio y donación, hospitales y recursos.</p>
-
-        <div class="rh-search-secondary" aria-labelledby="searchHeading">
-          <h2 id="searchHeading" class="visually-hidden">Formulario de busqueda</h2>
-          <form id="searchForm" novalidate>
-            <!-- Buscador principal -->
-            <div class="input-group mb-3">
-              <input id="queryInput" name="q" type="search" class="input" autocomplete="off"
-                     placeholder="Ej. Maria Perez, centro de acopio, Caracas" aria-label="Texto de busqueda">
-              <button class="btn btn-primary px-4" type="submit">Buscar</button>
-            </div>
-
-            <!-- Filtros avanzados (collapse) -->
-            <div class="cluster mb-2">
-              <button class="btn btn-outline btn-sm" type="button" data-toggle="collapse"
-                      data-target="#advancedFilters" aria-expanded="false" aria-controls="advancedFilters">
-                Filtros avanzados
-              </button>
-              <span id="freshnessText" class="text-muted small ms-auto">Indice pendiente</span>
-            </div>
-
-            <div class="collapse" id="advancedFilters">
-              <div class="grid grid--3 pt-2">
-                <div class="field field--float">
-                  <input id="cedulaInput" name="cedula" class="input" inputmode="numeric"
-                         placeholder=" " autocomplete="off">
-                  <label for="cedulaInput">Cedula</label>
-                </div>
-                <div class="field field--float">
-                  <input id="cityInput" name="city" class="input" placeholder=" " autocomplete="off">
-                  <label for="cityInput">Ciudad</label>
-                </div>
-                <div class="field field--float">
-                  <select id="recordTypeInput" name="record_type" class="select">
-                    <option value="">Todos</option>
-                    <option value="persona_desaparecida">Persona desaparecida</option>
-                    <option value="persona_hospitalizada">Persona localizada</option>
-                    <option value="centro_acopio">Centro de acopio</option>
-                    <option value="centro_donacion">Centro de donacion</option>
-                    <option value="recurso">Recurso</option>
-                  </select>
-                  <label for="recordTypeInput">Tipo</label>
-                </div>
-                <div class="field field--float">
-                  <select id="sourceInput" name="source_id" class="select">
-                    <option value="">Todas</option>
-                  </select>
-                  <label for="sourceInput">Fuente</label>
-                </div>
-                <div class="field field--float">
-                  <select id="limitInput" name="limit" class="select">
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                  </select>
-                  <label for="limitInput">Resultados por pagina</label>
-                </div>
-              </div>
-            </div>
-
-            <!-- Acciones -->
-            <div class="cluster mt-3">
-              <button id="clearButton" class="btn btn-outline" type="button">
-                Limpiar
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <!-- Avisos / errores -->
       <div id="messageArea" class="mt-4" aria-live="polite"></div>
 
-      <!-- Estado tras buscar: metricas + resultados -->
-      <section id="resultsView" hidden aria-label="Resultados de la busqueda">
-        <div class="grid grid--3 mb-5">
-          <div class="card">
-            <div class="card__body">
-              <div class="h3 mb-0" id="metricMatches">0</div>
-              <div class="text-muted small">Coincidencias</div>
-            </div>
+      <!-- ===== Estado inicial: pulso + recientes ===== -->
+      <section id="homeView" class="mt-8">
+        <div class="grid gap-3 sm:grid-cols-3">
+          <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div id="statRecords" class="text-2xl font-bold tabular-nums">—</div>
+            <div class="text-xs font-medium uppercase tracking-wide text-slate-400">Registros indexados</div>
           </div>
-          <div class="card">
-            <div class="card__body">
-              <div class="h3 mb-0" id="metricScanned">0</div>
-              <div class="text-muted small">Fuentes</div>
-            </div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div id="statSources" class="text-2xl font-bold tabular-nums">—</div>
+            <div class="text-xs font-medium uppercase tracking-wide text-slate-400">Fuentes conectadas</div>
           </div>
-          <div class="card">
-            <div class="card__body">
-              <div class="h3 mb-0" id="metricTime">0</div>
-              <div class="text-muted small">Tiempo</div>
-            </div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div id="statFresh" class="text-2xl font-bold">—</div>
+            <div class="text-xs font-medium uppercase tracking-wide text-slate-400">Última sincronización</div>
           </div>
         </div>
 
-        <div class="cluster cluster--between mb-2">
-          <h2 id="resultsHeading" tabindex="-1" class="eyebrow mb-0">Resultados</h2>
-          <div class="cluster">
-            <button id="activeTypeFilter" type="button" class="btn btn-primary btn-sm btn-pill d-none" aria-label="Quitar filtro de tipo"></button>
-            <span id="resultCount" class="text-muted small" aria-live="polite"></span>
+        <div class="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+          <div>
+            <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Añadidos recientemente</h2>
+            <div id="recentList" class="space-y-2"></div>
+          </div>
+          <div>
+            <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Por tipo</h2>
+            <div id="typeBars" class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"></div>
           </div>
         </div>
+      </section>
 
-        <div id="resultsList" class="rows mb-3"></div>
-
-        <div class="text-center">
-          <button id="loadMoreButton" class="btn btn-outline" type="button" hidden>
-            Cargar mas
-          </button>
+      <!-- ===== Resultados ===== -->
+      <section id="resultsView" hidden class="mt-8" aria-label="Resultados">
+        <div class="mb-3 flex flex-wrap items-center gap-3">
+          <h2 id="resultsHeading" tabindex="-1" class="text-sm font-semibold uppercase tracking-wide text-slate-500">Resultados</h2>
+          <span id="resultCount" class="text-sm text-slate-400" aria-live="polite"></span>
+          <span id="resultTime" class="ml-auto text-xs text-slate-400"></span>
+        </div>
+        <div id="resultsList" class="space-y-2"></div>
+        <div class="mt-5 text-center">
+          <button id="loadMoreButton" hidden class="rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">Cargar más</button>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="container cluster cluster--between">
-        <span>Red Humanitaria de Datos — un índice común para las apps de ayuda de Venezuela, en lugar de duplicar el mismo esfuerzo.</span>
-        <nav class="cluster" aria-label="Enlaces del pie">
-          <a href="/fuentes">Fuentes</a>
-          <a href="/contribuir">Registrar fuente</a>
-          <a href="/docs">API docs</a>
-        </nav>
-      </div>
-    </footer>
+    <footer id="rh-footer"></footer>
 
-    <!-- Drawer: detalle de registro -->
-    <div class="drawer" id="recordOffcanvas" aria-labelledby="recordOffcanvasTitle" aria-hidden="true">
+    <!-- Drawer de detalle -->
+    <div class="drawer" id="recordDrawer" aria-labelledby="drawerTitle" aria-hidden="true">
       <div class="drawer__backdrop" data-drawer-close></div>
       <div class="drawer__panel">
-        <div class="drawer__head">
-          <h2 class="drawer__title" id="recordOffcanvasTitle">Detalle del registro</h2>
-          <button type="button" class="drawer__close" data-drawer-close aria-label="Cerrar">&times;</button>
+        <div class="flex items-start justify-between gap-3 border-b border-slate-200 p-5">
+          <div class="min-w-0">
+            <div id="drawerType" class="mb-1"></div>
+            <h2 id="drawerTitle" class="truncate text-lg font-bold">Detalle</h2>
+          </div>
+          <button type="button" data-drawer-close class="grid h-8 w-8 flex-shrink-0 place-items-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
         </div>
-        <div class="drawer__body" id="drawerBody"></div>
+        <div id="drawerBody" class="flex-1 overflow-auto p-5"></div>
       </div>
     </div>
 
-    <!-- UI propio (Drawer + collapse) antes del script de pagina -->
-    <script src="/static/ui.js?v=bs5" defer></script>
-    <script src="/static/app.js?v=bs5" defer></script>
+    <style>
+      .rh-chip { border-radius: 9999px; padding: .375rem .875rem; font-size: .8125rem; font-weight: 500;
+        border: 1px solid rgb(203 213 225); background: #fff; color: rgb(71 85 105); transition: all .15s; }
+      .rh-chip:hover { background: rgb(248 250 252); }
+      .rh-chip[aria-pressed="true"] { background: rgb(15 23 42); border-color: rgb(15 23 42); color: #fff; }
+    </style>
+
+    <script src="/static/ui.js?v=tw1" defer></script>
+    <script src="/static/shell.js?v=tw1" defer></script>
+    <script src="/static/app.js?v=tw1" defer></script>
   </body>
 </html>
