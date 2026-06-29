@@ -7,12 +7,11 @@
     <meta name="description" content="Mapa de centros de acopio, donación, hospitales y recursos del índice humanitario.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/static/tw-config.js"></script>
-    <link rel="stylesheet" href="/static/app.css?v=tw2">
+    <link rel="stylesheet" href="/static/app.css?v=tw3">
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
   </head>
   <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
@@ -22,10 +21,10 @@
     <main id="main" tabindex="-1" class="mx-auto max-w-6xl px-4 py-8">
       <div class="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Mapa de la red</h1>
+          <h1 class="text-2xl sm:text-3xl">Mapa de la red</h1>
           <p class="mt-1 text-slate-500">Centros, hospitales y recursos con ubicación. <span id="mapCount" class="font-medium text-slate-700"></span></p>
         </div>
-        <a href="/" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">Ir a búsqueda</a>
+        <a href="/" class="rh-action border border-ink-900 bg-white px-4 py-2 text-sm text-ink-900 shadow-sm hover:bg-ink-50">Ir a búsqueda</a>
       </div>
 
       <form id="mapForm" class="mt-4 flex flex-wrap items-center gap-2" novalidate>
@@ -35,8 +34,9 @@
       </form>
 
       <div id="mapMessage" class="mt-3" aria-live="polite"></div>
-      <div id="map" class="rh-map mt-4 w-full overflow-hidden rounded-xl border border-slate-200 shadow-sm"></div>
-      <p class="mt-2 text-xs text-slate-400">Mapas © OpenStreetMap. Solo se muestran registros con coordenadas.</p>
+      <div id="map" class="rh-map mt-4 w-full overflow-hidden border border-ink-900 shadow-sm"></div>
+      <div id="mapLegend" class="rh-legend mt-3" aria-label="Leyenda de tipos"></div>
+      <p class="mt-2 text-xs text-slate-400">Mapas © OpenStreetMap. Solo se muestran registros con coordenadas. Haz click en el mapa para activar el zoom con la rueda.</p>
     </main>
 
     <footer id="rh-footer"></footer>
@@ -48,7 +48,7 @@
         <div class="flex items-start justify-between gap-3 border-b border-slate-200 p-5">
           <div class="min-w-0">
             <div id="drawerType" class="mb-1"></div>
-            <h2 id="drawerTitle" class="truncate text-lg font-bold">Detalle</h2>
+            <h2 id="drawerTitle" class="truncate text-lg">Detalle</h2>
           </div>
           <button type="button" data-drawer-close class="grid h-8 w-8 flex-shrink-0 place-items-center rounded-md text-slate-400 hover:bg-slate-100" aria-label="Cerrar">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
@@ -58,9 +58,9 @@
       </div>
     </div>
 
-    <script src="/static/ui.js?v=tw2" defer></script>
-    <script src="/static/shell.js?v=tw2" defer></script>
-    <script src="/static/detail.js?v=tw2" defer></script>
-    <script src="/static/mapa.js?v=tw2" defer></script>
+    <script src="/static/ui.js?v=tw3" defer></script>
+    <script src="/static/shell.js?v=tw3" defer></script>
+    <script src="/static/detail.js?v=tw3" defer></script>
+    <script src="/static/mapa.js?v=tw3" defer></script>
   </body>
 </html>

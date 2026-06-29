@@ -7,10 +7,9 @@
     <meta name="description" content="Busca personas desaparecidas, centros de acopio, donación, hospitales y recursos en el índice común de datos humanitarios de Venezuela.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/static/tw-config.js"></script>
-    <link rel="stylesheet" href="/static/app.css?v=tw2">
+    <link rel="stylesheet" href="/static/app.css?v=tw3">
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
   </head>
@@ -22,7 +21,7 @@
 
       <!-- ===== Buscador ===== -->
       <section aria-label="Búsqueda">
-        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">¿A quién o qué buscas?</h1>
+        <h1 class="text-2xl sm:text-3xl">¿A quién o qué buscas?</h1>
         <p class="mt-1 text-slate-500">Una sola búsqueda sobre todas las fuentes conectadas: personas, centros de acopio y donación, hospitales y recursos.</p>
 
         <form id="searchForm" class="mt-5" novalidate>
@@ -45,7 +44,7 @@
             <button type="button" data-type="persona_localizada" class="rh-chip">Localizados</button>
             <button type="button" data-type="centro_acopio" class="rh-chip">Acopio</button>
             <button type="button" data-type="centro_donacion" class="rh-chip">Donación</button>
-            <button type="button" data-type="persona_hospitalizada" class="rh-chip">Hospitales</button>
+            <button type="button" data-type="persona_hospitalizada" class="rh-chip">Hospitalizados</button>
             <button type="button" data-type="recurso" class="rh-chip">Recursos</button>
           </div>
 
@@ -86,11 +85,11 @@
 
         <div class="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
           <div>
-            <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Añadidos recientemente</h2>
+            <h2 class="mb-3 text-sm uppercase tracking-wide text-slate-500">Añadidos recientemente</h2>
             <div id="recentList" class="space-y-2"></div>
           </div>
           <div>
-            <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Por tipo</h2>
+            <h2 class="mb-3 text-sm uppercase tracking-wide text-slate-500">Por tipo</h2>
             <div id="typeBars" class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"></div>
           </div>
         </div>
@@ -99,7 +98,7 @@
       <!-- ===== Resultados ===== -->
       <section id="resultsView" hidden class="mt-8" aria-label="Resultados">
         <div class="mb-3 flex flex-wrap items-center gap-3">
-          <h2 id="resultsHeading" tabindex="-1" class="text-sm font-semibold uppercase tracking-wide text-slate-500">Resultados</h2>
+          <h2 id="resultsHeading" tabindex="-1" class="text-sm uppercase tracking-wide text-slate-500">Resultados</h2>
           <span id="resultCount" class="text-sm text-slate-400" aria-live="polite"></span>
           <span id="resultTime" class="ml-auto text-xs text-slate-400"></span>
         </div>
@@ -119,7 +118,7 @@
         <div class="flex items-start justify-between gap-3 border-b border-slate-200 p-5">
           <div class="min-w-0">
             <div id="drawerType" class="mb-1"></div>
-            <h2 id="drawerTitle" class="truncate text-lg font-bold">Detalle</h2>
+            <h2 id="drawerTitle" class="truncate text-lg">Detalle</h2>
           </div>
           <button type="button" data-drawer-close class="grid h-8 w-8 flex-shrink-0 place-items-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Cerrar">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
@@ -136,8 +135,8 @@
       .rh-chip[aria-pressed="true"] { background: var(--color-black); color: #fff; }
     </style>
 
-    <script src="/static/ui.js?v=tw2" defer></script>
-    <script src="/static/shell.js?v=tw2" defer></script>
-    <script src="/static/app.js?v=tw2" defer></script>
+    <script src="/static/ui.js?v=tw3" defer></script>
+    <script src="/static/shell.js?v=tw3" defer></script>
+    <script src="/static/app.js?v=tw3" defer></script>
   </body>
 </html>

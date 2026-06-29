@@ -12,10 +12,11 @@
   const hdr = () => ({ "x-admin-key": adminKey, "Content-Type": "application/json" });
 
   function msg(kind, text) {
-    const tone = kind === "ok" ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-      : kind === "warn" ? "border-amber-200 bg-amber-50 text-amber-800"
-      : "border-rose-200 bg-rose-50 text-rose-800";
-    adminMsg.innerHTML = `<div class="rounded-lg border ${tone} px-4 py-3 text-sm">${escapeHtml(text)}</div>`;
+    const mark = kind === "ok" ? "✓" : kind === "warn" ? "⚠" : "✕";
+    const tone = kind === "err"
+      ? "border-l-4 border-red-600 bg-ink-50 text-ink-900"
+      : "border-l-4 border-ink-900 bg-ink-50 text-ink-900";
+    adminMsg.innerHTML = `<div class="border ${tone} px-4 py-3 text-sm">${mark} ${escapeHtml(text)}</div>`;
     setTimeout(() => { if (adminMsg.textContent === text) adminMsg.innerHTML = ""; }, 5000);
   }
 
@@ -64,7 +65,7 @@
         <div class="min-w-0">
           <div class="font-semibold text-slate-900">${escapeHtml(p.source_name)}</div>
           <div class="mt-0.5 text-xs text-slate-500">${escapeHtml(typeMeta(p.kind).label)} · ${escapeHtml(p.contact_email || "sin email")} · ${relativeTime(p.created_at)}</div>
-          <a href="${escapeHtml(p.endpoint_url)}" target="_blank" rel="noopener" class="mt-1 block truncate text-xs text-brand hover:underline">${escapeHtml(p.endpoint_url)}</a>
+          <a href="${escapeHtml(p.endpoint_url)}" target="_blank" rel="noopener" class="mt-1 block truncate text-xs text-ink-900 underline">${escapeHtml(p.endpoint_url)}</a>
         </div>
       </div>
       <div class="mt-3 flex flex-wrap items-center gap-2">

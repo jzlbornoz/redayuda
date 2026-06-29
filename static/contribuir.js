@@ -13,10 +13,12 @@
 
   // ---------------------------------------------------------------- mensajes
   function setMessage(type, title, body = "") {
-    const tone = type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-      : type === "warning" ? "border-amber-200 bg-amber-50 text-amber-800"
-      : "border-rose-200 bg-rose-50 text-rose-800";
-    messageArea.innerHTML = `<div role="alert" class="rounded-lg border ${tone} px-4 py-3 text-sm"><strong>${escapeHtml(title)}</strong>${body ? `<div class="mt-0.5 opacity-90">${escapeHtml(body)}</div>` : ""}</div>`;
+    // Monocromo: distinguir por símbolo + (solo error) borde izq. rojo.
+    const mark = type === "success" ? "✓" : type === "warning" ? "⚠" : "✕";
+    const tone = type === "danger"
+      ? "border-l-4 border-red-600 bg-ink-50 text-ink-900"
+      : "border-l-4 border-ink-900 bg-ink-50 text-ink-900";
+    messageArea.innerHTML = `<div role="alert" class="border ${tone} px-4 py-3 text-sm"><strong>${mark} ${escapeHtml(title)}</strong>${body ? `<div class="mt-0.5 text-ink-600">${escapeHtml(body)}</div>` : ""}</div>`;
     messageArea.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
   const clearMessage = () => { messageArea.innerHTML = ""; };
@@ -70,14 +72,14 @@
     const dups = [];
     rows.forEach((r) => {
       const s = r.querySelector(".map-target"); const t = s.value.trim();
-      if (t && counts[t] > 1) { s.classList.add("is-invalid"); if (!dups.includes(t)) dups.push(t); }
-      else s.classList.remove("is-invalid");
+      if (t && counts[t] > 1) { s.classList.add("is-invalid"); s.setAttribute("aria-invalid", "true"); if (!dups.includes(t)) dups.push(t); }
+      else { s.classList.remove("is-invalid"); s.removeAttribute("aria-invalid"); }
     });
     return dups;
   }
   function markRowInvalid(target) {
     let m = false;
-    Array.from(mappingRows.children).forEach((r) => { if (r.dataset.target === String(target)) { r.querySelector(".map-target").classList.add("is-invalid"); m = true; } });
+    Array.from(mappingRows.children).forEach((r) => { if (r.dataset.target === String(target)) { const s = r.querySelector(".map-target"); s.classList.add("is-invalid"); s.setAttribute("aria-invalid", "true"); m = true; } });
     return m;
   }
   function collectMapping() {

@@ -162,6 +162,13 @@
     this.el.setAttribute("aria-hidden", "false");
     backdrop.setAttribute("aria-hidden", "false");
 
+    // Semántica de diálogo modal + inertizar el fondo para lectores de pantalla.
+    if (this.panel) {
+      this.panel.setAttribute("role", "dialog");
+      this.panel.setAttribute("aria-modal", "true");
+    }
+    qsa("#main, #rh-header, #rh-footer").forEach(function (n) { n.setAttribute("inert", ""); });
+
     lockScroll();
     document.addEventListener("keydown", this._onKeydown, true);
 
@@ -184,6 +191,7 @@
 
     this.el.classList.remove("is-open");
     this.el.setAttribute("aria-hidden", "true");
+    qsa("#main, #rh-header, #rh-footer").forEach(function (n) { n.removeAttribute("inert"); });
 
     if (backdrop) {
       // Solo apagar el backdrop si nos pertenece (sin otros drawers abiertos).

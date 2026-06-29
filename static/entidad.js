@@ -44,9 +44,9 @@
           <div class="min-w-0 flex-1">
             <div class="mb-1.5 flex flex-wrap items-center gap-2">
               ${typeChip(headRecord.record_type)}
-              <span class="inline-flex items-center gap-1 rounded-full bg-slate-900 px-2.5 py-0.5 text-xs font-semibold text-white">aparece en ${compactNumber(members.length)} fuentes</span>
+              <span class="inline-flex items-center gap-1 bg-ink-900 px-2.5 py-0.5 text-xs font-semibold text-white">aparece en ${compactNumber(members.length)} ${members.length === 1 ? "fuente" : "fuentes"}</span>
             </div>
-            <h1 class="text-2xl font-bold tracking-tight">${escapeHtml(title)}</h1>
+            <h1 class="text-2xl">${escapeHtml(title)}</h1>
             ${e.canonical_cedula ? `<p class="mt-0.5 text-sm text-slate-500">Cédula ${escapeHtml(e.canonical_cedula)}</p>` : ""}
             ${e.strongest_signal ? `<p class="mt-1 text-xs text-slate-400">Enlace por: ${escapeHtml(e.strongest_signal)}</p>` : ""}
           </div>
@@ -93,10 +93,10 @@
         ${members.map((r) => `<div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div class="mb-2 flex items-center justify-between">
             <span class="font-semibold text-slate-900">${escapeHtml(r.source_name || r.source_id)}</span>
-            ${r.verified === true ? '<span class="text-xs font-medium text-emerald-600">✓ verificado</span>' : ""}
+            ${r.verified === true ? '<span class="text-xs font-medium text-ink-900">✓ Verificado</span>' : ""}
           </div>
           ${r.summary ? `<p class="mb-2 text-sm text-slate-500">${escapeHtml(r.summary)}</p>` : ""}
-          ${r.source_url ? `<a href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener" class="text-sm font-medium text-brand hover:underline">Ir a la fuente →</a>` : ""}
+          ${r.source_url ? `<a href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener" class="text-sm font-medium text-ink-900 underline">Ir a la fuente →</a>` : ""}
         </div>`).join("")}
       </div>`;
   }
@@ -109,7 +109,7 @@
   function renderError(msg) {
     root.innerHTML = `<div class="rounded-xl border border-rose-200 bg-rose-50 px-5 py-8 text-center">
       <p class="font-semibold text-rose-800">${escapeHtml(msg)}</p>
-      <a href="/" class="mt-2 inline-block text-sm font-medium text-brand hover:underline">Volver a la búsqueda</a></div>`;
+      <a href="/" class="mt-2 inline-block text-sm font-medium text-ink-900 underline">Volver a la búsqueda</a></div>`;
   }
 
   async function init() {

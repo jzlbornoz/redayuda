@@ -28,12 +28,12 @@
   function sourceCard(s) {
     const f = freshness(s.last_sync);
     const m = typeMeta(s.kind);
-    return `<button type="button" data-id="${escapeHtml(s.id)}" class="group flex flex-col rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-slate-300 hover:shadow">
+    return `<button type="button" data-id="${escapeHtml(s.id)}" class="rh-plain group flex flex-col rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-slate-300 hover:shadow">
       <div class="flex items-start justify-between gap-2">
         <span class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-500"><span class="block h-5 w-5">${R.icons[m.icon]}</span></span>
         <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-slate-500"><span class="h-1.5 w-1.5 rounded-full ${freshDot(f.tone)}"></span>${f.label}</span>
       </div>
-      <span class="mt-2 truncate font-semibold text-slate-900 group-hover:text-brand">${escapeHtml(s.name)}</span>
+      <span class="mt-2 truncate font-semibold text-slate-900 group-hover:underline">${escapeHtml(s.name)}</span>
       <span class="mt-0.5 text-xs text-slate-400">${escapeHtml(typeMeta(s.kind).label)}${s.enabled ? "" : " · deshabilitada"}</span>
       <div class="mt-3 flex items-center justify-between text-sm">
         <span class="tabular-nums font-semibold text-slate-900">${compactNumber(s.record_count)} <span class="font-normal text-slate-400">registros</span></span>
@@ -80,7 +80,7 @@
     return `<article class="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
       <div class="flex gap-3">${thumb(r)}
         <div class="min-w-0 flex-1">
-          <button type="button" data-id="${escapeHtml(r.id)}" class="block truncate text-left font-semibold text-slate-900 hover:text-brand">${escapeHtml(r.title || r.person_name || "Registro")}</button>
+          <button type="button" data-id="${escapeHtml(r.id)}" class="rh-plain block truncate text-left font-semibold text-slate-900 hover:underline">${escapeHtml(r.title || r.person_name || "Registro")}</button>
           <div class="mt-1 flex flex-wrap items-center gap-1.5">${typeChip(r.record_type)}${loc ? `<span class="text-xs text-slate-500">${escapeHtml(loc)}</span>` : ""}</div>
           ${actionLinks(r) ? `<div class="mt-2 flex flex-wrap gap-1.5">${actionLinks(r)}</div>` : ""}
         </div></div></article>`;
@@ -118,8 +118,10 @@
     sdMeta.innerHTML = `${typeChip(s.kind)}
       <span>${compactNumber(s.record_count)} registros</span>
       <span class="inline-flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full ${freshDot(f.tone)}"></span>${f.label} · ${relativeTime(s.last_sync)}</span>
-      ${s.url ? `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener" class="text-brand hover:underline">sitio →</a>` : ""}`;
-    qInput.value = ""; typeInput.value = "";
+      ${s.url ? `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener" class="text-ink-900 underline">sitio →</a>` : ""}`;
+    qInput.value = "";
+    typeInput.innerHTML = '<option value="">Todos los tipos</option>' +
+      Object.entries(R.TYPE_META).map(([k, m]) => `<option value="${k}">${escapeHtml(m.label)}</option>`).join("");
     loadRecords();
   }
 

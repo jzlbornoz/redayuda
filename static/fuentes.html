@@ -6,10 +6,9 @@
     <title>Fuentes · Red Humanitaria de Datos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/static/tw-config.js"></script>
-    <link rel="stylesheet" href="/static/app.css?v=tw2">
+    <link rel="stylesheet" href="/static/app.css?v=tw3">
     <link rel="icon" href="/static/assets/favicon.png" type="image/png">
   </head>
   <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
@@ -20,14 +19,14 @@
 
       <!-- Vista lista -->
       <section id="sourcesView">
-        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Fuentes conectadas</h1>
-        <p class="mt-1 text-slate-500">Las apps y bases que alimentan el índice. El color indica la frescura de su última sincronización.</p>
+        <h1 class="text-2xl sm:text-3xl">Fuentes conectadas</h1>
+        <p class="mt-1 text-slate-500">Las apps y bases que alimentan el índice. El punto junto a cada fuente indica la frescura de su última sincronización.</p>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-4">
           <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div id="kSources" class="text-2xl font-bold tabular-nums">—</div><div class="text-xs font-medium uppercase tracking-wide text-slate-400">Fuentes</div></div>
           <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div id="kRecords" class="text-2xl font-bold tabular-nums">—</div><div class="text-xs font-medium uppercase tracking-wide text-slate-400">Registros</div></div>
-          <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div id="kFresh" class="text-2xl font-bold tabular-nums text-emerald-600">—</div><div class="text-xs font-medium uppercase tracking-wide text-slate-400">Al día (&lt;24h)</div></div>
-          <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div id="kStale" class="text-2xl font-bold tabular-nums text-rose-600">—</div><div class="text-xs font-medium uppercase tracking-wide text-slate-400">Obsoletas (&gt;7d)</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div id="kFresh" class="text-2xl font-bold tabular-nums text-ink-900">—</div><div class="text-xs font-medium uppercase tracking-wide text-slate-400">Al día (&lt;24h)</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div id="kStale" class="text-2xl font-bold tabular-nums text-ink-900">—</div><div class="text-xs font-medium uppercase tracking-wide text-slate-400">Obsoletas (&gt;7d)</div></div>
         </div>
 
         <div class="mt-5 flex flex-wrap items-center gap-2">
@@ -39,7 +38,7 @@
             <option value="recent">Sincronización reciente</option>
             <option value="stale">Más rezagadas</option>
           </select>
-          <a href="/desarrolladores" class="ml-auto rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">Conectar mi app</a>
+          <a href="/desarrolladores" class="rh-action ml-auto bg-ink-900 px-4 py-2 text-sm text-white shadow-sm hover:bg-ink-600">Conectar tu app</a>
         </div>
 
         <div id="sourcesMessage" class="mt-4" aria-live="polite"></div>
@@ -51,7 +50,7 @@
         <button id="backButton" type="button" class="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900">← Todas las fuentes</button>
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 id="sdTitle" class="text-2xl font-bold tracking-tight">—</h1>
+            <h1 id="sdTitle" class="text-2xl">—</h1>
             <div id="sdMeta" class="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-slate-500"></div>
           </div>
         </div>
@@ -82,7 +81,7 @@
       <div class="drawer__backdrop" data-drawer-close></div>
       <div class="drawer__panel">
         <div class="flex items-start justify-between gap-3 border-b border-slate-200 p-5">
-          <div class="min-w-0"><div id="drawerType" class="mb-1"></div><h2 id="drawerTitle" class="truncate text-lg font-bold">Detalle</h2></div>
+          <div class="min-w-0"><div id="drawerType" class="mb-1"></div><h2 id="drawerTitle" class="truncate text-lg">Detalle</h2></div>
           <button type="button" data-drawer-close class="grid h-8 w-8 flex-shrink-0 place-items-center rounded-md text-slate-400 hover:bg-slate-100" aria-label="Cerrar">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
           </button>
@@ -91,9 +90,9 @@
       </div>
     </div>
 
-    <script src="/static/ui.js?v=tw2" defer></script>
-    <script src="/static/shell.js?v=tw2" defer></script>
-    <script src="/static/detail.js?v=tw2" defer></script>
-    <script src="/static/fuentes.js?v=tw2" defer></script>
+    <script src="/static/ui.js?v=tw3" defer></script>
+    <script src="/static/shell.js?v=tw3" defer></script>
+    <script src="/static/detail.js?v=tw3" defer></script>
+    <script src="/static/fuentes.js?v=tw3" defer></script>
   </body>
 </html>

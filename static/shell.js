@@ -87,7 +87,7 @@
   function thumb(record, size = "h-12 w-12") {
     const m = typeMeta(record.record_type);
     if (record.image_url) {
-      return `<img src="${escapeHtml(record.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer"
+      return `<img src="${escapeHtml(record.image_url)}" alt="Foto de ${escapeHtml(record.person_name || record.title || m.label)}" loading="lazy" referrerpolicy="no-referrer"
         class="${size} flex-shrink-0 rounded-lg object-cover ring-1 ring-slate-200"
         onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'${size} flex-shrink-0 grid place-items-center rounded-lg bg-slate-100 text-slate-400 ring-1 ring-slate-200',innerHTML:RH.icons.${m.icon}}))">`;
     }
@@ -174,6 +174,7 @@
         </div>
         <nav id="rh-menu" hidden class="border-t border-ink-200 bg-white px-4 py-2 md:hidden" aria-label="Navegación móvil">
           ${NAV.map((n) => `<a href="${n.href}" class="block px-2 py-2 text-xs font-medium uppercase tracking-wide ${isActive(n.href) ? "text-ink-900" : "text-ink-500"}">${n.label}</a>`).join("")}
+          <span id="rh-health-m" class="mt-1 block px-2 py-2 text-[0.65rem] font-medium uppercase tracking-wide text-ink-500">…</span>
         </nav>`;
 
       const btn = header.querySelector("#rh-menu-btn");
@@ -209,6 +210,8 @@
       const ok = s.total_records > 0;
       pill.className = "inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-wide text-ink-900 ring-1 ring-inset ring-ink-900";
       pill.innerHTML = `<span class="h-1.5 w-1.5 ${ok ? "bg-ink-900" : "bg-ink-300"}"></span>${compactNumber(s.total_records)} registros`;
+      const pillM = document.getElementById("rh-health-m");
+      if (pillM) pillM.textContent = `${compactNumber(s.total_records)} registros · ${compactNumber(s.total_sources)} fuentes`;
       window.RH._stats = s;
       document.dispatchEvent(new CustomEvent("rh:stats", { detail: s }));
     } catch (_) {

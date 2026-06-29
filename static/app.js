@@ -39,10 +39,13 @@
 
   // ----------------------------------------------------------- mensajes
   function setMessage(kind, title, body) {
-    const tone = kind === "error" ? "border-rose-200 bg-rose-50 text-rose-800"
-      : "border-amber-200 bg-amber-50 text-amber-800";
-    messageArea.innerHTML = `<div role="alert" class="rounded-lg border ${tone} px-4 py-3 text-sm">
-      <strong>${escapeHtml(title)}</strong>${body ? `<div class="mt-0.5 opacity-90">${escapeHtml(body)}</div>` : ""}</div>`;
+    // Monocromo: el tipo se distingue por símbolo + (solo error) borde izq. rojo.
+    const mark = kind === "error" ? "✕" : kind === "warn" ? "⚠" : "✓";
+    const tone = kind === "error"
+      ? "border-l-4 border-red-600 bg-ink-50 text-ink-900"
+      : "border-l-4 border-ink-900 bg-ink-50 text-ink-900";
+    messageArea.innerHTML = `<div role="alert" class="border ${tone} px-4 py-3 text-sm">
+      <strong>${mark} ${escapeHtml(title)}</strong>${body ? `<div class="mt-0.5 text-ink-600">${escapeHtml(body)}</div>` : ""}</div>`;
   }
   const clearMessage = () => { messageArea.innerHTML = ""; };
 
@@ -75,8 +78,8 @@
         ${thumb(r)}
         <div class="min-w-0 flex-1">
           <div class="flex items-start justify-between gap-2">
-            <button type="button" data-id="${escapeHtml(r.id)}" class="min-w-0 text-left">
-              <span class="block truncate font-semibold text-slate-900 group-hover:text-brand">${escapeHtml(title)}</span>
+            <button type="button" data-id="${escapeHtml(r.id)}" class="rh-plain min-w-0 text-left">
+              <span class="block truncate font-semibold text-slate-900 group-hover:underline">${escapeHtml(title)}</span>
             </button>
             <span class="flex-shrink-0 text-xs text-slate-400">${escapeHtml(r.source_name || "")}</span>
           </div>
@@ -116,15 +119,15 @@
       ? r.tags.map((t) => `<span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">${escapeHtml(t)}</span>`).join("")
       : "—";
     let src = escapeHtml(r.source_name || "—");
-    if (r.source_url) src = `<a class="text-brand hover:underline" href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener">${escapeHtml(r.source_name || r.source_url)} →</a>`;
+    if (r.source_url) src = `<a class="text-ink-900 underline" href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener">${escapeHtml(r.source_name || r.source_url)} →</a>`;
     const also = r.entity_id
-      ? `<a href="/entidad?id=${encodeURIComponent(r.entity_id)}" class="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700">Ver esta persona en todas las fuentes →</a>`
+      ? `<a href="/entidad?id=${encodeURIComponent(r.entity_id)}" class="rh-action mt-3 inline-flex items-center gap-1.5 bg-ink-900 px-3 py-2 text-sm text-white hover:bg-ink-600">Ver en todas las fuentes →</a>`
       : "";
 
     drawerType.innerHTML = typeChip(r.record_type);
     drawerTitle.textContent = r.title || r.person_name || "Detalle";
     drawerBody.innerHTML = `
-      ${r.image_url ? `<img src="${escapeHtml(r.image_url)}" alt="" referrerpolicy="no-referrer" class="mb-4 max-h-56 w-full rounded-lg object-cover ring-1 ring-slate-200" onerror="this.remove()">` : ""}
+      ${r.image_url ? `<img src="${escapeHtml(r.image_url)}" alt="Foto de ${escapeHtml(r.person_name || r.title || typeLabel(r.record_type))}" referrerpolicy="no-referrer" class="mb-4 max-h-56 w-full object-cover ring-1 ring-slate-200" onerror="this.remove()">` : ""}
       ${actionLinks(r) ? `<div class="mb-4 flex flex-wrap gap-2">${actionLinks(r)}</div>` : ""}
       ${r.summary ? `<p class="mb-4 text-sm text-slate-600">${escapeHtml(r.summary)}</p>` : ""}
       <dl>
@@ -192,7 +195,7 @@
   function emptyState() {
     return `<div class="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
       <p class="font-semibold text-slate-700">Sin resultados</p>
-      <p class="mt-1 text-sm text-slate-500">Ajusta los filtros o prueba con otro término. También puedes <a href="/mapa" class="text-brand hover:underline">ver el mapa</a>.</p></div>`;
+      <p class="mt-1 text-sm text-slate-500">Ajusta los filtros o prueba con otro término. También puedes <a href="/mapa" class="text-ink-900 underline">ver el mapa</a>.</p></div>`;
   }
 
   async function runSearch(offset = 0, append = false) {
@@ -211,8 +214,15 @@
       renderResults(data, append);
     } catch (err) {
       const d = err.payload?.detail || err.payload;
-      setMessage("error", d?.error_code || "No se pudo buscar", d?.error || "Revisa la conexión e intenta de nuevo.");
-      if (!append) { resultsList.innerHTML = ""; resultCount.textContent = "Error"; loadMoreButton.hidden = true; }
+      const msg = d?.error || "Revisa la conexión e intenta de nuevo.";
+      if (append) {
+        // El error de "Cargar más" se muestra junto al botón, no arriba (fuera de pantalla).
+        loadMoreButton.textContent = "Reintentar";
+        resultCount.textContent = msg;
+      } else {
+        setMessage("error", d?.error_code || "No se pudo buscar", msg);
+        resultsList.innerHTML = ""; resultCount.textContent = "Error"; loadMoreButton.hidden = true;
+      }
     } finally {
       state.loading = false; loadMoreButton.disabled = false;
     }
@@ -228,7 +238,7 @@
     typeBars.innerHTML = entries.map((e) => {
       const m = typeMeta(e.type);
       const pct = Math.max(3, Math.round((e.count / max) * 100));
-      return `<button type="button" data-type="${e.type}" class="block w-full py-1.5 text-left">
+      return `<button type="button" data-type="${e.type}" class="rh-plain block w-full py-1.5 text-left">
         <div class="flex items-center justify-between text-sm"><span class="text-slate-600">${escapeHtml(m.label)}</span><span class="tabular-nums font-semibold text-slate-900">${compactNumber(e.count)}</span></div>
         <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full ${m.dot}" style="width:${pct}%"></div></div></button>`;
     }).join("");

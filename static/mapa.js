@@ -8,7 +8,7 @@
     { v: "", label: "Todo" },
     { v: "centro_acopio", label: "Acopio" },
     { v: "centro_donacion", label: "Donación" },
-    { v: "persona_hospitalizada", label: "Hospitales" },
+    { v: "persona_hospitalizada", label: "Hospitalizados" },
     { v: "recurso", label: "Recursos" },
     { v: "persona_desaparecida", label: "Desaparecidos" },
   ];
@@ -18,13 +18,13 @@
   const chipsEl = document.getElementById("mapChips");
   const countEl = document.getElementById("mapCount");
   const messageEl = document.getElementById("mapMessage");
+  const legendEl = document.getElementById("mapLegend");
 
   let map, layer, state = { type: "", q: "" };
 
-  // chips
+  // chips (reusa .rh-chip del sistema de diseño)
   chipsEl.innerHTML = TYPES.map((t) =>
-    `<button type="button" data-type="${t.v}" aria-pressed="${t.v === "" ? "true" : "false"}"
-      class="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 aria-pressed:border-slate-900 aria-pressed:bg-slate-900 aria-pressed:text-white">${t.label}</button>`
+    `<button type="button" class="rh-chip" data-type="${t.v}" aria-pressed="${t.v === "" ? "true" : "false"}">${t.label}</button>`
   ).join("");
 
   function setChips() {
@@ -32,8 +32,28 @@
       b.setAttribute("aria-pressed", String(b.dataset.type === state.type)));
   }
 
+  // Leyenda: tipo ↔ ICONO (segundo canal, no solo color)
+  if (legendEl) {
+    legendEl.innerHTML = TYPES.filter((t) => t.v).map((t) => {
+      const m = typeMeta(t.v);
+      return `<span>${R.icons[m.icon]}${escapeHtml(t.label)}</span>`;
+    }).join("");
+  }
+
+  // Marcador por tipo: icono distinto (no solo tono), borde negro siempre.
+  function markerIcon(m) {
+    return L.divIcon({
+      className: "",
+      html: `<span style="display:grid;place-items:center;width:26px;height:26px;background:#fff;border:1.5px solid #121212;color:#121212;box-shadow:0 1px 3px rgba(0,0,0,.45)"><span style="display:block;width:15px;height:15px">${R.icons[m.icon]}</span></span>`,
+      iconSize: [26, 26], iconAnchor: [13, 13], popupAnchor: [0, -14],
+    });
+  }
+
   function initMap() {
-    map = L.map("map", { scrollWheelZoom: true }).setView([8.0, -66.0], 6);
+    // scrollWheelZoom off: evita el "scroll-jacking"; se activa al hacer click.
+    map = L.map("map", { scrollWheelZoom: false }).setView([8.0, -66.0], 6);
+    map.on("click", () => map.scrollWheelZoom.enable());
+    map.on("popupclose", () => map.scrollWheelZoom.disable());
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19, attribution: "© OpenStreetMap",
     }).addTo(map);
@@ -52,6 +72,7 @@
 
   async function load() {
     messageEl.innerHTML = "";
+    countEl.textContent = "Cargando…";
     const p = new URLSearchParams({ limit: "100", offset: "0" });
     if (state.q) p.set(state.q.match(/^\d{5,}$/) ? "cedula" : "q", state.q);
     if (state.type) p.set("record_type", state.type);
@@ -61,21 +82,20 @@
       layer.clearLayers();
       countEl.textContent = `${compactNumber(withGeo.length)} con ubicación · ${compactNumber(data.total_matches)} en total`;
       if (!withGeo.length) {
-        messageEl.innerHTML = `<div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">Ningún resultado tiene coordenadas. Prueba otro filtro o usa la <a href="/" class="font-semibold underline">búsqueda</a>.</div>`;
+        messageEl.innerHTML = `<div class="border-l-4 border-ink-900 bg-ink-50 px-4 py-3 text-sm text-ink-900">⚠ Ningún resultado tiene coordenadas. Prueba otro filtro o usa la <a href="/" class="underline">búsqueda</a>.</div>`;
         return;
       }
       const pts = [];
       withGeo.forEach((r) => {
         const m = typeMeta(r.record_type);
-        const marker = L.circleMarker([r.latitude, r.longitude], {
-          radius: 8, color: "#fff", weight: 2, fillColor: m.hex, fillOpacity: 0.95,
-        }).bindPopup(popupHtml(r));
+        const marker = L.marker([r.latitude, r.longitude], { icon: markerIcon(m) }).bindPopup(popupHtml(r));
         layer.addLayer(marker);
         pts.push([r.latitude, r.longitude]);
       });
       if (pts.length) map.fitBounds(pts, { padding: [40, 40], maxZoom: 13 });
     } catch (_) {
-      messageEl.innerHTML = `<div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">No se pudo cargar el mapa.</div>`;
+      countEl.textContent = "";
+      messageEl.innerHTML = `<div class="border-l-4 border-red-600 bg-ink-50 px-4 py-3 text-sm text-ink-900">✕ No se pudo cargar el mapa.</div>`;
     }
   }
 

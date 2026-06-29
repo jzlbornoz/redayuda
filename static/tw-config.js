@@ -9,7 +9,7 @@ window.tailwind = window.tailwind || {};
 var MONO = {
   DEFAULT: "#121212",
   50: "#f7f7f7", 100: "#ededed", 200: "#e0e0e0", 300: "#cfcfcf",
-  400: "#9b9b9b", 500: "#4a4a4a", 600: "#292929", 700: "#292929",
+  400: "#767676", 500: "#4a4a4a", 600: "#292929", 700: "#292929",
   800: "#1c1c1c", 900: "#121212", 950: "#121212",
 };
 // Único color permitido fuera del gris: rojo de error/destructivo (#d32f2f)

@@ -26,6 +26,13 @@ input[type="submit"],
   letter-spacing: 0.05em;
   font-weight: 500;
 }
+/* Opt-out: elementos que son <button> pero NO son acciones (títulos que abren
+   el drawer, filas de lista). No deben ir en mayúsculas. */
+.rh-plain {
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-weight: inherit;
+}
 
 /* ----- Formularios: borde negro recto, foco sobrio ----- */
 input:not([type="checkbox"]):not([type="radio"]),
@@ -37,9 +44,16 @@ textarea {
 input:not([type="checkbox"]):not([type="radio"]):focus,
 select:focus,
 textarea:focus {
-  outline: none;
   border-color: var(--color-dark-gray);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+  outline: 2px solid var(--color-black);
+  outline-offset: 2px;
+}
+/* Foco visible y consistente para cualquier elemento accionable por teclado */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-black);
+  outline-offset: 2px;
 }
 
 /* ----- Drawer lateral (lo conduce ui.js alternando .is-open) ----- */
@@ -73,4 +87,9 @@ textarea:focus {
 
 /* ----- Leaflet ----- */
 .rh-map { height: clamp(420px, 72vh, 760px); }
+@media (max-width: 640px) { .rh-map { height: 55vh; } }
 .leaflet-container { font: inherit; }
+/* Leyenda del mapa */
+.rh-legend { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; }
+.rh-legend span { display: inline-flex; align-items: center; gap: .4rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; color: var(--color-gray); }
+.rh-legend svg { width: 14px; height: 14px; }
