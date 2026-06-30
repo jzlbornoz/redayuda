@@ -169,7 +169,7 @@
     const q = queryInput.value.trim();
     const city = cityInput.value.trim();
     const src = sourceInput.value;
-    if (q) p.set(q.match(/^\d{5,}$/) ? "cedula" : "q", q);
+    if (q) { const digits = q.replace(/\D/g, ""); p.set(digits.length >= 5 ? "cedula" : "q", q); }
     if (city) p.set("city", city);
     if (src) p.set("source_id", src);
     if (state.type) p.set("record_type", state.type);

@@ -74,7 +74,7 @@
     messageEl.innerHTML = "";
     countEl.textContent = "Cargando…";
     const p = new URLSearchParams({ limit: "100", offset: "0" });
-    if (state.q) p.set(state.q.match(/^\d{5,}$/) ? "cedula" : "q", state.q);
+    if (state.q) { const digits = state.q.replace(/\D/g, ""); p.set(digits.length >= 5 ? "cedula" : "q", state.q); }
     if (state.type) p.set("record_type", state.type);
     try {
       const data = await fetchJSON(`/api/records/search?${p}`);
