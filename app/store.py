@@ -807,12 +807,14 @@ class IndexStore:
             ).fetchone()[0]
 
             if not has_query:
-                ranked, total_matches = self._browse(
-                    connection, filters, filter_values, limit, offset
-                )
                 if group_by_entity:
+                    ranked, _ = self._browse(connection, filters, filter_values, None, 0)
                     ranked = _collapse_entities(ranked)
-                page = ranked
+                    total_matches = len(ranked)
+                    page = ranked[offset:offset + limit]
+                else:
+                    ranked, total_matches = self._browse(connection, filters, filter_values, limit, offset)
+                    page = ranked
             else:
                 candidates = self._search_candidates(
                     connection,
@@ -880,17 +882,26 @@ class IndexStore:
         return {row["id"]: row["record_count"] for row in rows}
 
     def _browse(self, connection, filters, filter_values, limit, offset):
-        """Sin consulta: pagina por recencia en SQL (sin ranking)."""
+        """Sin consulta: pagina por recencia en SQL (sin ranking).
+        Si limit es None, devuelve todos los registros (sin paginar)."""
         where = (" WHERE " + " AND ".join(filters)) if filters else ""
         total = connection.execute(
             "SELECT COUNT(*) FROM records r" + where, filter_values
         ).fetchone()[0]
-        rows = connection.execute(
-            "SELECT r.* FROM records r"
-            + where
-            + " ORDER BY r.updated_at DESC, r.indexed_at DESC LIMIT ? OFFSET ?",
-            filter_values + [limit, offset],
-        ).fetchall()
+        if limit is None:
+            rows = connection.execute(
+                "SELECT r.* FROM records r"
+                + where
+                + " ORDER BY r.updated_at DESC, r.indexed_at DESC",
+                filter_values,
+            ).fetchall()
+        else:
+            rows = connection.execute(
+                "SELECT r.* FROM records r"
+                + where
+                + " ORDER BY r.updated_at DESC, r.indexed_at DESC LIMIT ? OFFSET ?",
+                filter_values + [limit, offset],
+            ).fetchall()
         page = [
             (1, ["sin_consulta"], _record_from_row(row)) for row in rows
         ]
