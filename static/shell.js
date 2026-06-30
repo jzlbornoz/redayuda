@@ -188,11 +188,14 @@
     if (footer) {
       footer.className = "mt-16 border-t border-ink-300 bg-white";
       footer.innerHTML = `
-        <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-ink-500 sm:flex-row sm:items-center sm:justify-between">
-          <span>Red Ayuda — una red de datos humanitarios para Venezuela.<br class="sm:hidden"><span class="text-xs">Código original por <a href="https://github.com/eriktaveras" class="hover:text-ink-900 underline" target="_blank" rel="noopener">Erik Taveras</a> · Desarrollado por <a href="https://curalink.lat" class="hover:text-ink-900 underline" target="_blank" rel="noopener">curalink.lat</a></span></span>
-          <nav class="flex gap-5 text-xs font-medium uppercase tracking-wide" aria-label="Enlaces del pie">
-            <a class="hover:text-ink-900" href="/fuentes">Fuentes</a>
-          </nav>
+        <div class="mx-auto max-w-6xl px-4 py-8">
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <span class="text-sm text-ink-500">Red Ayuda — índice de datos humanitarios para Venezuela.</span>
+            <a href="/fuentes" class="text-xs font-medium uppercase tracking-wide text-ink-500 hover:text-ink-900">Fuentes</a>
+          </div>
+          <p class="mt-3 text-xs text-ink-400">
+            Basado en el trabajo de <a href="https://github.com/eriktaveras" class="hover:text-ink-900 underline" target="_blank" rel="noopener">Erik Taveras</a> · Desarrollado por <a href="https://curalink.lat" class="hover:text-ink-900 underline" target="_blank" rel="noopener">curalink.lat</a>
+          </p>
         </div>`;
     }
   }
