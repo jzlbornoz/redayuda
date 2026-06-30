@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir \
 COPY app ./app
 COPY static ./static
 
-# El indice SQLite vive en un volumen persistente montado en /data.
+# El indice SQLite vive en el volumen persistente de Render montado en /data.
 ENV DATABASE_PATH=/data/index.db
 RUN mkdir -p /data
 
@@ -29,6 +29,7 @@ USER appuser
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health').status==200 else 1)"
+    CMD python -c "import urllib.request,sys,os; port=os.environ.get('PORT','8000'); sys.exit(0 if urllib.request.urlopen(f'http://127.0.0.1:{port}/health').status==200 else 1)"
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Render inyecta PORT (normalmente 10000). En local usa 8000 por defecto.
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
