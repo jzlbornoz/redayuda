@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Buscar · Red Humanitaria de Datos</title>
+    <title>Buscar · Red Ayuda</title>
     <meta name="description" content="Busca personas desaparecidas, centros de acopio, donación, hospitales y recursos en el índice común de datos humanitarios de Venezuela.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/static/tw-config.js"></script>
     <link rel="stylesheet" href="/static/app.css?v=tw4">
-    <link rel="icon" href="/static/assets/favicon.png" type="image/png">
+    <link rel="icon" href="/static/assets/favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
   </head>
   <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
@@ -84,11 +84,11 @@
         </div>
 
         <div class="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
-          <div>
+          <div class="min-w-0 overflow-hidden">
             <h2 class="mb-3 text-sm uppercase tracking-wide text-slate-500">Añadidos recientemente</h2>
             <div id="recentList" class="space-y-2"></div>
           </div>
-          <div>
+          <div class="min-w-0 overflow-hidden">
             <h2 class="mb-3 text-sm uppercase tracking-wide text-slate-500">Por tipo</h2>
             <div id="typeBars" class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"></div>
           </div>
@@ -130,9 +130,9 @@
 
     <style>
       .rh-chip { padding: .375rem .875rem; font-size: .7rem; font-weight: 500; text-transform: uppercase; letter-spacing: .05em;
-        border: 1px solid var(--color-black); background: #fff; color: var(--color-black); transition: all .3s ease; }
-      .rh-chip:hover { background: var(--color-light-gray); }
-      .rh-chip[aria-pressed="true"] { background: var(--color-black); color: #fff; }
+        border: 1px solid var(--c-neutral-300); background: #fff; color: var(--c-dark-teal); border-radius: 9999px; transition: all .3s ease; }
+      .rh-chip:hover { background: var(--c-neutral-100); }
+      .rh-chip[aria-pressed="true"] { background: var(--c-pacific-blue); color: #fff; border-color: var(--c-pacific-blue); }
     </style>
 
     <script src="/static/ui.js?v=tw4" defer></script>

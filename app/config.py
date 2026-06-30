@@ -93,7 +93,7 @@ class Settings:
 @lru_cache(maxsize=1)
 def get_settings():
     return Settings(
-        app_name=os.getenv("APP_NAME", "Red Humanitaria de Datos"),
+        app_name=os.getenv("APP_NAME", "Curalink Red Ayuda"),
         upstream_url=os.getenv("UPSTREAM_URL", UPSTREAM_URL),
         hospitales_api_key=os.getenv("HOSPITALES_API_KEY", ""),
         ingest_api_key=os.getenv("INGEST_API_KEY", ""),

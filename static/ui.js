@@ -1,4 +1,4 @@
-/* ui.js — Red Humanitaria de Datos
+/* ui.js — Curalink Red Ayuda
  * Utilidades de UI en JavaScript vanilla (sin dependencias, script clásico con defer).
  * Expone window.Drawer y window.initCollapse.
  *

@@ -1,4 +1,4 @@
-# Red Humanitaria de Datos
+# Curalink Red Ayuda
 
 API en FastAPI con frontend web para indexar informacion humanitaria de multiples fuentes abiertas. El objetivo es que apps de personas desaparecidas, centros de acopio, donaciones y otras fuentes puedan consultar una red comun y tambien aportar datos normalizados.
 

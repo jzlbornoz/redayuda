@@ -16,7 +16,7 @@ services:
 
     envVars:
       - key: APP_NAME
-        value: Red Humanitaria de Datos
+        value: Curalink Red Ayuda
       - key: NODE_ID
         value: render-nodo
       - key: DATABASE_PATH

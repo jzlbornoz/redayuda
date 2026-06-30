@@ -73,15 +73,15 @@
       .map((x) => `<span class="text-xs text-slate-400">· ${escapeHtml(reasonLabel(x))}</span>`).join(" ");
     const actions = actionLinks(r);
 
-    return `<article class="group rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-slate-300 hover:shadow">
+    return `<article class="group rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-slate-300 hover:shadow overflow-hidden break-words">
       <div class="flex gap-3">
         ${thumb(r)}
         <div class="min-w-0 flex-1">
-          <div class="flex items-start justify-between gap-2">
-            <button type="button" data-id="${escapeHtml(r.id)}" class="rh-plain min-w-0 text-left">
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
+            <button type="button" data-id="${escapeHtml(r.id)}" class="rh-plain min-w-0 text-left max-w-full">
               <span class="block truncate font-semibold text-slate-900 group-hover:underline">${escapeHtml(title)}</span>
             </button>
-            <span class="flex-shrink-0 text-xs text-slate-400">${escapeHtml(r.source_name || "")}</span>
+            <span class="truncate text-xs text-slate-400 sm:flex-shrink-0 sm:max-w-[12ch]">${escapeHtml(r.source_name || "")}</span>
           </div>
           <div class="mt-1 flex flex-wrap items-center gap-1.5">
             ${typeChip(r.record_type)}
@@ -238,8 +238,8 @@
     typeBars.innerHTML = entries.map((e) => {
       const m = typeMeta(e.type);
       const pct = Math.max(3, Math.round((e.count / max) * 100));
-      return `<button type="button" data-type="${e.type}" class="rh-plain block w-full py-1.5 text-left">
-        <div class="flex items-center justify-between text-sm"><span class="text-slate-600">${escapeHtml(m.label)}</span><span class="tabular-nums font-semibold text-slate-900">${compactNumber(e.count)}</span></div>
+      return `<button type="button" data-type="${e.type}" class="rh-plain block w-full py-1.5 text-left max-w-full">
+        <div class="flex items-center justify-between gap-2 text-sm"><span class="text-slate-600 truncate">${escapeHtml(m.label)}</span><span class="flex-shrink-0 tabular-nums font-semibold text-slate-900">${compactNumber(e.count)}</span></div>
         <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full ${m.dot}" style="width:${pct}%"></div></div></button>`;
     }).join("");
   }

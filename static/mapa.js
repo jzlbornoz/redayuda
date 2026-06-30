@@ -40,11 +40,11 @@
     }).join("");
   }
 
-  // Marcador por tipo: icono distinto (no solo tono), borde negro siempre.
+  // Marcador por tipo: icono distinto (no solo tono), borde dark-teal siempre.
   function markerIcon(m) {
     return L.divIcon({
       className: "",
-      html: `<span style="display:grid;place-items:center;width:26px;height:26px;background:#fff;border:1.5px solid #121212;color:#121212;box-shadow:0 1px 3px rgba(0,0,0,.45)"><span style="display:block;width:15px;height:15px">${R.icons[m.icon]}</span></span>`,
+      html: `<span style="display:grid;place-items:center;width:26px;height:26px;background:#fff;border:1.5px solid #0D3C48;color:#0D3C48;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.45)"><span style="display:block;width:15px;height:15px">${R.icons[m.icon]}</span></span>`,
       iconSize: [26, 26], iconAnchor: [13, 13], popupAnchor: [0, -14],
     });
   }
@@ -65,8 +65,8 @@
     const loc = [r.city, r.state].filter(Boolean).join(", ");
     return `<div style="min-width:180px">
       <div style="font-weight:600;margin-bottom:2px">${escapeHtml(r.title || r.person_name || "Registro")}</div>
-      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#4a4a4a">${escapeHtml(m.label)}${loc ? " · " + escapeHtml(loc) : ""}</div>
-      <button type="button" data-detail="${escapeHtml(r.id)}" style="margin-top:6px;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:#121212;background:none;border:0;border-bottom:1px solid #121212;cursor:pointer;padding:0">Ver detalle →</button>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#647780">${escapeHtml(m.label)}${loc ? " · " + escapeHtml(loc) : ""}</div>
+      <button type="button" data-detail="${escapeHtml(r.id)}" style="margin-top:6px;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:#0D3C48;background:none;border:0;border-bottom:1px solid #107D98;cursor:pointer;padding:0">Ver detalle →</button>
     </div>`;
   }
 

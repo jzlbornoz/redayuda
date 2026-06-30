@@ -1,4 +1,4 @@
-/* shell.js — Red Humanitaria de Datos (v2)
+/* shell.js — Curalink Red Ayuda
  * Inyecta nav + footer, cablea el menú móvil y el pulso de salud, y expone
  * window.RH con helpers compartidos por todas las páginas.
  * Carga con `defer`, después de ui.js (Drawer) y antes del script de cada página. */
@@ -62,22 +62,22 @@
   };
 
   // Metadatos por record_type: etiqueta, icono, color (clases Tailwind) y hex para mapa.
-  // Monocromático: el chip es idéntico (borde negro); el tipo se distingue por
-  // el cuadrito (sombra de gris) y la etiqueta. El mapa usa shades de gris.
+  // On-brand: el chip usa neutrales de Curalink; el tipo se distingue por el
+  // cuadrito (sombra de la escala neutral) y la etiqueta. El mapa usa los mismos hex.
   const CHIP = "bg-white text-ink-900 ring-ink-900";
   const TYPE_META = {
-    persona_desaparecida: { label: "Persona desaparecida", icon: "persona", chip: CHIP, dot: "bg-ink-900", hex: "#121212" },
-    persona_localizada:   { label: "Persona localizada",   icon: "persona", chip: CHIP, dot: "bg-ink-500", hex: "#4a4a4a" },
-    persona_hospitalizada:{ label: "Persona hospitalizada",icon: "hospital",chip: CHIP, dot: "bg-ink-600", hex: "#292929" },
-    centro_acopio:        { label: "Centro de acopio",     icon: "centro",  chip: CHIP, dot: "bg-ink-700", hex: "#3a3a3a" },
-    centro_donacion:      { label: "Centro de donación",   icon: "centro",  chip: CHIP, dot: "bg-ink-400", hex: "#9b9b9b" },
-    recurso:              { label: "Recurso",              icon: "lugar",   chip: CHIP, dot: "bg-ink-300", hex: "#cfcfcf" },
-    otro:                 { label: "Otro",                 icon: "lugar",   chip: CHIP, dot: "bg-ink-200", hex: "#e0e0e0" },
+    persona_desaparecida: { label: "Persona desaparecida", icon: "persona", chip: CHIP, dot: "bg-ink-900", hex: "#0F171B" },
+    persona_localizada:   { label: "Persona localizada",   icon: "persona", chip: CHIP, dot: "bg-ink-500", hex: "#647780" },
+    persona_hospitalizada:{ label: "Persona hospitalizada",icon: "hospital",chip: CHIP, dot: "bg-ink-600", hex: "#4A5A62" },
+    centro_acopio:        { label: "Centro de acopio",     icon: "centro",  chip: CHIP, dot: "bg-ink-700", hex: "#334149" },
+    centro_donacion:      { label: "Centro de donación",   icon: "centro",  chip: CHIP, dot: "bg-ink-400", hex: "#94A4AB" },
+    recurso:              { label: "Recurso",              icon: "lugar",   chip: CHIP, dot: "bg-ink-300", hex: "#C5D2D8" },
+    otro:                 { label: "Otro",                 icon: "lugar",   chip: CHIP, dot: "bg-ink-200", hex: "#DDE6EA" },
   };
-  function typeMeta(t) { return TYPE_META[t] || { label: t || "—", icon: "lugar", chip: CHIP, dot: "bg-ink-400", hex: "#9b9b9b" }; }
+  function typeMeta(t) { return TYPE_META[t] || { label: t || "—", icon: "lugar", chip: CHIP, dot: "bg-ink-400", hex: "#94A4AB" }; }
   function typeLabel(t) { return typeMeta(t).label; }
 
-  // Chip de tipo (cuadrado, borde negro, etiqueta en mayúsculas)
+  // Chip de tipo (cuadrado, borde oscuro, etiqueta en mayúsculas)
   function typeChip(t) {
     const m = typeMeta(t);
     return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide ring-1 ring-inset ${m.chip}"><span class="h-1.5 w-1.5 ${m.dot}"></span>${escapeHtml(m.label)}</span>`;
@@ -134,8 +134,6 @@
     { href: "/", label: "Buscar", key: "buscar" },
     { href: "/mapa", label: "Mapa", key: "mapa" },
     { href: "/fuentes", label: "Fuentes", key: "fuentes" },
-    { href: "/desarrolladores", label: "Desarrolladores", key: "dev" },
-    { href: "/contribuir", label: "Registrar fuente", key: "contribuir" },
   ];
 
   function isActive(href) {
@@ -155,20 +153,20 @@
         return `<a href="${n.href}" data-nav="${n.key}" ${active ? 'aria-current="page"' : ""} class="px-1 py-1 text-xs font-medium uppercase tracking-wide border-b-2 ${cls} transition">${n.label}</a>`;
       }).join("");
 
-      header.className = "sticky top-0 z-40 border-b border-ink-900 bg-white";
+      header.className = "sticky top-0 z-40 border-b border-ink-300 bg-white";
       header.innerHTML = `
         <div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
           <a href="/" class="flex items-center gap-2.5">
-            <span class="grid h-9 w-9 place-items-center bg-ink-900 text-sm font-bold tracking-tight text-white">RH</span>
+            <img src="/static/assets/logo.png" alt="Curalink" class="h-7 w-auto">
             <span class="hidden sm:flex flex-col leading-tight">
-              <span class="text-sm font-medium text-ink-900">Red Humanitaria de Datos</span>
-              <span class="text-[0.65rem] uppercase tracking-wide text-ink-500">Índice común · Venezuela</span>
+              <span class="text-sm font-medium text-ink-900">Red Ayuda</span>
+              <span class="text-[0.65rem] uppercase tracking-wide text-ink-500">Índice de datos humanitarios · Venezuela</span>
             </span>
           </a>
           <nav class="ml-auto hidden items-center gap-5 md:flex" aria-label="Navegación principal">${links}
-            <span id="rh-health" class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-wide text-ink-500 ring-1 ring-inset ring-ink-200"><span class="h-1.5 w-1.5 bg-ink-300"></span>…</span>
+            <span id="rh-health" class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-wide rounded-full text-ink-500 ring-1 ring-inset ring-ink-200"><span class="h-1.5 w-1.5 rounded-full bg-ink-300"></span>…</span>
           </nav>
-          <button id="rh-menu-btn" type="button" class="ml-auto inline-grid h-9 w-9 place-items-center text-ink-900 ring-1 ring-ink-900 md:hidden" aria-label="Abrir menú" aria-expanded="false">
+          <button id="rh-menu-btn" type="button" class="ml-auto inline-grid h-9 w-9 place-items-center text-ink-900 ring-1 ring-ink-300 md:hidden" aria-label="Abrir menú" aria-expanded="false">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
           </button>
         </div>
@@ -188,10 +186,10 @@
 
     const footer = document.getElementById("rh-footer");
     if (footer) {
-      footer.className = "mt-16 border-t border-ink-900 bg-white";
+      footer.className = "mt-16 border-t border-ink-300 bg-white";
       footer.innerHTML = `
         <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-ink-500 sm:flex-row sm:items-center sm:justify-between">
-          <span>Red Humanitaria de Datos — un índice común para las apps de ayuda, en vez de duplicar el esfuerzo.</span>
+          <span>Red Ayuda — una red de datos humanitarios para Venezuela.</span>
           <nav class="flex gap-5 text-xs font-medium uppercase tracking-wide" aria-label="Enlaces del pie">
             <a class="hover:text-ink-900" href="/fuentes">Fuentes</a>
             <a class="hover:text-ink-900" href="/desarrolladores">Desarrolladores</a>
@@ -208,15 +206,15 @@
     try {
       const s = await fetchJSON("/api/network/stats");
       const ok = s.total_records > 0;
-      pill.className = "inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-wide text-ink-900 ring-1 ring-inset ring-ink-900";
-      pill.innerHTML = `<span class="h-1.5 w-1.5 ${ok ? "bg-ink-900" : "bg-ink-300"}"></span>${compactNumber(s.total_records)} registros`;
+      pill.className = "inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-wide rounded-full text-ink-900 ring-1 ring-inset ring-ink-900";
+      pill.innerHTML = `<span class="h-1.5 w-1.5 rounded-full ${ok ? "bg-ink-900" : "bg-ink-300"}"></span>${compactNumber(s.total_records)} registros`;
       const pillM = document.getElementById("rh-health-m");
       if (pillM) pillM.textContent = `${compactNumber(s.total_records)} registros · ${compactNumber(s.total_sources)} fuentes`;
       window.RH._stats = s;
       document.dispatchEvent(new CustomEvent("rh:stats", { detail: s }));
     } catch (_) {
-      pill.className = "inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-wide text-red-600 ring-1 ring-inset ring-red-600";
-      pill.innerHTML = `<span class="h-1.5 w-1.5 bg-red-600"></span>sin conexión`;
+      pill.className = "inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-wide rounded-full text-red-600 ring-1 ring-inset ring-red-600";
+      pill.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-red-600"></span>sin conexión`;
     }
   }
 

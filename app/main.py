@@ -73,7 +73,7 @@ async def lifespan(app):
 
 
 app = FastAPI(
-    title="Red Humanitaria de Datos",
+    title="Curalink Red Ayuda",
     version=API_VERSION,
     description=(
         "Indice abierto para federar fuentes humanitarias: personas desaparecidas, "
@@ -212,7 +212,7 @@ async def admin():
 @app.get("/favicon.ico", include_in_schema=False)
 @app.head("/favicon.ico", include_in_schema=False)
 async def favicon():
-    return FileResponse(STATIC_DIR / "assets" / "favicon.png", media_type="image/png")
+    return FileResponse(STATIC_DIR / "assets" / "favicon.ico", media_type="image/x-icon")
 
 
 @app.get("/apple-touch-icon.png", include_in_schema=False)
