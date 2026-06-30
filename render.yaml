@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: red-humanitaria-api
+    name: curalink-red-ayuda-api
     runtime: docker
     plan: starter
     region: oregon  # US West — buena latencia para Venezuela
