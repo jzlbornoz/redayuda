@@ -52,14 +52,15 @@ services:
       - key: PORT
         value: "8000"
 
-      # ⚠️ CLAVES — generá un valor seguro para cada una antes del primer deploy.
+      # ⚠️ CLAVES — configuralas en el dashboard de Render después del primer deploy.
       # Podés generarlas con: openssl rand -hex 24
       - key: INGEST_API_KEY
         sync: false
-        value: cambia_esto_por_una_clave_segura
+        value: cambia_esto_en_el_dashboard_de_render
       - key: ADMIN_API_KEY
         sync: false
-        value: cambia_esto_por_una_clave_segura
-      - key: HOSPITALES_API_KEY
-        sync: false
-        value: pega_aqui_tu_clave_real
+        value: cambia_esto_en_el_dashboard_de_render
+      # HOSPITALES_API_KEY sin configurar — el conector de hospitales no sincronizará
+      # - key: HOSPITALES_API_KEY
+      #   sync: false
+      #   value: pega_aqui_tu_clave_real
